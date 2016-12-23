@@ -48,9 +48,10 @@ def removeLoops( maxWidth, maxHeight, matrix ):
             if x == y:
                 matrix[x][y] = newValue
                 #print "Setting cell [%d][%d] to %d" % (x, y, newValue)
-
+    print("Removed the self-loops (i.e., main diagonal cleared).")
+    
 ############################################################
-def mutateMatrix( mutantPercent, maxWidth, maxHeight, matrix):
+def randomMatrix( mutantPercent, maxWidth, maxHeight, matrix):
     if mutantPercent >= 0.99:
         mutantPercent = .99
     if mutantPercent <= 0.0:
@@ -129,19 +130,86 @@ def writeCsvFile( fileName, delimiter, maxWidth, maxHeight, matrix ):
     file.close()
 #print ("Wrote output file: %s" % filename)
 
+
+############################################################
+#
+# This method does the k-regular work of link initialization.
+# It should only be called by the method regularMatrix().
+#
+def regularMatrixCalc(k, maxWidth, maxHeight, matrix):
+
+    #set the row k-below the diagonal to 1 (connected)
+    x = 0
+    y = k
+    while y <= maxHeight-1:
+        x = 0
+        while x <= maxWidth-1:
+            if y-x == (1*k):
+                matrix[x][y] = 1
+            x += 1
+        y += 1
+
+    #set the row k-above the diagonal to 1 (connected)
+    x = k
+    y = 0
+    while y <= maxHeight-1:
+        x = k
+        while x <= maxWidth-1:
+            if x-y == (1*k):
+                matrix[x][y] = 1
+            x += 1
+        y += 1
+
+    #now link the ends of the chain together (i.e., the SW, and NE nodes in the matrix)
+    count = 0
+    while count < k:
+        matrix[count][maxHeight - k + count] = 1
+        matrix[maxWidth - k + count][count] = 1
+        count += 1
+
+############################################################
+#
+# This method assumes the input matrix is initialized to zero.
+#
+def regularMatrix( k, maxWidth, maxHeight, matrix):
+
+    #check the boundaries:
+    if k < 1: k = 1
+    if k > 4: k = 4
+    
+    #Set the values of the main diagonal to zero to remove loops.
+    removeLoops( maxWidth, maxHeight, matrix ) #clear the diagonal, just in case.
+
+    #call the method that does the actual work.
+    count = 1
+    while count <= k:
+        regularMatrixCalc(count, maxWidth, maxHeight, matrix )
+        count += 1
+
+
 ############################################################
 
 
-maxLen1 = 7    #the maximum height and width of square matrix (zero-based).
+
+maxLen1 = 20    #the maximum height and width of square matrix (zero-based).
 width = maxLen1 #Note, using maxLen +1, to include space for labels
 height = maxLen1
-initialValue = 1
+#initialValue = 1
+initialValue = 0
 
-#Initialize the 2D matrix, and set each cell value to 1.
+#Initialize the 2D matrix, and set each cell value to desired initial value:
 matrix1 = [[ initialValue for x in range(width) ] for y in range(height) ]
+print("Created initial empty matrix.")
+printMatrix( width, height, matrix1 )
+
+#Create a small world matrix, of type k-regular (where k is a positive integer):
+k_regular = 2
+regularMatrix( k_regular, width, height, matrix1 )
+print("Created a k-regular matrix (where k = %d)." % k_regular)
 printMatrix( width, height, matrix1 )
 
 
+"""
 #now remove all self-loops, by setting those cell values to 0 (i.e., not connected):
 removeLoops( width, height, matrix1 )
 print("Removed self-loops.")
@@ -150,10 +218,10 @@ printMatrix( width, height, matrix1 )
 
 #now set the percentage of Connected nodes that will be randomly set Unconnected.
 mutantPercent = 0.50
-mutateMatrix( mutantPercent, width, height, matrix1 )
-print("Mutated matrix (excluding the main diagonal).")
+randomMatrix( mutantPercent, width, height, matrix1 )
+print("Randomized matrix (excluding the main diagonal).")
 printMatrix(width, height, matrix1)
-
+"""
 
 #now write simple adjacency matrix to text file
 filename = 'graph.csv'
