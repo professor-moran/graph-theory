@@ -133,10 +133,91 @@ def writeCsvFile( fileName, delimiter, maxWidth, maxHeight, matrix ):
 
 ############################################################
 #
-# This method does the k-regular work of link initialization.
-# It should only be called by the method regularMatrix().
+# This method assumes the input matrix is a k-regular matrix
+# that has already been initialized to k-regular form.
 #
-def regularMatrixCalc(k, maxWidth, maxHeight, matrix):
+# Variable 'prob' is a float, and represents the probability of 
+# rewiring, a la Watts & Strogatz (1998) "small world" network style.
+#
+# This method doesn't change the main diagonal cells, to 
+# prevent generation of self-loops.
+#
+def createSmallWorldMatrix( prob, maxWidth, maxHeight, matrix ):
+    # check boundaries:
+    if prob < 0.0:  prob = 0.0      #a 0-percent chance of rewiring
+    if prob > 1.0:  prob = 1.0      #a 100-percent chance of rewiring
+    
+    x,y = 0, 0
+    for y in range(maxHeight):
+        for x in range(maxWidth):
+            #Ignore the main diagonal (where x = y), don't create self-loops:
+            if x != y: 
+                rand = random.random()
+                if (rand <= prob) and matrix[x][y] != 0:
+                
+                    #time to rewire...
+                    print ("Rand = %f, Prob = %f. [x,y]: [%d,%d] = %d" % (rand, prob, x, y, matrix[x][y] ) )
+
+                    #1. disconnect the (x,y) and (y,x) connections (since matrix
+                    # is undirected):
+                    matrix[x][y] = 0
+                    matrix[y][x] = 0
+                    print (">> Set [%d][%d] to 0, and [%d][%d] to 0" % (x,y,y,x) )
+                    
+                    
+                    #2. find new random connection for (x,y) and (y,x), and ensure
+                    # that we don't reconnect to the existing links. 
+                    newX = x
+                    newY = y
+                    done = False
+                    #while x == newX and y == newY \
+                    #    and matrix[x][newY] != 1 and matrix[newX][y] != 1:
+                    while done != True:
+                        newX = random.randint(0, maxWidth-1)
+                        newY = random.randint(0, maxHeight-1)
+                        
+                        #Don't create edges to already existing edges:
+                        if x != newX and y != newY \
+                            and matrix[x][newY] != 1 and matrix[newX][y] != 1 \
+                            and x != newY and y != newX:
+                                done = True                        
+                        
+                    print (">> original x,y = [%d][%d], and y,x = [%d][%d]" % (x,y,y,x) )
+                    print (">> new [x]-->[y] = [%d][%d]" % (x, newY) )
+                    print (">> new [y]-->[x] = [%d][%d]" % (y, newX) )
+                    
+                    #Now set new matrix cells to connected:
+                    matrix[x][newY] = 1
+                    matrix[newX][y] = 1
+        
+        
+############################################################
+#
+# This method assumes the input matrix is initialized to zero.
+#
+def createRegularMatrix( k, maxWidth, maxHeight, matrix):
+
+    #check the boundaries:
+    if maxWidth < 5 or maxHeight < 5: maxWidth, maxHeight, k = 5, 5, 2
+    if k < 1: k = 1
+    if k > 4: k = 4
+    
+    #Set the values of the main diagonal to zero to remove loops.
+    removeLoops( maxWidth, maxHeight, matrix ) #clear the diagonal, just in case.
+
+    #call the method that does the actual work.
+    count = 1
+    while count <= k:
+        _regularMatrixCalc(count, maxWidth, maxHeight, matrix )
+        count += 1
+
+
+############################################################
+#
+# This internal method does the k-regular network link creation.
+# It should only be called by the method createRegularMatrix().
+#
+def _regularMatrixCalc(k, maxWidth, maxHeight, matrix):
 
     #set the row k-below the diagonal to 1 (connected)
     x = 0
@@ -160,52 +241,115 @@ def regularMatrixCalc(k, maxWidth, maxHeight, matrix):
             x += 1
         y += 1
 
-    #now link the ends of the chain together (i.e., the SW, and NE nodes in the matrix)
+    #now link the ends of the chain together (i.e., connect
+    # the SW, and NE nodes in the matrix):
     count = 0
     while count < k:
         matrix[count][maxHeight - k + count] = 1
         matrix[maxWidth - k + count][count] = 1
         count += 1
 
-############################################################
-#
-# This method assumes the input matrix is initialized to zero.
-#
-def regularMatrix( k, maxWidth, maxHeight, matrix):
-
-    #check the boundaries:
-    if k < 1: k = 1
-    if k > 4: k = 4
-    
-    #Set the values of the main diagonal to zero to remove loops.
-    removeLoops( maxWidth, maxHeight, matrix ) #clear the diagonal, just in case.
-
-    #call the method that does the actual work.
-    count = 1
-    while count <= k:
-        regularMatrixCalc(count, maxWidth, maxHeight, matrix )
-        count += 1
-
 
 ############################################################
+# NetworkX graph manipulations
+#
+# This function takes a simple adjacency matrix CSV file name as input.
+# The adjacency matrix itself should have no label/column/row headers.
+# It just needs the connection data. 
+# E.g., an example of 3x3 adjacency matrix file contents:
+#
+#       1,0,0
+#       0,1,1
+#       1,0,0
+#
+def performNetworkXCalculations( adjMatrixFileName ):
+
+    #read adjacency matrix file into pandas:
+    #input_data = pd.read_csv(adjMatrixFileName, index_col=0)
+    input_data = pd.read_csv(adjMatrixFileName, header=None)
+
+    #set graph display to x,y screen inches:
+    rcParams['figure.figsize'] = 10, 10
+
+    #load NetworkX with adjacency matrix graph data (via Pandas)
+    #G = nx.DiGraph( input_data.values ) #for directed graphs
+    G = nx.Graph( input_data.values )  #for undirected graphs
+    #G = nx.grid_graph(dim=[10,10] )
+
+    #Use NetworkX to translate/write graph to Pajek graph file (text) format.
+    filename = "graph.pajek"
+    nx.write_pajek(G, filename)
+    print ("Wrote network graph to (Pajek format) text file: %s") % filename
+
+    #Get list of nodes:
+    nodeList = G.nodes()
+    #print("Node list: \n %s") % nodeList
+    nodeListData = G.nodes(data=True)
+    #print("Node list data: \n %s") % nodeListData
+
+    #determine start and destination nodes for pathfinding purposes
+    startNode = 1
+    destNode = maxLen1/2 + 1
+    print ("Start node: %d" % startNode)
+    print ("Destination node: %d" % destNode)
+
+    #get Dijkstra distance between start and destination nodes:
+    dijkstraPath = nx.dijkstra_path(G, startNode, destNode )
+    print ("dijkstraPath = %s") % dijkstraPath
+    dijkstraPathLength = nx.dijkstra_path_length(G, startNode, destNode )
+    print ("dijkstraPathLength = %d") % dijkstraPathLength
+    #print ("dijkstra: length of path list = %d") % ( len(dijkstraPath)-1 )
+
+    #get Bellman-Ford distance between the startNode and all the other nodes:
+    pred, dist = nx.bellman_ford(G, startNode )
+    print ("bellmanFord: pred = %s") % sorted(pred.items())
+    print ("bellmanFord: dist = %s") % sorted(dist.items())
+
+    #get A* distance between start and destination nodes:
+    aStarPath = nx.astar_path(G, startNode, destNode )
+    print ("aStarPath = %s") % aStarPath
+    aStarPathLength = nx.astar_path_length(G, startNode, destNode )
+    print ("aStarPathLength = %d") % aStarPathLength
+    #print ("aStar: length of path list = %d") % ( len(aStarPath)-1 )
+
+    #now draw the graph with a circular shape:
+    print ("Drawing graph...")
+    #nx.draw(G, with_labels=True)
+    #nx.draw_spectral(G, with_labels=True)
+    nx.draw_circular(G, with_labels=True)
+    #nx.draw_spring(G, with_labels=True)
+    #nx.draw_shell(G, with_labels=True)
+    #nx.draw_networkx(G, with_labels=True)
+    #nx.draw_random(G, with_labels=True)
+
+    pylab.show() #show the graph output to screen
+
+############################################################
 
 
+# Main Test Harness:
 
-maxLen1 = 20    #the maximum height and width of square matrix (zero-based).
-width = maxLen1 #Note, using maxLen +1, to include space for labels
+maxLen1 = 50    #the maximum height and width of square matrix (zero-index).
+width = maxLen1 
 height = maxLen1
-#initialValue = 1
-initialValue = 0
+initialValue = 0 # zero means disconnected, 1 means connected.
 
 #Initialize the 2D matrix, and set each cell value to desired initial value:
 matrix1 = [[ initialValue for x in range(width) ] for y in range(height) ]
 print("Created initial empty matrix.")
 printMatrix( width, height, matrix1 )
 
-#Create a small world matrix, of type k-regular (where k is a positive integer):
-k_regular = 2
-regularMatrix( k_regular, width, height, matrix1 )
+#Create a regular matrix, of type k-regular (where k is a positive integer):
+k_regular = 1
+createRegularMatrix( k_regular, width, height, matrix1 )
 print("Created a k-regular matrix (where k = %d)." % k_regular)
+printMatrix( width, height, matrix1 )
+
+
+#Create a small-world matrix, with rewiring probability 'p' equal to a value < 1.0:
+p = 0.02
+createSmallWorldMatrix( p, width, height, matrix1 )
+print("Created a small-world matrix with rewiring probability = %f" % p)
 printMatrix( width, height, matrix1 )
 
 
@@ -224,75 +368,13 @@ printMatrix(width, height, matrix1)
 """
 
 #now write simple adjacency matrix to text file
-filename = 'graph.csv'
-writeCsvFile( filename, ",", width, height, matrix1)
-print ("Wrote network graph to CSV file: %s" % filename)
+fileName = 'graph.csv'
+writeCsvFile( fileName, ",", width, height, matrix1)
+print ("Wrote network graph to CSV file: %s" % fileName)
 
 
-#read adjacency matrix file into pandas:
-#input_data = pd.read_csv(filename, index_col=0)
-input_data = pd.read_csv(filename, header=None)
+#Call NetworkX to do pathfinding calculations, and calculate shortest paths
+performNetworkXCalculations( fileName )
 
 
-############################################################
-# NetworkX graph manipulations
-############################################################
-
-
-#set graph display to 5 x 5 inches
-rcParams['figure.figsize'] = 10, 10
-
-#load NetworkX with adjacency matrix graph data (via Pandas)
-#G = nx.DiGraph( input_data.values ) #for directed graphs
-G = nx.Graph( input_data.values )  #for undirected graphs
-#G = nx.grid_graph(dim=[10,10] )
-
-#write graph to text file in Pajek format.
-filename = "graph.pajek"
-nx.write_pajek(G, filename)
-print ("Wrote network graph to (Pajek format) text file: %s") % filename
-
-#Get list of nodes:
-nodeList = G.nodes()
-#print("Node list: \n %s") % nodeList
-nodeListData = G.nodes(data=True)
-#print("Node list data: \n %s") % nodeListData
-
-
-#get Dijkstra distance between node 2 and node (maxLen1 - 2):
-dijkstraPath = nx.dijkstra_path(G, 2, (maxLen1-2) )
-print ("dijkstraPath = %s") % dijkstraPath
-dijkstraPathLength = nx.dijkstra_path_length(G, 2, (maxLen1-2) )
-print ("dijkstraPathLength = %d") % dijkstraPathLength
-#print ("dijkstra: length of path list = %d") % ( len(dijkstraPath)-1 )
-
-
-#get Bellman-Ford distance between node 2 and all the other nodes:
-pred, dist = nx.bellman_ford(G, 2 )
-print ("bellmanFord: pred = %s") % sorted(pred.items())
-print ("bellmanFord: dist = %s") % sorted(dist.items())
-#bellmanFordPathLength = nx.bellman_ford_path_length(G, 2, (maxLen1-2) )
-#print ("bellmanFordPathLength = %d") % bellmanFordPathLength
-#print ("bellmanFord: length of path list = %d") % ( len(bellmanFordPath)-1 )
-
-
-#get A* distance between node 2 and node (maxLen1 - 2):
-aStarPath = nx.astar_path(G, 2, (maxLen1-2) )
-print ("aStarPath = %s") % aStarPath
-aStarPathLength = nx.astar_path_length(G, 2, (maxLen1-2) )
-print ("aStarPathLength = %d") % aStarPathLength
-#print ("aStar: length of path list = %d") % ( len(aStarPath)-1 )
-
-
-#now draw the graph with a circular shape:
-print ("Drawing graph...")
-#nx.draw(G, with_labels=True)
-#nx.draw_spectral(G, with_labels=True)
-nx.draw_circular(G, with_labels=True)
-#nx.draw_spring(G, with_labels=True)
-#nx.draw_shell(G, with_labels=True)
-#nx.draw_networkx(G, with_labels=True)
-#nx.draw_random(G, with_labels=True)
-
-pylab.show() #show the graph output to screen
 print ("\nDone.\n")
