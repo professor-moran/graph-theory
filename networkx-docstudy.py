@@ -10,16 +10,14 @@ from pylab import rcParams
 Create a two-dimensional adjacency matrix. 
 Note -- only square matrices are considered.
 
-Initialize all matrix values to some integer value.
-Remove self-loops by setting self-connected values to zero (i.e. not connected).
+Initialize and create a small-world matrix.
 Then print the entire matrix.
 Then save the matrix to CSV file format.
-
 Then read the CSV file with Pandas library.
 Then create a NetworkX graph based on the CSV file input.
+Save the map in Pajek format.
+Do some pathfinding calculations: use Dijkstra, Bellman-Ford and A* algorithms.
 Then draw the graph.
-
-Calculate the Dijkstra, Bellman-Ford and A* distances and paths.
 
 For reference, see:
 http://stackoverflow.com/questions/6667201/how-to-define-two-dimensional-array-in-python
@@ -38,6 +36,7 @@ def printMatrix( maxWidth, maxHeight, matrix ):
             print matrix[x][y],     #the ',' keeps printing on same line
         print   #now print new line to wrap the row.
 
+
 ############################################################
 def removeLoops( maxWidth, maxHeight, matrix ):
     #Set the values of the main diagonal to zero to remove loops.
@@ -49,65 +48,7 @@ def removeLoops( maxWidth, maxHeight, matrix ):
                 matrix[x][y] = newValue
                 #print "Setting cell [%d][%d] to %d" % (x, y, newValue)
     print("Removed the self-loops (i.e., main diagonal cleared).")
-    
-############################################################
-def randomMatrix( mutantPercent, maxWidth, maxHeight, matrix):
-    if mutantPercent >= 0.99:
-        mutantPercent = .99
-    if mutantPercent <= 0.0:
-        mutantPercent = .01
 
-    newValue = 0
-    numCells = maxWidth * maxHeight
-    numCellsNoDiagonal = numCells - maxWidth
-    numCellPairs = numCells / 2
-    numCellPairsNoDiagonal = numCellsNoDiagonal / 2
-
-    #Calculate number of cells to mutate, not counting cells along main diagonal:
-    mutantCellCount = numCellsNoDiagonal * mutantPercent
-    
-    #Since matrix is symmetric, each mutantPairCount includes the (x,y) and (y,x) pair.
-    #This values tells us how main pairs of cells will be modified.
-    #Do not count the cells of the main diagonal, as those cannot be modified.
-    mutantPairCount = mutantCellCount / 2.0
-
-    print "Input desired mutant percentage: %f" % float(mutantPercent)
-    print "Total number of 2D matrix cells: %d" % numCells
-    print "Total number of 2D matrix cells excluding main diagonal: %f" % numCellsNoDiagonal
-    print "Total number of 2D matrix cell pairs: %f" % numCellPairs
-    print "Total number of 2D matrix cell pairs excluding main diagonal: %f" % numCellPairsNoDiagonal
-    print "Number of cell pairs to mutate: %f" % mutantPairCount
-    print "Percentage of cell pairs to mutate out of available cell pairs",
-    print   "(i.e., not counting cells along main diagonal): %f" \
-            % (mutantPairCount / numCellPairsNoDiagonal )
-    print "Percentage of cell pairs to mutate out of all cell pairs",
-    print   "(i.e., including cells along main diagonal): %f" \
-            % (mutantPairCount / numCellPairs )
-    #print "Percentage of cells to mutate out of available cells ",
-    #print   "(i.e., not counting cells along main diagonal): %f" \
-    #        % (mutantCellCount / float(numCellsNoDiagonal))
-    #print "Percentage of cells to mutate out of all cells (i.e., including",
-    #print   "cells along main diagonal): %f" % (mutantCellCount / float(numCells))
-    
-    currentMutantPairCount = 0
-    newValue = 0    #zero means unconnected vertex pair
-
-    #Iteratively disconnect vertices using random generation. Continue until goal reached.
-    while (currentMutantPairCount < mutantPairCount):
-        #Randomly determine the cell to mutate. Use height-1, and width-1, 
-        # so as to not exceed array boundaries:
-        randx = random.randint(0, maxWidth-1)
-        randy = random.randint(0, maxHeight-1)
-        #print "randx = %s, randy = %s" % (randx, randy)
-        
-        #don't bother changing cells which already equal the new value,
-        # and don't change values along the main diagonal (i.e., where x=y):
-        if (matrix[randx][randy] != newValue) and (randx != randy):
-            matrix[randx][randy] = newValue #change the (x --> y) cell value
-            matrix[randy][randx] = newValue #change the inverse (y --> x) cell value
-            currentMutantPairCount += 1
-        #else:
-        #    print "collision detected at %d,%d (count=%d)" % (randx, randy, currentMutantPairCount)
 
 ############################################################
 def writeCsvFile( fileName, delimiter, maxWidth, maxHeight, matrix ):
@@ -142,7 +83,7 @@ def writeCsvFile( fileName, delimiter, maxWidth, maxHeight, matrix ):
 # This method doesn't change the main diagonal cells, to 
 # prevent generation of self-loops.
 #
-def createSmallWorldMatrix( prob, maxWidth, maxHeight, matrix ):
+def createSmallWorldMatrix( prob, maxWidth, maxHeight, matrix, debug=False ):
     # check boundaries:
     if prob < 0.0:  prob = 0.0      #a 0-percent chance of rewiring
     if prob > 1.0:  prob = 1.0      #a 100-percent chance of rewiring
@@ -156,44 +97,44 @@ def createSmallWorldMatrix( prob, maxWidth, maxHeight, matrix ):
                 if (rand <= prob) and matrix[x][y] != 0:
                 
                     #time to rewire...
-                    print ("Rand = %f, Prob = %f. [x,y]: [%d,%d] = %d" % (rand, prob, x, y, matrix[x][y] ) )
+                    if debug==True:
+                        print ("Rand = %f, Prob = %f. [x,y]: [%d,%d] = %d" % (rand, prob, x, y, matrix[x][y] ) )
 
-                    #1. disconnect the (x,y) and (y,x) connections (since matrix
-                    # is undirected):
+                    #1. disconnect the 2-way (x,y) and (y,x) connections:
                     matrix[x][y] = 0
                     matrix[y][x] = 0
-                    print (">> Set [%d][%d] to 0, and [%d][%d] to 0" % (x,y,y,x) )
+                    if debug==True:
+                        print (">> Set [%d][%d] to 0, and [%d][%d] to 0" % (x,y,y,x) )
                     
                     
                     #2. find new random connection for (x,y) and (y,x), and ensure
-                    # that we don't reconnect to the existing links. 
-                    newX = x
+                    # that we don't reconnect to the already existing links. 
                     newY = y
                     done = False
-                    #while x == newX and y == newY \
-                    #    and matrix[x][newY] != 1 and matrix[newX][y] != 1:
                     while done != True:
-                        newX = random.randint(0, maxWidth-1)
                         newY = random.randint(0, maxHeight-1)
                         
-                        #Don't create edges to already existing edges:
-                        if x != newX and y != newY \
-                            and matrix[x][newY] != 1 and matrix[newX][y] != 1 \
-                            and x != newY and y != newX:
-                                done = True                        
-                        
-                    print (">> original x,y = [%d][%d], and y,x = [%d][%d]" % (x,y,y,x) )
-                    print (">> new [x]-->[y] = [%d][%d]" % (x, newY) )
-                    print (">> new [y]-->[x] = [%d][%d]" % (y, newX) )
+                        #Don't create edges to already existing edges, and don't
+                        # create self-loops:
+                        if y != newY and x != newY and matrix[x][newY] != 1 \
+                            and matrix[newY][x] != 1:
+                            done = True
                     
-                    #Now set new matrix cells to connected:
+                    if debug==True:
+                        print (">> original x,y = [%d][%d], and y,x = [%d][%d]" % (x,y,y,x) )
+                        print (">> new [x]-->[y] = [%d][%d]" % (x, newY) )
+                        print (">> new [y]-->[x] = [%d][%d]" % (newY, x) )
+                    
+                    # Now set new matrix cells to connected:
                     matrix[x][newY] = 1
-                    matrix[newX][y] = 1
-        
-        
+                    matrix[newY][x] = 1
+
+
 ############################################################
 #
 # This method assumes the input matrix is initialized to zero.
+# This method calls in the internal function _regularMatrixCalc()
+# which does the actual link creation for the regular network graph.
 #
 def createRegularMatrix( k, maxWidth, maxHeight, matrix):
 
@@ -201,6 +142,7 @@ def createRegularMatrix( k, maxWidth, maxHeight, matrix):
     if maxWidth < 5 or maxHeight < 5: maxWidth, maxHeight, k = 5, 5, 2
     if k < 1: k = 1
     if k > 4: k = 4
+    print("Creating k-regular matrix with x = %d, y = %d, k = %d" % (width, height, k) )
     
     #Set the values of the main diagonal to zero to remove loops.
     removeLoops( maxWidth, maxHeight, matrix ) #clear the diagonal, just in case.
@@ -262,14 +204,18 @@ def _regularMatrixCalc(k, maxWidth, maxHeight, matrix):
 #       0,1,1
 #       1,0,0
 #
-def performNetworkXCalculations( adjMatrixFileName ):
+def performNetworkXCalculations( width, height, adjMatrixFileName ):
 
+    #boundary checking:
+    if width < 0 or width > 16: width = 10
+    if height < 0 or height > 10: height = 10
+    
     #read adjacency matrix file into pandas:
     #input_data = pd.read_csv(adjMatrixFileName, index_col=0)
     input_data = pd.read_csv(adjMatrixFileName, header=None)
 
     #set graph display to x,y screen inches:
-    rcParams['figure.figsize'] = 10, 10
+    rcParams['figure.figsize'] = width, height
 
     #load NetworkX with adjacency matrix graph data (via Pandas)
     #G = nx.DiGraph( input_data.values ) #for directed graphs
@@ -302,8 +248,10 @@ def performNetworkXCalculations( adjMatrixFileName ):
 
     #get Bellman-Ford distance between the startNode and all the other nodes:
     pred, dist = nx.bellman_ford(G, startNode )
-    print ("bellmanFord: pred = %s") % sorted(pred.items())
-    print ("bellmanFord: dist = %s") % sorted(dist.items())
+    #print ("bellmanFord: pred = %s") % sorted(pred.items())
+    #print ("bellmanFord: dist = %s") % sorted(dist.items())
+    #if destNode in dist:
+    #    print dist.index(destNode)
 
     #get A* distance between start and destination nodes:
     aStarPath = nx.astar_path(G, startNode, destNode )
@@ -314,9 +262,9 @@ def performNetworkXCalculations( adjMatrixFileName ):
 
     #now draw the graph with a circular shape:
     print ("Drawing graph...")
+    nx.draw_circular(G, with_labels=True)
     #nx.draw(G, with_labels=True)
     #nx.draw_spectral(G, with_labels=True)
-    nx.draw_circular(G, with_labels=True)
     #nx.draw_spring(G, with_labels=True)
     #nx.draw_shell(G, with_labels=True)
     #nx.draw_networkx(G, with_labels=True)
@@ -328,44 +276,37 @@ def performNetworkXCalculations( adjMatrixFileName ):
 
 
 # Main Test Harness:
+#For the doc study, consider (a) 50x50, k=2, p=.05; and (b) 1000x1000, k=2, p=0.0025
 
-maxLen1 = 50    #the maximum height and width of square matrix (zero-index).
+debug = True
+initialValue = 0 # zero means disconnected, 1 means connected.
+k = 2   #depth of default connections per node. Watts & Strogatz small-worlds use k=2.
+p = 0.0 #the randomization percent used in small-world network generation
+
+#maxLen1 = 1000     #the maximum dimension of the square matrix (zero-index).
+maxLen1 = 50        #the maximum dimension of the square matrix (zero-index).
+
+if maxLen1 == 50: p, debug = 0.05, True           #randomization for small map
+elif maxLen1 == 1000: p, debug = 0.0025, False     #randomization for large map
+
 width = maxLen1 
 height = maxLen1
-initialValue = 0 # zero means disconnected, 1 means connected.
 
 #Initialize the 2D matrix, and set each cell value to desired initial value:
 matrix1 = [[ initialValue for x in range(width) ] for y in range(height) ]
-print("Created initial empty matrix.")
-printMatrix( width, height, matrix1 )
+if debug: print("Created initial empty matrix.")
+if debug: printMatrix( width, height, matrix1 )
 
-#Create a regular matrix, of type k-regular (where k is a positive integer):
-k_regular = 1
-createRegularMatrix( k_regular, width, height, matrix1 )
-print("Created a k-regular matrix (where k = %d)." % k_regular)
-printMatrix( width, height, matrix1 )
-
+#Create a regular matrix, of type k-regular (where k is a positive integer).
+createRegularMatrix( k, width, height, matrix1)
+if debug: print("Created a k-regular matrix (where k = %d)." % k)
+if debug: printMatrix( width, height, matrix1 )
 
 #Create a small-world matrix, with rewiring probability 'p' equal to a value < 1.0:
-p = 0.02
-createSmallWorldMatrix( p, width, height, matrix1 )
-print("Created a small-world matrix with rewiring probability = %f" % p)
-printMatrix( width, height, matrix1 )
+createSmallWorldMatrix( p, width, height, matrix1, debug )
+if debug: print("Created a small-world matrix with rewiring probability = %f" % p)
+if debug: printMatrix( width, height, matrix1 )
 
-
-"""
-#now remove all self-loops, by setting those cell values to 0 (i.e., not connected):
-removeLoops( width, height, matrix1 )
-print("Removed self-loops.")
-printMatrix( width, height, matrix1 )
-
-
-#now set the percentage of Connected nodes that will be randomly set Unconnected.
-mutantPercent = 0.50
-randomMatrix( mutantPercent, width, height, matrix1 )
-print("Randomized matrix (excluding the main diagonal).")
-printMatrix(width, height, matrix1)
-"""
 
 #now write simple adjacency matrix to text file
 fileName = 'graph.csv'
@@ -374,7 +315,7 @@ print ("Wrote network graph to CSV file: %s" % fileName)
 
 
 #Call NetworkX to do pathfinding calculations, and calculate shortest paths
-performNetworkXCalculations( fileName )
+performNetworkXCalculations( 10, 10, fileName )
 
 
 print ("\nDone.\n")
