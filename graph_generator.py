@@ -22,6 +22,9 @@ Then read the CSV file with Pandas library.
 Then create a NetworkX graph based on the CSV file input.
 Save the map in Pajek format.
 
+This script does not calculate shortest paths.
+Look for the other Python script in this directory, to do that.
+
 For reference, see:
 http://stackoverflow.com/questions/6667201/how-to-define-two-dimensional-array-in-python
 and
@@ -81,9 +84,8 @@ def createFilePath( fileName, path, debug=False):
 
 
 ############################################################
-def writeCsvFile( fileName, path, delimiter, maxWidth, maxHeight, matrix, debug=False ):
+def checkFilePath( fileName, path, debug=False):
 
-    """
     #get path to this running Python script:
     script_dir = os.path.dirname(os.path.abspath(__file__))
     if debug: print(">> script_dir = %s" % script_dir)
@@ -92,20 +94,30 @@ def writeCsvFile( fileName, path, delimiter, maxWidth, maxHeight, matrix, debug=
     dest_dir = os.path.join(script_dir, path)
     if debug: print(">> dest_dir = %s" % dest_dir)
     
-    #attempt to make the directory, if it doesn't already exist:
-    try:
-        os.makedirs(dest_dir)
-        if debug: print(">> created directory: %s" % dest_dir)
-    except OSError:
-        if debug: print(">> directory already exists?: %s" % dest_dir )
-        pass    #path already exists
+    #does path exist?
+    if os.path.exists(dest_dir):
+        
+        #does target file exist?
+        targetFile = os.path.join (dest_dir, fileName)
+        if os.path.isfile(targetFile):
+            if debug: print(">> found target file %s" % targetFile)
+            return True
+        else:
+            print(">> target file %s does not exist." % targetFile)
+            return False
+    else: 
+        print(">> path %s does not exist." % dest_dir)
+        return False
 
-    finalPathFileName = os.path.join( dest_dir, fileName )
-    """
 
-    finalPathFileName = createFilePath( fileName, path, debug)
+############################################################
+#def writeCsvFile( fileName, path, delimiter, maxWidth, maxHeight, matrix, debug=False ):
+def writeCsvFile( fileNamePrefix, csvExtention, path, delimiter, maxWidth, maxHeight, matrix, debug=False ):
+
+    csvFileName = fileNamePrefix + '.' + csvExtention
     
-    
+    finalPathFileName = createFilePath( csvFileName, path, debug)
+
     file = open(finalPathFileName, 'w')
     file.truncate() #delete existing file contents (if any)
     x,y = 0, 0
@@ -119,6 +131,7 @@ def writeCsvFile( fileName, path, delimiter, maxWidth, maxHeight, matrix, debug=
             if (x >= maxWidth-1):
                 file.write(line + "\n")
     file.close()
+    return finalPathFileName #return output filename
 
 
 ############################################################
@@ -255,11 +268,24 @@ def _regularMatrixCalc(k, maxWidth, maxHeight, matrix):
 #
 #def performNetworkXCalculations(width, height, adjMatrixFileName):
 #def writePajekFile( width, height, adjMatrixFileName, path, debug=False ):
-def writePajekFile( adjMatrixFileName, path, debug=False ):
+def writePajekFile( csvFileNamePrefix, csvExtention, path, debug=False ):
 
+    csvFileName = csvFileNamePrefix + '.' + csvExtention
+    
+    csvPathFile = os.path.join(path, csvFileName)
+    
+    #does input CSV file exist?
+    if checkFilePath( csvFileName, path, debug) == False:
+        print ("Input CSV file %s not found." % csvPathFile )
+        return False
+    else:
+        if debug: print("Found input CSV file %s" % csvPathFile )
+    
+    
     #read adjacency matrix file into pandas:
     #input_data = pd.read_csv(adjMatrixFileName, index_col=0)
-    input_data = pd.read_csv(adjMatrixFileName, header=None)
+    #input_data = pd.read_csv(adjMatrixFileName, header=None)
+    input_data = pd.read_csv(csvPathFile, header=None)
 
     #load NetworkX with adjacency matrix graph data (via Pandas)
     #G = nx.grid_graph(dim=[10,10] )
@@ -267,9 +293,12 @@ def writePajekFile( adjMatrixFileName, path, debug=False ):
     G = nx.Graph( input_data.values )  #for undirected graphs
 
     #Use NetworkX to translate/write graph to Pajek graph file (text) format.
-    filename = ""
-    nx.write_pajek(G, filename)
-    print ("Wrote network graph to (Pajek format) text file: %s") % filename
+    extention = "pajek"
+    pajekFile = csvFileNamePrefix + "." + extention
+    pajekPathFile = os.path.join(path, pajekFile)
+    nx.write_pajek(G, pajekPathFile)
+    print ("Wrote network graph (Pajek format) to text file: %s") % pajekPathFile
+
 
 """
     #boundary checking:
@@ -402,17 +431,20 @@ while count < iterations:
     if debug: print("Created a small-world matrix with rewiring probability = %f" % p)
     if debug: printMatrix( width, height, smallWorld )
 
-    #now write simple adjacency matrix to text file
-    fileName = fileNamePrefix + str(count) + '.csv'
+    #now write simple adjacency matrix to text file in CSV format:
+    csvExtention = 'csv'
+    #csvFileName = fileNamePrefix + str(count) + '.' + csvExtention
     #fileName = str(fnamePrefix + '.csv')
-    writeCsvFile( fileName, path, ",", width, height, matrix1, debug)
-    print ("Wrote network graph to CSV file to: %s/%s" % (path, fileName) )
+    fileName = str(fileNamePrefix + str(count)) #append count to file name
+    results = writeCsvFile( fileName, csvExtention, path, ",", width, height, matrix1, debug)
+    print ("Wrote network graph to CSV file to: %s" % results )
 
+    #Call NetworkX to translate the CSV file into a Pajek format graph text file:
+    writePajekFile( fileName, csvExtention, path, debug)
 
-"""
-#Call NetworkX to do pathfinding calculations, and calculate shortest paths
-performNetworkXCalculations( 10, 10, fileName )
+    
+    #Call NetworkX to do pathfinding calculations, and calculate shortest paths
+    #performNetworkXCalculations( 10, 10, fileName )
 
 
 print ("\nDone.\n")
-"""
