@@ -266,9 +266,25 @@ def _regularMatrixCalc(k, maxWidth, maxHeight, matrix):
 #       0,1,1
 #       1,0,0
 #
+# The export file type can be "graphml" for GraphML format, or
+# it can be "pajek" for Pajek file format.
+#
 #def performNetworkXCalculations(width, height, adjMatrixFileName):
 #def writePajekFile( width, height, adjMatrixFileName, path, debug=False ):
-def writePajekFile( csvFileNamePrefix, csvExtention, path, debug=False ):
+#def writePajekFile( csvFileNamePrefix, csvExtention, path, debug=False ):
+def writeGraphFile( csvFileNamePrefix, csvExtention, path, exportType, debug=False ):
+
+    exportType = str.lower(exportType)
+    print (">> Export file type = '%s'" % exportType)
+    
+    if exportType == 'pajek':
+        print (">> Export file type = '%s'" % exportType)
+    elif exportType == 'graphml':
+        print (">> Export file type = '%s'" % exportType)
+    else:
+        print("Error: file type for export can only be (a) 'graphml', or (b) 'pajek'")
+        return False
+    
 
     csvFileName = csvFileNamePrefix + '.' + csvExtention
     
@@ -293,11 +309,19 @@ def writePajekFile( csvFileNamePrefix, csvExtention, path, debug=False ):
     G = nx.Graph( input_data.values )  #for undirected graphs
 
     #Use NetworkX to translate/write graph to Pajek graph file (text) format.
-    extention = "pajek"
-    pajekFile = csvFileNamePrefix + "." + extention
-    pajekPathFile = os.path.join(path, pajekFile)
-    nx.write_pajek(G, pajekPathFile)
-    print ("Wrote network graph (Pajek format) to text file: %s") % pajekPathFile
+    #extention = "pajek"
+    extention = exportType
+    exportFile = csvFileNamePrefix + "." + extention
+    exportPathFile = os.path.join(path, exportFile)
+    if exportType == 'pajek':
+        nx.write_pajek(G, exportPathFile)
+        print ("Wrote network graph (Pajek format) to text file: %s") % exportPathFile
+    elif exportType == 'graphml':
+        nx.write_graphml(G, exportPathFile)
+        print ("Wrote network graph (GraphML format) to text file: %s") % exportPathFile    
+    else:
+        print ("Error: unknown export type '%s'" % exportType)
+        return False
 
 
 """
@@ -360,9 +384,9 @@ def writePajekFile( csvFileNamePrefix, csvExtention, path, debug=False ):
 # Main Graph Generator Test Harness:
 #For the doc study, consider (a) 50x50, k=2, p=.05; and (b) 1000x1000, k=2, p=0.0025
 
-print ("\nUsage: %s [#iterations: int] [size: int] [k: int] [p: float] [path: str] [filename: str] [debugMode: 0 or 1]\n" % str(sys.argv[0]) )
-print ("e.g., for small '50x50' maps:\n  python  %s  10  50  2  0.05  subdir  small_  0\n" % str(sys.argv[0]) )
-print ("e.g., for large '1000x1000' maps:\n  python  %s  10  1000  2  0.0025  subdir  large_  1\n" % str(sys.argv[0]) )
+print ("\nUsage: %s [#iterations: int] [size: int] [k: int] [p: float] [path: str] [filename: str] [exportType: 'graphml' or 'pajek'] [debugMode: 0 or 1]\n" % str(sys.argv[0]) )
+print ("e.g., for small '50x50' maps:\n  python  %s  10  50  2  0.05  outputDir  small_   graphml  0\n" % str(sys.argv[0]) )
+print ("e.g., for large '1000x1000' maps:\n  python  %s  10  1000  2  0.0025  outputDir  large_   pajek  1\n" % str(sys.argv[0]) )
 
 
 iterations = int(sys.argv[1]) #get first command line parameter after script name (argv[0])
@@ -382,17 +406,21 @@ if p < 0.0: p = 0.0
 if p > 1.0: p = 1.0
 
 path = str(sys.argv[5])
-if isNotEmpty(path) == False: path = "file_output"
+if isNotEmpty(path) == False: path = "outputPath"
 
 fileNamePrefix = str(sys.argv[6])
-if isNotEmpty(fileNamePrefix) == False: fileNamePrefix = "graph"
+if isNotEmpty(fileNamePrefix) == False: fileNamePrefix = "graphFile_"
 
-debug = int(sys.argv[7])
+exportType = str(sys.argv[7])
+if isNotEmpty(exportType) == False: exportType="graphml"
+
+debug = int(sys.argv[8])
 if debug == 1: debug = True
 elif debug == 0: debug = False
 else: debug = False
 
-print("Running with options:\n #iterations=%d\n size=%d\n k=%d\n p=%f\n path=%s\n fileName=%s\n debug=%s" % (iterations, maxLen1, k, p, path, fileNamePrefix, debug) )
+print("Running with options:\n #iterations=%d\n size=%d\n k=%d\n p=%f\n path=%s\n fileName=%s\n type=%s\n debug=%s" % (iterations, maxLen1, k, p, path, fileNamePrefix, exportType, debug) )
+
 
 #initialValue = 0 # zero means disconnected, 1 means connected.
 #k = 2   #depth of default connections per node. Watts & Strogatz small-worlds use k=2.
@@ -440,9 +468,10 @@ while count < iterations:
     print ("Wrote network graph to CSV file to: %s" % results )
 
     #Call NetworkX to translate the CSV file into a Pajek format graph text file:
-    writePajekFile( fileName, csvExtention, path, debug)
+    #writePajekFile( fileName, csvExtention, path, debug)
+    writeGraphFile( fileName, csvExtention, path, exportType, debug)
 
-    
+
     #Call NetworkX to do pathfinding calculations, and calculate shortest paths
     #performNetworkXCalculations( 10, 10, fileName )
 
