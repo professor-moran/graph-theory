@@ -12,15 +12,22 @@ import os
 Program to create random small-world graphs in the form of
 two-dimensional adjacency matrices. 
 Note -- only square matrices are considered.
-This program creates adjacency matrix files, and corresponding Pajek format text files.
-It uses NetworkX to do the file transformations (adjacency matrix --> Pajek).
+This program creates adjacency matrix files, and corresponding Pajek and GraphML 
+format text files.
+It uses NetworkX to do the file transformations (adjacency matrix --> Pajek or GraphML).
 
 Initialize and create a small-world matrix.
 Then print the entire matrix.
 Then save the matrix to CSV file format.
 Then read the CSV file with Pandas library.
 Then create a NetworkX graph based on the CSV file input.
-Save the map in Pajek format.
+Save the map in Pajek or GraphML format.
+
+May drop Pajek support later, since Graph-Tool doesn't support it.
+The goal is for these graph files to be read by NetworkX and Graph-Tool, and for
+subsequent pathfinding operations to be performed on these files, as appropriate,
+by the other script(s) in this doctoral study project.
+
 
 This script does not calculate shortest paths.
 Look for the other Python script in this directory, to do that.
@@ -269,9 +276,6 @@ def _regularMatrixCalc(k, maxWidth, maxHeight, matrix):
 # The export file type can be "graphml" for GraphML format, or
 # it can be "pajek" for Pajek file format.
 #
-#def performNetworkXCalculations(width, height, adjMatrixFileName):
-#def writePajekFile( width, height, adjMatrixFileName, path, debug=False ):
-#def writePajekFile( csvFileNamePrefix, csvExtention, path, debug=False ):
 def writeGraphFile( csvFileNamePrefix, csvExtention, path, exportType, debug=False ):
 
     exportType = str.lower(exportType)
@@ -324,60 +328,6 @@ def writeGraphFile( csvFileNamePrefix, csvExtention, path, exportType, debug=Fal
         return False
 
 
-"""
-    #boundary checking:
-    if width < 0 or width > 16: width = 10
-    if height < 0 or height > 10: height = 10
-
-    #set graph display to x,y screen inches:
-    rcParams['figure.figsize'] = width, height
-
-    #Get list of nodes:
-    nodeList = G.nodes()
-    #print("Node list: \n %s") % nodeList
-    nodeListData = G.nodes(data=True)
-    #print("Node list data: \n %s") % nodeListData
-
-    #determine start and destination nodes for pathfinding purposes
-    startNode = 1
-    destNode = maxLen1/2 + 1
-    print ("Start node: %d" % startNode)
-    print ("Destination node: %d" % destNode)
-
-    #get Dijkstra distance between start and destination nodes:
-    dijkstraPath = nx.dijkstra_path(G, startNode, destNode )
-    print ("dijkstraPath = %s") % dijkstraPath
-    dijkstraPathLength = nx.dijkstra_path_length(G, startNode, destNode )
-    print ("dijkstraPathLength = %d") % dijkstraPathLength
-    #print ("dijkstra: length of path list = %d") % ( len(dijkstraPath)-1 )
-
-    #get Bellman-Ford distance between the startNode and all the other nodes:
-    pred, dist = nx.bellman_ford(G, startNode )
-    #print ("bellmanFord: pred = %s") % sorted(pred.items())
-    #print ("bellmanFord: dist = %s") % sorted(dist.items())
-    #if destNode in dist:
-    #    print dist.index(destNode)
-
-    #get A* distance between start and destination nodes:
-    aStarPath = nx.astar_path(G, startNode, destNode )
-    print ("aStarPath = %s") % aStarPath
-    aStarPathLength = nx.astar_path_length(G, startNode, destNode )
-    print ("aStarPathLength = %d") % aStarPathLength
-    #print ("aStar: length of path list = %d") % ( len(aStarPath)-1 )
-
-    #now draw the graph with a circular shape:
-    print ("Drawing graph...")
-    nx.draw_circular(G, with_labels=True)
-    #nx.draw(G, with_labels=True)
-    #nx.draw_spectral(G, with_labels=True)
-    #nx.draw_spring(G, with_labels=True)
-    #nx.draw_shell(G, with_labels=True)
-    #nx.draw_networkx(G, with_labels=True)
-    #nx.draw_random(G, with_labels=True)
-
-    pylab.show() #show the graph output to screen
-"""
-
 ############################################################
 
 
@@ -422,18 +372,6 @@ else: debug = False
 print("Running with options:\n #iterations=%d\n size=%d\n k=%d\n p=%f\n path=%s\n fileName=%s\n type=%s\n debug=%s" % (iterations, maxLen1, k, p, path, fileNamePrefix, exportType, debug) )
 
 
-#initialValue = 0 # zero means disconnected, 1 means connected.
-#k = 2   #depth of default connections per node. Watts & Strogatz small-worlds use k=2.
-#p = 0.0 #the randomization percent used in small-world network generation
-
-#maxLen1 = 1000     #the maximum dimension of the square matrix (zero-index).
-#maxLen1 = 50        #the maximum dimension of the square matrix (zero-index).
-#maxLen1 = 20
-
-#if maxLen1 == 50: p, debug = 0.05, True           #randomization for small map
-#elif maxLen1 == 1000: p, debug = 0.0025, False     #randomization for large map
-#else: maxLen1, p, debug = 100, 0.1, True
-
 count = 0
 while count < iterations:
     count += 1
@@ -461,19 +399,12 @@ while count < iterations:
 
     #now write simple adjacency matrix to text file in CSV format:
     csvExtention = 'csv'
-    #csvFileName = fileNamePrefix + str(count) + '.' + csvExtention
-    #fileName = str(fnamePrefix + '.csv')
     fileName = str(fileNamePrefix + str(count)) #append count to file name
     results = writeCsvFile( fileName, csvExtention, path, ",", width, height, matrix1, debug)
     print ("Wrote network graph to CSV file to: %s" % results )
 
     #Call NetworkX to translate the CSV file into a Pajek format graph text file:
-    #writePajekFile( fileName, csvExtention, path, debug)
     writeGraphFile( fileName, csvExtention, path, exportType, debug)
-
-
-    #Call NetworkX to do pathfinding calculations, and calculate shortest paths
-    #performNetworkXCalculations( 10, 10, fileName )
 
 
 print ("\nDone.\n")
