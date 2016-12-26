@@ -27,30 +27,6 @@ def isNotEmpty(s):
     return bool(s and s.strip())
 
 
-"""
-############################################################
-def printMatrix( maxWidth, maxHeight, matrix ):
-    x,y = 0, 0
-    for y in range(maxHeight):
-        for x in range(maxWidth):
-            print matrix[x][y],     #the ',' keeps printing on same line
-        print   #now print new line to wrap the row.
-
-
-############################################################
-def removeLoops( maxWidth, maxHeight, matrix ):
-    #Set the values of the main diagonal to zero to remove loops.
-    newValue = 0
-    x,y = 0, 0
-    for y in range(maxHeight):
-        for x in range(maxWidth):
-            if x == y:
-                matrix[x][y] = newValue
-                #print "Setting cell [%d][%d] to %d" % (x, y, newValue)
-    #print("Removed the self-loops (i.e., main diagonal cleared).")
-"""
-
-
 ############################################################
 def createFilePath( fileName, path, debug=False):
 
@@ -121,207 +97,29 @@ def checkPath( path, debug=False):
     else: 
         print(">> path %s does not exist." % input_dir)
         return False
-        
 
-"""
-############################################################
-#def writeCsvFile( fileName, path, delimiter, maxWidth, maxHeight, matrix, debug=False ):
-def writeCsvFile( fileNamePrefix, csvExtention, path, delimiter, maxWidth, maxHeight, matrix, debug=False ):
-
-    csvFileName = fileNamePrefix + '.' + csvExtention
-    
-    finalPathFileName = createFilePath( csvFileName, path, debug)
-
-    file = open(finalPathFileName, 'w')
-    file.truncate() #delete existing file contents (if any)
-    x,y = 0, 0
-    delim = delimiter
-    for y in range(maxHeight):
-        line = ""
-        for x in range(maxWidth):
-            line += str(matrix[x][y])
-            if (x < maxWidth-1):
-                line = line + delim
-            if (x >= maxWidth-1):
-                file.write(line + "\n")
-    file.close()
-    return finalPathFileName #return output filename
-
-
-############################################################
-#
-# This method assumes the input matrix is a k-regular matrix
-# that has already been initialized to k-regular form.
-#
-# Variable 'prob' is a float, and represents the probability of 
-# rewiring, a la Watts & Strogatz (1998) "small world" network style.
-#
-# This method doesn't change the main diagonal cells, to 
-# prevent generation of self-loops.
-#
-def createSmallWorldMatrix( prob, maxWidth, maxHeight, matrix, debug=False ):
-    # check boundaries:
-    if prob < 0.0:  prob = 0.0      #a 0-percent chance of rewiring
-    if prob > 1.0:  prob = 1.0      #a 100-percent chance of rewiring
-    
-    x,y = 0, 0
-    for y in range(maxHeight):
-        for x in range(maxWidth):
-            #Ignore the main diagonal (where x = y), don't create self-loops:
-            if x != y: 
-                rand = random.random()
-                if (rand <= prob) and matrix[x][y] != 0:
-                
-                    #time to rewire...
-                    if debug==True:
-                        print ("Rand = %f, Prob = %f. [x,y]: [%d,%d] = %d" % (rand, prob, x, y, matrix[x][y] ) )
-
-                    #1. disconnect the 2-way (x,y) and (y,x) connections:
-                    matrix[x][y] = 0
-                    matrix[y][x] = 0
-                    if debug==True:
-                        print (">> Set [%d][%d] to 0, and [%d][%d] to 0" % (x,y,y,x) )
-                    
-                    
-                    #2. find new random connection for (x,y) and (y,x), and ensure
-                    # that we don't reconnect to the already existing links. 
-                    newY = y
-                    done = False
-                    while done != True:
-                        newY = random.randint(0, maxHeight-1)
-                        
-                        #Don't create edges to already existing edges, and don't
-                        # create self-loops:
-                        if y != newY and x != newY and matrix[x][newY] != 1 \
-                            and matrix[newY][x] != 1:
-                            done = True
-                    
-                    if debug==True:
-                        print (">> original x,y = [%d][%d], and y,x = [%d][%d]" % (x,y,y,x) )
-                        print (">> new [x]-->[y] = [%d][%d]" % (x, newY) )
-                        print (">> new [y]-->[x] = [%d][%d]" % (newY, x) )
-                    
-                    # Now set new matrix cells to connected:
-                    matrix[x][newY] = 1
-                    matrix[newY][x] = 1
-
-
-############################################################
-#
-# This method assumes the input matrix is initialized to zero.
-# This method calls in the internal function _regularMatrixCalc()
-# which does the actual link creation for the regular network graph.
-#
-def createRegularMatrix( k, maxWidth, maxHeight, matrix):
-
-    #check the boundaries:
-    if maxWidth < 5 or maxHeight < 5: maxWidth, maxHeight, k = 5, 5, 2
-    if k < 1: k = 1
-    if k > 4: k = 4
-    print("Creating k-regular matrix with x = %d, y = %d, k = %d" % (width, height, k) )
-    
-    #Set the values of the main diagonal to zero to remove loops.
-    removeLoops( maxWidth, maxHeight, matrix ) #clear the diagonal, just in case.
-
-    #call the method that does the actual work.
-    count = 1
-    while count <= k:
-        _regularMatrixCalc(count, maxWidth, maxHeight, matrix )
-        count += 1
-
-
-############################################################
-#
-# This internal method does the k-regular network link creation.
-# It should only be called by the method createRegularMatrix().
-#
-def _regularMatrixCalc(k, maxWidth, maxHeight, matrix):
-
-    #set the row k-below the diagonal to 1 (connected)
-    x = 0
-    y = k
-    while y <= maxHeight-1:
-        x = 0
-        while x <= maxWidth-1:
-            if y-x == (1*k):
-                matrix[x][y] = 1
-            x += 1
-        y += 1
-
-    #set the row k-above the diagonal to 1 (connected)
-    x = k
-    y = 0
-    while y <= maxHeight-1:
-        x = k
-        while x <= maxWidth-1:
-            if x-y == (1*k):
-                matrix[x][y] = 1
-            x += 1
-        y += 1
-
-    #now link the ends of the chain together (i.e., connect
-    # the SW, and NE nodes in the matrix):
-    count = 0
-    while count < k:
-        matrix[count][maxHeight - k + count] = 1
-        matrix[maxWidth - k + count][count] = 1
-        count += 1
-"""
 
 ############################################################
 # NetworkX graph manipulations
 #
 # This function takes a simple adjacency matrix CSV file name as input.
 # The adjacency matrix itself should have no label/column/row headers.
-# It just needs the connection data. 
+# It just needs the connection data, comma-delimited values. 
 # E.g., an example of 3x3 adjacency matrix file contents:
 #
 #       1,0,0
 #       0,1,1
 #       1,0,0
 #
-#def writePajekFile( width, height, adjMatrixFileName, path, debug=False ):
-#def writePajekFile( csvFileNamePrefix, csvExtention, path, debug=False ):
-#def performNetworkXCalculations(width, height, adjMatrixFileName, path, debug=False):
+# Warning: if showGraph is True, it will display the graphs, but one-by-one. You
+# would have to serially close each graph window, for the next one to be generated
+# and then be displayed, so you could then close that one... ad infinitum.
+# So, set the showGraph parameter to true, only during testing.
+#
 def performNetworkXCalculations(adjMatrixFileName, path, viewWidth, viewHeight, showGraph=False, debug=False):
 
-
-    """
-    csvFileName = csvFileNamePrefix + '.' + csvExtention
-    
-    csvPathFile = os.path.join(path, csvFileName)
-    
-    #does input CSV file exist?
-    if checkFilePath( csvFileName, path, debug) == False:
-        print ("Input CSV file %s not found." % csvPathFile )
-        return False
-    else:
-        if debug: print("Found input CSV file %s" % csvPathFile )
-    
-    
-    #read adjacency matrix file into pandas:
-    #input_data = pd.read_csv(adjMatrixFileName, index_col=0)
-    #input_data = pd.read_csv(adjMatrixFileName, header=None)
-    input_data = pd.read_csv(csvPathFile, header=None)
-
-    #load NetworkX with adjacency matrix graph data (via Pandas)
-    #G = nx.grid_graph(dim=[10,10] )
-    #G = nx.DiGraph( input_data.values ) #for directed graphs
-    G = nx.Graph( input_data.values )  #for undirected graphs
-
-    #Use NetworkX to translate/write graph to Pajek graph file (text) format.
-    extention = "pajek"
-    pajekFile = csvFileNamePrefix + "." + extention
-    pajekPathFile = os.path.join(path, pajekFile)
-    nx.write_pajek(G, pajekPathFile)
-    print ("Wrote network graph (Pajek format) to text file: %s") % pajekPathFile
-    """
-
-
     print ("Performing NetworkX pathfinding calculations...")
-    
-    
-    
+
     #boundary checking:
     if viewWidth < 0 or viewWidth > 16: viewWidth = 10
     if viewHeight < 0 or viewHeight > 10: viewHeight = 10
@@ -330,18 +128,17 @@ def performNetworkXCalculations(adjMatrixFileName, path, viewWidth, viewHeight, 
     rcParams['figure.figsize'] = viewWidth, viewHeight
 
     csvPathFile = os.path.join(path, adjMatrixFileName)
-    
+
     #read adjacency matrix file into pandas:
     #input_data = pd.read_csv(adjMatrixFileName, index_col=0)
     #input_data = pd.read_csv(adjMatrixFileName, header=None)
     input_data = pd.read_csv(csvPathFile, header=None)
     if debug: print ("\nPandas: input_data = \n%s" % input_data)
-    
+
     #load NetworkX with adjacency matrix graph data (via Pandas)
     #G = nx.grid_graph(dim=[10,10] )
     #G = nx.DiGraph( input_data.values ) #for directed graphs
     G = nx.Graph( input_data.values )  #for undirected graphs
-
 
     #Get list of nodes:
     nodeList = G.nodes()
@@ -350,13 +147,13 @@ def performNetworkXCalculations(adjMatrixFileName, path, viewWidth, viewHeight, 
     if debug: print("Node list data: \n %s") % nodeListData
     if debug: print("Node list length: %d" % len(nodeListData) )
 
-
     #determine start and destination nodes for pathfinding purposes
-    startNode = 1
-    destNode = len(nodeListData)/2 + 1
+    startNode = 1 #start node will always be node 1.
+    destNode = len(nodeListData)/2 + 1 #destination node will always be in the middle.
+    print ("Number of nodes in this graph: %d" % len(nodeListData) )
     print ("Start node: %d" % startNode)
     print ("Destination node: %d" % destNode)
-    
+
 
     #get Dijkstra distance between start and destination nodes:
     dijkstraPath = nx.dijkstra_path(G, startNode, destNode )
@@ -364,14 +161,35 @@ def performNetworkXCalculations(adjMatrixFileName, path, viewWidth, viewHeight, 
     dijkstraPathLength = nx.dijkstra_path_length(G, startNode, destNode )
     print ("dijkstraPathLength = %d") % dijkstraPathLength
     #print ("dijkstra: length of path list = %d") % ( len(dijkstraPath)-1 )
-    
+
 
     #get Bellman-Ford distance between the startNode and all the other nodes:
     pred, dist = nx.bellman_ford(G, startNode )
     #print ("bellmanFord: pred = %s") % sorted(pred.items())
     #print ("bellmanFord: dist = %s") % sorted(dist.items())
-    #if destNode in dist:
-    #    print dist.index(destNode)
+    #
+    #1. NetworkX's Bellman-Ford method doesn't return a simple path, nor
+    # a pathlength, like the A* and Dijkstra versions. It instead returns 
+    # two lists: a predecessor, and a distance list.
+    # So, we must do some list traversal to find the desired values that are
+    # equivalent to the ones supported by A* and Dijkstra method versions:
+    bfpath = [destNode] #start with destination node
+    path = dict(pred) #convert predecessor list to K-V dictionary
+    currNode = destNode #set current node to destination node
+    #this while loop will, starting from the destination, work our way back to 
+    # the start node:
+    while currNode != startNode:  #start with destination node...
+        bfpath.append( path[currNode] ) #append its value (i.e., its predecessor node)...
+        currNode = path[currNode] #update the current node... keep looping backwards.
+    bfpath.reverse() #now reverse the list, so it displays in start to finish order.
+    print("bellmanFordPath = %s" % bfpath)
+    #2. For Bellman-Ford distance, convert the dist list into a K-V dictionary, 
+    # then search the dictionary for the destination node, 
+    # then get that list entry's associated value.
+    # this value represents the Bellman-Ford distance to the destination node:
+    bfpathLength = dict(dist)
+    print ("bellmanFordPathLength = %d" % bfpathLength[destNode] )
+
 
     #get A* distance between start and destination nodes:
     aStarPath = nx.astar_path(G, startNode, destNode )
@@ -379,7 +197,6 @@ def performNetworkXCalculations(adjMatrixFileName, path, viewWidth, viewHeight, 
     aStarPathLength = nx.astar_path_length(G, startNode, destNode )
     print ("aStarPathLength = %d") % aStarPathLength
     #print ("aStar: length of path list = %d") % ( len(aStarPath)-1 )
-
 
     if showGraph == True:
         #now draw the graph with a circular shape:
@@ -398,28 +215,12 @@ def performNetworkXCalculations(adjMatrixFileName, path, viewWidth, viewHeight, 
 
 
 # Main Graph Generator Performance - Test Harness:
-#For the doc study, consider (a) 50x50, k=2, p=.05; and (b) 1000x1000, k=2, p=0.0025
+# This script assumes that graph files (in CSV format) have already been generated.
+# If this is not the case, then the Python script: graph_generator.py
+# See that script for more details.
 
 print ("\nUsage: %s [path to input CSV adjacency matrix files: str] [showGraphs: 0 or 1] [debugMode: 0 or 1]\n" % str(sys.argv[0]) )
 print ("e.g.,\n  python  %s  inputFilesDir  0  1\n" % str(sys.argv[0]) )
-
-"""
-iterations = int(sys.argv[1]) #get first command line parameter after script name (argv[0])
-if iterations <= 1: iterations = 1
-if iterations >= 200: iterations = 200
-
-maxLen1 = int(sys.argv[2])
-if maxLen1 < 10: maxLen1 = 10
-if maxLen1 > 1000: maxLen1 = 1000
-
-k = int(sys.argv[3])
-if k < 0: k = 1
-if k > 4: k = 4
-
-p = float(sys.argv[4])
-if p < 0.0: p = 0.0
-if p > 1.0: p = 1.0
-"""
 
 
 path = str(sys.argv[1])
@@ -448,60 +249,6 @@ else: debug = False
 
 print("Running with options:\n  input-files-path=%s\n  displayGraphs=%s\n  debug=%s" % (path, displayGraphs, debug) )
 
-#initialValue = 0 # zero means disconnected, 1 means connected.
-#k = 2   #depth of default connections per node. Watts & Strogatz small-worlds use k=2.
-#p = 0.0 #the randomization percent used in small-world network generation
-
-#maxLen1 = 1000     #the maximum dimension of the square matrix (zero-index).
-#maxLen1 = 50        #the maximum dimension of the square matrix (zero-index).
-#maxLen1 = 20
-
-#if maxLen1 == 50: p, debug = 0.05, True           #randomization for small map
-#elif maxLen1 == 1000: p, debug = 0.0025, False     #randomization for large map
-#else: maxLen1, p, debug = 100, 0.1, True
-
-
-"""
-count = 0
-while count < iterations:
-    count += 1
-    print("\nIteration: %d\n" % count)
-    
-    width = maxLen1 
-    height = maxLen1
-
-    #Initialize the 2D matrix, and set each cell value to desired initial value:
-    initialValue = 0 #zero means unconnected.
-    matrix1 = [[ initialValue for x in range(width) ] for y in range(height) ]
-    if debug: print("Created initial empty matrix.")
-    if debug: printMatrix( width, height, matrix1 )
-
-    #Create a regular matrix, of type k-regular (where k is a positive integer).
-    createRegularMatrix( k, width, height, matrix1)
-    if debug: print("Created a k-regular matrix (where k = %d)." % k)
-    if debug: printMatrix( width, height, matrix1 )
-
-    #Create a small-world matrix, with rewiring probability 'p' equal to a value < 1.0:
-    smallWorld = matrix1
-    createSmallWorldMatrix( p, width, height, smallWorld, debug )
-    if debug: print("Created a small-world matrix with rewiring probability = %f" % p)
-    if debug: printMatrix( width, height, smallWorld )
-
-    #now write simple adjacency matrix to text file in CSV format:
-    csvExtention = 'csv'
-    #csvFileName = fileNamePrefix + str(count) + '.' + csvExtention
-    #fileName = str(fnamePrefix + '.csv')
-    fileName = str(fileNamePrefix + str(count)) #append count to file name
-    results = writeCsvFile( fileName, csvExtention, path, ",", width, height, matrix1, debug)
-    print ("Wrote network graph to CSV file to: %s" % results )
-
-    #Call NetworkX to translate the CSV file into a Pajek format graph text file:
-    writePajekFile( fileName, csvExtention, path, debug)
-
-    
-    #Call NetworkX to do pathfinding calculations, and calculate shortest paths
-    #performNetworkXCalculations( 10, 10, fileName )
-"""
 
 print("\nProcessing CSV files in subdir: '%s'" % path)
 count = 0
@@ -509,7 +256,7 @@ for root, dirs, files in os.walk (path):
     for fileName in files:
         if fileName.endswith('.csv'):
             count += 1
-            print ("\nCount: %d\n>> input file name: '%s'" % (count, fileName) )
+            print ("\nProcessing File # %d:\nInput file name: '%s'" % (count, fileName) )
             viewWidthInches = 10
             viewHeightInches = 10
             performNetworkXCalculations( fileName, path, viewWidthInches, viewHeightInches, displayGraphs, debug )
