@@ -6,6 +6,7 @@ import pylab
 from pylab import rcParams
 import sys
 import os
+import timeit
 
 
 """
@@ -116,16 +117,27 @@ def checkPath( path, debug=False):
 # and then be displayed, so you could then close that one... ad infinitum.
 # So, set the showGraph parameter to true, only during testing.
 #
-def performNetworkXCalculations(adjMatrixFileName, path, viewWidth, viewHeight, showGraph=False, debug=False):
+# The pathfinding algorithm parameter accepts a 1, 2, or 3, 
+# which (alphabetical order) indicates the following:
+#   1 = A* (A-star) algorithm   <--- this is the default
+#   2 = Bellman-Ford algorithm
+#   3 = Dijkstra's algorithm
+#
+def performNetworkXCalculations(adjMatrixFileName, path, algorithm=1, viewWidth=10, viewHeight=10, showGraph=False, debug=False):
 
-    print ("Performing NetworkX pathfinding calculations...")
+    algorithm = int(algorithm)
+    viewWidth = int(viewWidth)
+    viewHeight = int(viewHeight)
+    showGraph = bool(showGraph)
+    debug = bool(debug)
+
+    if debug: print ("Performing NetworkX pathfinding calculations...")
 
     #boundary checking:
     if viewWidth < 0 or viewWidth > 16: viewWidth = 10
     if viewHeight < 0 or viewHeight > 10: viewHeight = 10
-
-    #set graph display to x,y screen inches:
-    rcParams['figure.figsize'] = viewWidth, viewHeight
+    if algorithm < 1: algorithm = 1
+    if algorithm > 3: algorithm = 3
 
     csvPathFile = os.path.join(path, adjMatrixFileName)
 
@@ -151,19 +163,73 @@ def performNetworkXCalculations(adjMatrixFileName, path, viewWidth, viewHeight, 
     startNode = 1 #start node will always be node 1.
     destNode = len(nodeListData)/2 + 1 #destination node will always be in the middle.
     print ("Number of nodes in this graph: %d" % len(nodeListData) )
-    print ("Start node: %d" % startNode)
-    print ("Destination node: %d" % destNode)
+    print ("Start node: %d.  Destination node: %d." % (startNode, destNode) )
 
 
-    #get Dijkstra distance between start and destination nodes:
-    dijkstraPath = nx.dijkstra_path(G, startNode, destNode )
-    print ("dijkstraPath = %s") % dijkstraPath
-    dijkstraPathLength = nx.dijkstra_path_length(G, startNode, destNode )
-    print ("dijkstraPathLength = %d") % dijkstraPathLength
-    #print ("dijkstra: length of path list = %d") % ( len(dijkstraPath)-1 )
+    start_time = 0.0
+    
+    #Now calculate the shortest paths, based on the user-specified algorithm.
+    if algorithm == 1:
+        start_time = timeit.default_timer() #get the start time
+        runAstar(G, startNode, destNode)
+        end_time = timeit.default_timer() #get the end time
+
+    elif algorithm == 2:
+        start_time = timeit.default_timer() #get the start time
+        runBellmanFord(G, startNode, destNode)
+        end_time = timeit.default_timer() #get the end time
+
+    elif algorithm == 3:
+        start_time = timeit.default_timer() #get the start time
+        runDijkstra(G, startNode, destNode)
+        end_time = timeit.default_timer() #get the end time
+
+    elapsed_time = end_time - start_time
+
+    if showGraph == True:
+        #Prepare the graphical display. Set graph display to x,y screen inches:
+        rcParams['figure.figsize'] = viewWidth, viewHeight
+        nx.draw_circular(G, with_labels=True) #draw circular graph
+        #nx.draw(G, with_labels=True)
+        #nx.draw_spectral(G, with_labels=True)
+        #nx.draw_spring(G, with_labels=True)
+        #nx.draw_shell(G, with_labels=True)
+        #nx.draw_networkx(G, with_labels=True)
+        #nx.draw_random(G, with_labels=True)
+        pylab.show() #show the graph to screen for viewing
+
+    return elapsed_time
 
 
-    #get Bellman-Ford distance between the startNode and all the other nodes:
+############################################################
+#
+# The A-Star wrapper function
+#
+# This has been broken out of NetworkX function to make timing calculations
+# more fine-grained and unique to the graph algorithm itself, not the 
+# support code that loads the map and instantiates variables.
+#
+def runAstar(G, startNode, destNode):
+
+    print("Using A* (A-star) algorithm for shortest path calculation.")
+    aStarPath = nx.astar_path(G, startNode, destNode )
+    print ("aStarPath = %s") % aStarPath
+    aStarPathLength = nx.astar_path_length(G, startNode, destNode )
+    print ("aStarPathLength = %d") % aStarPathLength
+    #print ("aStar: length of path list = %d") % ( len(aStarPath)-1 )
+
+
+############################################################
+#
+# The Bellman-Ford wrapper function
+##
+# This has been broken out of NetworkX function to make timing calculations
+# more fine-grained and unique to the graph algorithm itself, not the 
+# support code that loads the map and instantiates variables.
+#
+def runBellmanFord(G, startNode, destNode):
+
+    print("Using Bellman-Ford algorithm for shortest path calculation.")
     pred, dist = nx.bellman_ford(G, startNode )
     #print ("bellmanFord: pred = %s") % sorted(pred.items())
     #print ("bellmanFord: dist = %s") % sorted(dist.items())
@@ -176,12 +242,12 @@ def performNetworkXCalculations(adjMatrixFileName, path, viewWidth, viewHeight, 
     bfpath = [destNode] #start with destination node
     path = dict(pred) #convert predecessor list to K-V dictionary
     currNode = destNode #set current node to destination node
-    #this while loop will, starting from the destination, work our way back to 
-    # the start node:
+    #This following loop will start from the destination and work our way back to 
+    # the start node, one node link at a time:
     while currNode != startNode:  #start with destination node...
-        bfpath.append( path[currNode] ) #append its value (i.e., its predecessor node)...
+        bfpath.append( path[currNode] ) #append the predecessor node...
         currNode = path[currNode] #update the current node... keep looping backwards.
-    bfpath.reverse() #now reverse the list, so it displays in start to finish order.
+    bfpath.reverse() #now reverse the list, so it displays in correct order
     print("bellmanFordPath = %s" % bfpath)
     #2. For Bellman-Ford distance, convert the dist list into a K-V dictionary, 
     # then search the dictionary for the destination node, 
@@ -191,74 +257,91 @@ def performNetworkXCalculations(adjMatrixFileName, path, viewWidth, viewHeight, 
     print ("bellmanFordPathLength = %d" % bfpathLength[destNode] )
 
 
-    #get A* distance between start and destination nodes:
-    aStarPath = nx.astar_path(G, startNode, destNode )
-    print ("aStarPath = %s") % aStarPath
-    aStarPathLength = nx.astar_path_length(G, startNode, destNode )
-    print ("aStarPathLength = %d") % aStarPathLength
-    #print ("aStar: length of path list = %d") % ( len(aStarPath)-1 )
+############################################################
+#
+# The Dijkstra wrapper function
+#
+# This has been broken out of NetworkX function to make timing calculations
+# more fine-grained and unique to the graph algorithm itself, not the 
+# support code that loads the map and instantiates variables.
+##
+def runDijkstra(G, startNode, destNode):
 
-    if showGraph == True:
-        #now draw the graph with a circular shape:
-        print ("Drawing graph...")
-        nx.draw_circular(G, with_labels=True)
-        #nx.draw(G, with_labels=True)
-        #nx.draw_spectral(G, with_labels=True)
-        #nx.draw_spring(G, with_labels=True)
-        #nx.draw_shell(G, with_labels=True)
-        #nx.draw_networkx(G, with_labels=True)
-        #nx.draw_random(G, with_labels=True)
-        pylab.show() #show the graph output to screen
+    print("Using Dijkstra's algorithm for shortest path calculation.")
+    dijkstraPath = nx.dijkstra_path(G, startNode, destNode )
+    print ("dijkstraPath = %s") % dijkstraPath
+    dijkstraPathLength = nx.dijkstra_path_length(G, startNode, destNode )
+    print ("dijkstraPathLength = %d") % dijkstraPathLength
+    #print ("dijkstra: length of path list = %d") % ( len(dijkstraPath)-1 )
 
 
 ############################################################
-
 
 # Main Graph Generator Performance - Test Harness:
 # This script assumes that graph files (in CSV format) have already been generated.
 # If this is not the case, then the Python script: graph_generator.py
 # See that script for more details.
 
-print ("\nUsage: %s [path to input CSV adjacency matrix files: str] [showGraphs: 0 or 1] [debugMode: 0 or 1]\n" % str(sys.argv[0]) )
-print ("e.g.,\n  python  %s  inputFilesDir  0  1\n" % str(sys.argv[0]) )
+def main():
+
+    print ("\nUsage:\n %s [path to input CSV files] [algorithm: 1, 2, or 3] [showGraphs: 0 or 1] [debugMode: 0 or 1]\n" % str(sys.argv[0]) )
+    print ("Where algorithm: 1 = A* (A-star), 2 = Bellman-Ford, 3 = Dijkstra.\n")
+    print ("e.g.,\n  python  %s  inputSubDir  3  0  1\n" % str(sys.argv[0]) )
 
 
-path = str(sys.argv[1])
-if isNotEmpty(path) == False:
-    print("Target folder cannot be null or blank.")
-    sys.exit(1)
-else:
-    #verify if the path exists:
-    if checkPath( path, False) == False:
-        print("Target folder '%s' could not be found." % path)
-        sys.exit(2)
+    path = str(sys.argv[1])
+    if isNotEmpty(path) == False:
+        print("Target folder cannot be null or blank.")
+        sys.exit(1)
     else:
-        print("Found target folder: %s" % path)
+        #verify if the path exists:
+        if checkPath( path, False) == False:
+            print("Target folder '%s' could not be found." % path)
+            sys.exit(2)
+        else:
+            print("Found target folder: %s" % path)
 
 
-displayGraphs = int(sys.argv[2])
-if displayGraphs == 1: displayGraphs = True
-elif displayGraphs == 0: displayGraphs = False
-else: displayGraphs = False
+    algorithm = int(sys.argv[2])
+    if algorithm < 1: algorithm = 1
+    if algorithm > 3: algorithm = 3
 
 
-debug = int(sys.argv[3])
-if debug == 1: debug = True
-elif debug == 0: debug = False
-else: debug = False
-
-print("Running with options:\n  input-files-path=%s\n  displayGraphs=%s\n  debug=%s" % (path, displayGraphs, debug) )
+    displayGraphs = int(sys.argv[3])
+    if displayGraphs == 1: displayGraphs = True
+    elif displayGraphs == 0: displayGraphs = False
+    else: displayGraphs = False
 
 
-print("\nProcessing CSV files in subdir: '%s'" % path)
-count = 0
-for root, dirs, files in os.walk (path):
-    for fileName in files:
-        if fileName.endswith('.csv'):
-            count += 1
-            print ("\nProcessing File # %d:\nInput file name: '%s'" % (count, fileName) )
-            viewWidthInches = 10
-            viewHeightInches = 10
-            performNetworkXCalculations( fileName, path, viewWidthInches, viewHeightInches, displayGraphs, debug )
-            
-print ("\nDone.\n")
+    debug = int(sys.argv[4])
+    if debug == 1: debug = True
+    elif debug == 0: debug = False
+    else: debug = False
+
+    advert = "(where 1 = A* (A-star), 2 = Bellman-Ford, 3 = Dijkstra)"
+    print("Running with options:\n  inputFilePath=%s\n  algorithm=%d  %s\n  displayGraphs=%s\n  debug=%s" % (path, algorithm, advert, displayGraphs, debug) )
+
+
+    print("\nProcessing CSV files in subdir: '%s'" % path)
+    count = 0
+    for root, dirs, files in os.walk (path):
+        for fileName in files:
+            if fileName.endswith('.csv'):
+                count += 1
+                print ("\nProcessing File # %d:\nInput file name: '%s'" % (count, fileName) )
+                viewWidthInches = 10    #to do - parameterize this
+                viewHeightInches = 10   #to do - parameterize this
+
+                #call the function that does the pathfinding:
+                elapsed_time = performNetworkXCalculations( fileName, path, algorithm, viewWidthInches, viewHeightInches, displayGraphs, debug )
+                print("Elapsed time (for algorithm %d): %f microsec" % (algorithm, elapsed_time) )
+
+    print ("\nDone.\n")
+
+
+############################################################
+
+if __name__ == '__main__':
+    import timeit
+    main()
+
