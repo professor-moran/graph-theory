@@ -7,6 +7,13 @@ from pylab import rcParams
 import sys
 import os
 import timeit
+import functools
+import gc
+from memory_profiler import profile
+from memory_profiler import memory_usage
+from memory_profiler import LogFile
+import guppy
+import multiprocessing
 
 
 """
@@ -20,8 +27,15 @@ and
 http://stackoverflow.com/questions/29192644/passing-a-multidimensional-array-to-a-function-in-python
 and
 http://stackoverflow.com/questions/29572623/plot-networkx-graph-from-adjacency-matrix-in-csv-file#29574772
-
+and
+http://stackoverflow.com/questions/5086430/how-to-pass-parameters-of-a-function-when-using-timeit-timer
 """
+
+#globals:
+#memory_profiler_out_file = 'memory_profiler.log'
+##mpLogFile=open(memory_profiler_out_file,'w+')
+#sys.stdout = LogFile(memory_profiler_out_file)
+
 
 ############################################################
 def isNotEmpty(s):
@@ -147,6 +161,7 @@ def performNetworkXCalculations(adjMatrixFileName, path, algorithm=1, viewWidth=
     input_data = pd.read_csv(csvPathFile, header=None)
     if debug: print ("\nPandas: input_data = \n%s" % input_data)
 
+    """
     #load NetworkX with adjacency matrix graph data (via Pandas)
     #G = nx.grid_graph(dim=[10,10] )
     #G = nx.DiGraph( input_data.values ) #for directed graphs
@@ -164,27 +179,47 @@ def performNetworkXCalculations(adjMatrixFileName, path, algorithm=1, viewWidth=
     destNode = len(nodeListData)/2 + 1 #destination node will always be in the middle.
     print ("Number of nodes in this graph: %d" % len(nodeListData) )
     print ("Start node: %d.  Destination node: %d." % (startNode, destNode) )
-
+    """
 
     start_time = 0.0
-    
+        
     #Now calculate the shortest paths, based on the user-specified algorithm.
     if algorithm == 1:
         start_time = timeit.default_timer() #get the start time
-        runAstar(G, startNode, destNode)
+        
+        #runAstar(G, startNode, destNode)
+        #runAstar(input_data, debug)
+        
+        manager = multiprocessing.Manager()
+        state = manager.list()
+        state.append({})
+        args = state[0]
+        args["input_data"] = input_data
+        args["debug"] = debug
+        state[0] = args
+        p = multiprocessing.Process(target=runAstar, args=(state,) )
+        p.start()
+        p.join()
+        print("A* results:")
+        print(" pathlength = %d" % int(state[0]["pathLength"]) )
+        print(" path = %s" % str(state[0]["path"]) )
+        
         end_time = timeit.default_timer() #get the end time
+        elapsed_time = end_time - start_time
 
     elif algorithm == 2:
         start_time = timeit.default_timer() #get the start time
         runBellmanFord(G, startNode, destNode)
         end_time = timeit.default_timer() #get the end time
+        elapsed_time = end_time - start_time
 
     elif algorithm == 3:
         start_time = timeit.default_timer() #get the start time
         runDijkstra(G, startNode, destNode)
         end_time = timeit.default_timer() #get the end time
-
-    elapsed_time = end_time - start_time
+        elapsed_time = end_time - start_time
+        #t = timeit.Timer(functools.partial(runDijkstra, G, startNode, destNode))
+        #elapsed_time = t.timeit()
 
     if showGraph == True:
         #Prepare the graphical display. Set graph display to x,y screen inches:
@@ -198,6 +233,16 @@ def performNetworkXCalculations(adjMatrixFileName, path, algorithm=1, viewWidth=
         #nx.draw_random(G, with_labels=True)
         pylab.show() #show the graph to screen for viewing
 
+    #cleanup:
+    #del G
+    #del nodeList
+    #del nodeListData
+    #del startNode
+    #del destNode
+    del input_data
+    del csvPathFile
+    
+    #Done:
     return elapsed_time
 
 
@@ -209,14 +254,57 @@ def performNetworkXCalculations(adjMatrixFileName, path, algorithm=1, viewWidth=
 # more fine-grained and unique to the graph algorithm itself, not the 
 # support code that loads the map and instantiates variables.
 #
-def runAstar(G, startNode, destNode):
+# This function is run as a separate process, to permit collection of memory
+# consumption data due to complexity with the Python memory manager
+# vs the OS memory manager. See the following links for details:
+#
+# http://stackoverflow.com/questions/23937189/how-do-i-use-subprocesses-to-force-python-to-release-memory/24126616#24126616
+# https://docs.python.org/2/library/multiprocessing.html
+# http://deeplearning.net/software/theano/tutorial/python-memory-management.html
+#
+@profile(precision=4)
+#@profile(stream=mpLogFile)
+#def runAstar(G, startNode, destNode):
+#def runAstar(input_data, debug=False ):
+def runAstar(state):
+
+    input_data = state[0]["input_data"]
+    debug = state[0]["debug"]
+    #print(">> debug = " + str(debug) )
+    
+    #load NetworkX with adjacency matrix graph data (via Pandas)
+    #G = nx.grid_graph(dim=[10,10] )
+    #G = nx.DiGraph( input_data.values ) #for directed graphs
+    G = nx.Graph( input_data.values )  #for undirected graphs
+
+    #Get list of nodes:
+    nodeList = G.nodes()
+    #print("Node list: \n %s") % nodeList
+    nodeListData = G.nodes(data=True)
+    if debug: print("Node list data: \n %s") % nodeListData
+    if debug: print("Node list length: %d" % len(nodeListData) )
+
+    #determine start and destination nodes for pathfinding purposes
+    startNode = 1 #start node will always be node 1.
+    destNode = len(nodeListData)/2 + 1 #destination node will always be in the middle.
+    if debug: print ("Number of nodes in this graph: %d" % len(nodeListData) )
+    if debug: print ("Start node: %d.  Destination node: %d." % (startNode, destNode) )
+
 
     print("Using A* (A-star) algorithm for shortest path calculation.")
     aStarPath = nx.astar_path(G, startNode, destNode )
-    print ("aStarPath = %s") % aStarPath
+    #print ("aStarPath = %s") % aStarPath
     aStarPathLength = nx.astar_path_length(G, startNode, destNode )
-    print ("aStarPathLength = %d") % aStarPathLength
-    #print ("aStar: length of path list = %d") % ( len(aStarPath)-1 )
+    #print ("aStarPathLength = %d") % aStarPathLength
+    ##print ("aStar: length of path list = %d") % ( len(aStarPath)-1 )
+
+
+    #now prepare return results:
+    state.append({})
+    args = state[0]
+    args["pathLength"] = aStarPathLength
+    args["path"] = aStarPath
+    state[0] = args
 
 
 ############################################################
@@ -227,6 +315,7 @@ def runAstar(G, startNode, destNode):
 # more fine-grained and unique to the graph algorithm itself, not the 
 # support code that loads the map and instantiates variables.
 #
+#@profile(precision=4)
 def runBellmanFord(G, startNode, destNode):
 
     print("Using Bellman-Ford algorithm for shortest path calculation.")
@@ -264,7 +353,8 @@ def runBellmanFord(G, startNode, destNode):
 # This has been broken out of NetworkX function to make timing calculations
 # more fine-grained and unique to the graph algorithm itself, not the 
 # support code that loads the map and instantiates variables.
-##
+#
+#@profile(precision=4)
 def runDijkstra(G, startNode, destNode):
 
     print("Using Dijkstra's algorithm for shortest path calculation.")
@@ -282,8 +372,9 @@ def runDijkstra(G, startNode, destNode):
 # If this is not the case, then the Python script: graph_generator.py
 # See that script for more details.
 
-def main():
+def run_tests():
 
+    #print ("In run_tests()")
     print ("\nUsage:\n %s [path to input CSV files] [algorithm: 1, 2, or 3] [showGraphs: 0 or 1] [debugMode: 0 or 1]\n" % str(sys.argv[0]) )
     print ("Where algorithm: 1 = A* (A-star), 2 = Bellman-Ford, 3 = Dijkstra.\n")
     print ("e.g.,\n  python  %s  inputSubDir  3  0  1\n" % str(sys.argv[0]) )
@@ -334,14 +425,21 @@ def main():
 
                 #call the function that does the pathfinding:
                 elapsed_time = performNetworkXCalculations( fileName, path, algorithm, viewWidthInches, viewHeightInches, displayGraphs, debug )
-                print("Elapsed time (for algorithm %d): %f microsec" % (algorithm, elapsed_time) )
+                print("Elapsed time (for algorithm %d): %f millisec" % (algorithm, elapsed_time*1000) )
+
+                #force a garbage collection before next iteration:
+                gc.enable()
+                #print( "GC Count: ", )
+                #print( gc.get_count() )
+                gc.collect()
 
     print ("\nDone.\n")
 
+    #mpLogFile.close()
+    
 
 ############################################################
 
 if __name__ == '__main__':
-    import timeit
-    main()
-
+    #print("In main()")
+    run_tests()
