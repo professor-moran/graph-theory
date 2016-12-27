@@ -345,7 +345,7 @@ if iterations >= 200: iterations = 200
 
 maxLen1 = int(sys.argv[2])
 if maxLen1 < 10: maxLen1 = 10
-if maxLen1 > 1000: maxLen1 = 1000
+if maxLen1 > 3000: maxLen1 = 3000
 
 k = int(sys.argv[3])
 if k < 0: k = 1
