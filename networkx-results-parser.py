@@ -132,9 +132,7 @@ def writeCsvFile( fileNamePrefix, csvExtention, path, delimiter, maxWidth, maxHe
 #   ================================================
 #      270  20.0078 MiB   0.0000 MiB   @profile(precision=4)
 #      271                             def runAstar(state):
-#
-#   <...snip...>
-#
+#   <snip...>
 #      296 178.8203 MiB   0.0117 MiB       args = state[0]
 #      297 178.8203 MiB   0.0000 MiB       args["pathLength"] = aStarPathLength
 #      298 178.8203 MiB   0.0000 MiB       args["path"] = aStarPath
@@ -159,9 +157,9 @@ def writeCsvFile( fileNamePrefix, csvExtention, path, delimiter, maxWidth, maxHe
 #
 # (1) algorithm name (e.g., 'A-star', 'Bellman-Ford', or 'Dijkstra')
 # (2) input file name -- as this can be useful for subsequent graph file post analysis.
-# (3) elapsedTime in milliseconds (for that algorithm)
-# (4) memory consumption in MB (for that algorithm) -- this will be most complicated as it involves multiple lines.
-# (5) path length (for that algorithm) -- an integer
+# (3) memory consumption in MB (for that algorithm) -- this will be most complicated as it involves multiple lines.
+# (4) path length (for that algorithm) -- an integer
+# (5) elapsedTime in milliseconds (for that algorithm)
 #
 # Currently, we don't care about the actual node path. 
 # We marginally care about the path length only because these may be interesting from
@@ -172,20 +170,24 @@ def parseFile( inPathFile, path, outCsvFileNamePrefix, outCsvFileExt, algorithm 
     outCsvPathFileName = createFilePath ( (outCsvFileNamePrefix + outCsvFileExt), path, debug)
     outFile = open(outCsvPathFileName, 'wt')    #will overwrite existing file (if there)
     #write column header line (comma separated) to the output file:
-    headerLine = 'ALGORITHM,FILE_NAME,PATH_LENGTH,ELAPSED_TIME,MEMORY_CONSUMED\n'
+    headerLine = 'ALGORITHM,FILE_NAME,PATH_LENGTH,ELAPSED_TIME,MEMORY_CONSUMED,MIN_MEMORY,MAX_MEMORY\n'
     outFile.write( headerLine )
 
 
     with open( inPathFile, 'rt') as inFile:
         
         count = 0
-        buffer = ()
+        buffer = []
         
         algName = ''
         graphFileName = ''
         pathLength = ''
         elapsedTime = ''
         memoryConsumed = '0.0'
+        minMemory = '0.0'
+        maxMemory = '0.0'
+
+        buffering = False
 
         for line in inFile:
             count = count+1
@@ -194,39 +196,72 @@ def parseFile( inPathFile, path, outCsvFileNamePrefix, outCsvFileExt, algorithm 
             #do some parsing...
             line = line.strip()
             
-            #look for the Algorithm identifier line:
-            if line.startswith('ALGORITHM|' + algorithm):
-                algName = algorithm
+            if buffering == True:
+                #While buffering, did we reach the next section?
+                if line.startswith('RESULTS|' + algorithm + '|pathLength|'):
+                    #we reached the next section after memory consumption. 
+                    #turn off buffering and move on.
+                    
+                    buffering = False #turn off line buffering, as we reached new section.
+                    
+                    #collect the pathLength data:
+                    pathLength = parseLine( line, 3, '|', debug)
+                    
+                    #send the buffer to the memory processing function for parsing.
+                    memoryBuffList = parseMemoryConsumptionBuffer( buffer, debug )
+                    memoryConsumed = memoryBuffList[0]
+                    minMemory = memoryBuffList[1]
+                    maxMemory = memoryBuffList[2]
+                    
+                #Else simply add the line to the buffer:
+                else: buffer.append(line)
+
+            else:
+                #look for the Algorithm identifier line:
+                if buffering == False and line.startswith('ALGORITHM|' + algorithm):
+                    algName = algorithm
             
-            elif line.startswith('INFILENAME|'):
-                graphFileName = parseLine( line, 1, '|', debug)
+                elif buffering == False and line.startswith('INFILENAME|'):
+                    graphFileName = parseLine( line, 1, '|', debug)
+
+                #Get memory consumption data. Basically buffer all memory data until 
+                # we reach the next section ('pathLength'). Then send the buffered data 
+                # to the function which handles it.
+                elif buffering == False and line.startswith('RESULTS|' + algorithm + '|memoryConsumption(MB)|'):
+                    buffering = True
+                    buffer.append(line)
+
+                elif buffering == False and line.startswith('RESULTS|' + algorithm + '|pathLength|'):
+                    pathLength = parseLine( line, 3, '|', debug)
+            
+                elif buffering == False and line.startswith('RESULTS|' + algorithm + '|elapsedTime(ms)|'):
+                    elapsedTime = parseLine( line, 3, '|', debug)
+            
+            
+            
+                #If we gathered all data, then write it to output CSV file:
+                if isNotEmpty(algName) \
+                    and isNotEmpty(graphFileName) \
+                    and isNotEmpty(pathLength) \
+                    and isNotEmpty(elapsedTime) \
+                    and buffering == False and len(buffer) > 0:
+                    #and buffering == False:
                 
-            elif line.startswith('RESULTS|' + algorithm + '|pathLength|'):
-                pathLength = parseLine( line, 3, '|', debug)
-            
-            elif line.startswith('RESULTS|' + algorithm + '|elapsedTime(ms)|'):
-                elapsedTime = parseLine( line, 3, '|', debug)
-            
-            #Get memory consumption data:
-            
-            
-            #If we gathered all data, then write it to output CSV file:
-            if isNotEmpty(algName) \
-                and isNotEmpty(graphFileName) \
-                and isNotEmpty(pathLength) \
-                and isNotEmpty(elapsedTime):
+                    #Write the combined line, comma-separated, to the target CSV file:
+                    dataLine = algName + ',' + graphFileName + ',' + pathLength + ',' + elapsedTime + ',' + memoryConsumed + ',' + minMemory + ',' + maxMemory + '\n'
+                    #print(">>dataLine = %s" % dataLine )
+                    outFile.write( dataLine )
                 
-                #Write the combined line, comma-separated, to the target CSV file:
-                dataLine = algName + ',' + graphFileName + ',' + pathLength + ',' + elapsedTime + ',' + memoryConsumed + '\n'
-                #print(">>dataLine = %s" % dataLine )
-                outFile.write( dataLine )
-                
-                #clear out data for next iteration:
-                algName = ''
-                graphFileName = ''
-                pathLength = ''
-                elapsedTime = ''
-                memoryConsump = ''
+                    #clear out data for next iteration:
+                    algName = ''
+                    graphFileName = ''
+                    pathLength = ''
+                    elapsedTime = ''
+                    memoryConsumed = '0.0'
+                    minMemory = '0.0'
+                    maxMemory = '0.0'
+                    buffer = []
+                    buffering = False
 
 
     print("\nCompleted processing input file: %s\n" % inPathFile)
@@ -240,18 +275,75 @@ def parseFile( inPathFile, path, outCsvFileNamePrefix, outCsvFileExt, algorithm 
 #
 # NOTE: the parameter 'indexFieldToExtract' is zero-based.
 #
-def parseLine( line, indexFieldToExtract=0, delimiter='|', debug=False ):
+def parseLine( line, indexFieldToExtract=0, delimiter='', debug=False ):
 
+    line = line.strip()
+    
     #tokenize string by delimiter, then extract and return desired index field:
-    data = line.split(delimiter)
-    return data[indexFieldToExtract]
+    if isNotEmpty(delimiter):
+        data = line.split(delimiter)
+    else:
+        data = line.split()
+
+    #if debug: print("Number tokens: %d, desired token index: %d" % (len(data), indexFieldToExtract) )
+    ##if debug: print(">>line:%s" % data)
+
+    if len(data) > indexFieldToExtract:
+        return data[indexFieldToExtract]
+    else:
+        return ''
 
 
 ############################################################
-def parseMultiLines( line, debug=False ):
-    data = ''
-    
-    return data
+#
+def parseMemoryConsumptionBuffer( buffer, debug=False ):
+
+    consumed = 0.0
+    min = 0.0
+    max = 0.0
+    data = [consumed, min, max]
+    memory = []
+
+    if len(buffer) > 0:
+        if debug: print ("\n>>buffer length: %d" % len(buffer) )
+        if debug: print (">>buffer contents (line by line):")
+        count = 0
+        for line in buffer:
+            count += 1
+            #if debug: print ("[%d]:%s" % (count, line) )
+
+            line = line.strip()
+            
+            #each's row of memory contents is space delimited. Tokenize it, then
+            # get index 1 (the second item in row) if index 2 = 'MiB', as this row would 
+            # contain pertinent memory data.
+            unitOfMeasurement = parseLine(line, 2, '', debug)
+            
+            if unitOfMeasurement == 'MiB':
+                #Got a row with memory data. Grab the contents at index 1.
+                data = parseLine(line, 1, '', debug)
+                data = float(data)
+                #append the data to the memory list:
+                memory.append( data )
+
+        #done collecting data from each (relevant)row. Now process memory values:
+        
+        #can't use list.sort() as shown here: http://stackoverflow.com/questions/7301110/why-does-return-list-sort-return-none-not-the-list
+        # Python is weird that way...
+        memory = sorted(memory)
+        if debug: print ("memory:"),
+        if debug: print ( sorted(memory) ) 
+        if debug: print ("memory list items: %d" % len(memory) )
+        maximum = memory[ len(memory) -1]
+        minimum = memory[0]
+        consumed = maximum - minimum
+
+        if debug: print ("Memory: max = %f, min = %f, diff = %f" % (maximum, minimum, consumed) )
+        data = [str(consumed), str(minimum), str(maximum)]
+        return data
+
+    else:
+        return data
 
 ############################################################
 
