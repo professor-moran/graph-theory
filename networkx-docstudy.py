@@ -221,7 +221,7 @@ def performNetworkXCalculations(adjMatrixFileName, path, algorithm=1, viewWidth=
         args["debug"] = debug
         state[0] = args
         #runDijkstra(G, startNode, destNode)
-        p = multiprocessing.Process(target=runBellmanFord, args=(state,) )
+        p = multiprocessing.Process(target=runDijkstra, args=(state,) )
         p.start()
         p.join() #wait for child process to finish.
         print("RESULTS|Dijkstra|pathLength|%d" % int(state[0]["pathLength"]) )
