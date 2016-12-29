@@ -208,7 +208,8 @@ def parseFile( inPathFile, path, outCsvFileNamePrefix, outCsvFileExt, algorithm 
                     pathLength = parseLine( line, 3, '|', debug)
                     
                     #send the buffer to the memory processing function for parsing.
-                    memoryBuffList = parseMemoryConsumptionBuffer( buffer, debug )
+                    #memoryBuffList = parseEntireMemoryConsumptionBuffer( buffer, debug )
+                    memoryBuffList = parseTargetedMemoryConsumptionBuffer( buffer, algorithm, debug )
                     memoryConsumed = memoryBuffList[0]
                     minMemory = memoryBuffList[1]
                     maxMemory = memoryBuffList[2]
@@ -275,6 +276,9 @@ def parseFile( inPathFile, path, outCsvFileNamePrefix, outCsvFileExt, algorithm 
 #
 # NOTE: the parameter 'indexFieldToExtract' is zero-based.
 #
+# WARNING: This is VERY fragile code. Any change to the NetworkX analyzer program 
+# may break the parsing done in this function!
+#
 def parseLine( line, indexFieldToExtract=0, delimiter='', debug=False ):
 
     line = line.strip()
@@ -296,7 +300,24 @@ def parseLine( line, indexFieldToExtract=0, delimiter='', debug=False ):
 
 ############################################################
 #
-def parseMemoryConsumptionBuffer( buffer, debug=False ):
+# This function will gather all "Mem Usage" column values.
+# Then it sorts them from the lowest to highest "MiB" value order.
+# The minimum and maximum MiB values are saved, and the difference
+# is calculated. All 3 values (min, max, diff) are returned.
+#
+# NOTE: because of the way the underlying MiB values were generated,
+# this function could overstate the amount of memory consumed.
+# A more specific memory consumption calculator would look at 
+# specific MiB values for particular sub-functions called, not the
+# entire pathfinding operation (which may include actions not 
+# specific to the tested graph analysis framework or pathfinding 
+# algorithm, but nonetheless had to occur for the pathfinding
+# operation to commence).
+#
+# WARNING: This is VERY fragile code. Any change to the NetworkX analyzer program 
+# may break the parsing done in this function!
+#
+def parseEntireMemoryConsumptionBuffer( buffer, debug=False ):
 
     consumed = 0.0
     min = 0.0
@@ -305,8 +326,8 @@ def parseMemoryConsumptionBuffer( buffer, debug=False ):
     memory = []
 
     if len(buffer) > 0:
-        if debug: print ("\n>>buffer length: %d" % len(buffer) )
-        if debug: print (">>buffer contents (line by line):")
+        if debug: print ("\n>>total buffer line count: %d" % len(buffer) )
+        if debug: print (">>Parsing buffer contents (line by line):")
         count = 0
         for line in buffer:
             count += 1
@@ -314,7 +335,7 @@ def parseMemoryConsumptionBuffer( buffer, debug=False ):
 
             line = line.strip()
             
-            #each's row of memory contents is space delimited. Tokenize it, then
+            #each row of memory contents is space delimited. Tokenize it, then
             # get index 1 (the second item in row) if index 2 = 'MiB', as this row would 
             # contain pertinent memory data.
             unitOfMeasurement = parseLine(line, 2, '', debug)
@@ -344,6 +365,231 @@ def parseMemoryConsumptionBuffer( buffer, debug=False ):
 
     else:
         return data
+
+
+############################################################
+#
+# The algorithm parameter can be one of the following:
+#   'A-star', 'Bellman-Ford', or 'Dijkstra'
+#
+# Unlike the function "parseEntireMemoryConsumptionBuffer()",
+# this function will search for specific lines within the memory
+# buffer, so as to capture a more accurate reading on the amount of memory
+# consumed by each pathfinding algorithm tested in the NetworkX graph
+# analysis framework.
+#
+# This function will specific values of the "Increment" column, not the "Mem usage"
+# column as is done in the other, more generic function 
+# "parseEntireMemoryConsumptionBuffer()".
+#
+# The specific lines parsed from the buffer, in this function, will contain 
+# the following substrings. Bellman-Ford is slightly different because the
+# interface provided by NetworkX for the BellmanFord algorithm is different
+# than the interfaces it provides for the A-star and Dijkstra algorithms:
+#
+# 1. For A-star pathfinding algorithm (5 lines):
+#
+#       "G = nx.Graph( input_data.values )"
+#       "nodeList = G.nodes()"
+#       "nodeListData = G.nodes(data=True)"
+#       "aStarPath = nx.astar_path(G, startNode, destNode )"
+#       "aStarPathLength = nx.astar_path_length(G, startNode, destNode )"
+#
+# 2. For Bellman-Ford pathfinding algorithm (4 lines):
+#
+#       "G = nx.Graph( input_data.values )"
+#       "nodeList = G.nodes()"
+#       "nodeListData = G.nodes(data=True)"
+#       "pred, dist = nx.bellman_ford(G, startNode )"
+#
+# 3. For Dijkstra algorithm (5 lines):
+#
+#       "G = nx.Graph( input_data.values )"
+#       "nodeList = G.nodes()"
+#       "nodeListData = G.nodes(data=True)"
+#       "dijkstraPath = nx.dijkstra_path(G, startNode, destNode )"
+#       "dijkstraPathLength = nx.dijkstra_path_length(G, startNode, destNode )"
+#
+# WARNING: This is VERY fragile code. Any change to the NetworkX analyzer program 
+# may break the parsing done in this function!
+#
+def parseTargetedMemoryConsumptionBuffer( buffer, algorithm = 'A-star', debug=False ):
+
+    total = 0.0
+    min = 0.0
+    max = 0.0
+    data = [total, min, max]
+    memory = []
+
+    if len(buffer) > 0:
+        if debug: print ("\n>>total buffer line count: %d" % len(buffer) )
+        if debug: print (">>Parsing buffer contents (line by line):")
+        count = 0
+
+        if debug: print ("Algorithm = %s" % algorithm)
+        for line in buffer:
+            count += 1
+            #if debug: print ("[%d]:%s" % (count, line) )
+
+            line = line.strip()
+
+            #each row of memory contents is space delimited. Tokenize it, then
+            # get index 3 (the fourth item in row) if index 4 = 'MiB', and if the
+            # line contains one of the substrings in index 5, listed in the 
+            # function comments above, for the pathfinding algorithm in question, 
+            # then grab the memory data in the row at index 3, which is the memory
+            # value for the 'Increment' column.
+            unitOfMeasurement = parseLine(line, 4, '', debug)
+
+            #Only the lines containing 'MiB' could possibly contain what we want...
+            if unitOfMeasurement == 'MiB':
+                #Got a row with memory data. 
+                # Check the substring, per algorithm type.
+                # If there is pathfinding algorithm-specific
+                # substring match, then grab the 'Increment' column 
+                # memory value.
+                
+                if algorithm == 'A-star':
+
+                    substring1 = "G = nx.Graph( input_data.values )"
+                    substring2 = "nodeList = G.nodes()"
+                    substring3 = "nodeListData = G.nodes(data=True)"
+                    substring4 = "aStarPath = nx.astar_path(G, startNode, destNode )"
+                    substring5 = "aStarPathLength = nx.astar_path_length(G, startNode, destNode )"
+
+                    if substring1 in line:
+                        data = parseLine(line, 3, '', debug)
+                        if debug: print ("found memory value: %s, for substring %s" % (data, substring1) )
+                        data = float(data)
+                        memory.append( data )
+                    
+                    elif substring2 in line:
+                        data = parseLine(line, 3, '', debug)
+                        if debug: print ("found memory value: %s, for substring %s" % (data, substring2) )
+                        data = float(data)
+                        memory.append( data )
+                    
+                    elif substring3 in line:
+                        data = parseLine(line, 3, '', debug)
+                        if debug: print ("found memory value: %s, for substring %s" % (data, substring3) )
+                        data = float(data)
+                        memory.append( data )
+                    
+                    elif substring4 in line:
+                        data = parseLine(line, 3, '', debug)
+                        if debug: print ("found memory value: %s, for substring %s" % (data, substring4) )
+                        data = float(data)
+                        memory.append( data )
+                    
+                    elif substring5 in line:
+                        data = parseLine(line, 3, '', debug)
+                        if debug: print ("found memory value: %s, for substring %s" % (data, substring5) )
+                        data = float(data)
+                        memory.append( data )
+
+                elif algorithm == 'Bellman-Ford':
+
+                    substring1 = "G = nx.Graph( input_data.values )"
+                    substring2 = "nodeList = G.nodes()"
+                    substring3 = "nodeListData = G.nodes(data=True)"
+                    substring4 = "pred, dist = nx.bellman_ford(G, startNode )"
+                    substring5 = "while currNode != startNode:"
+                    substring6 = "bfPathLengthsAll = dict(dist)"
+
+                    if substring1 in line:
+                        data = parseLine(line, 3, '', debug)
+                        if debug: print ("found memory value: %s, for substring %s" % (data, substring1) )
+                        data = float(data)
+                        memory.append( data )
+                    
+                    elif substring2 in line:
+                        data = parseLine(line, 3, '', debug)
+                        if debug: print ("found memory value: %s, for substring %s" % (data, substring2) )
+                        data = float(data)
+                        memory.append( data )
+                    
+                    elif substring3 in line:
+                        data = parseLine(line, 3, '', debug)
+                        if debug: print ("found memory value: %s, for substring %s" % (data, substring3) )
+                        data = float(data)
+                        memory.append( data )
+                    
+                    elif substring4 in line:
+                        data = parseLine(line, 3, '', debug)
+                        if debug: print ("found memory value: %s, for substring %s" % (data, substring4) )
+                        data = float(data)
+                        memory.append( data )
+
+                    elif substring5 in line:
+                        data = parseLine(line, 3, '', debug)
+                        if debug: print ("found memory value: %s, for substring %s" % (data, substring5) )
+                        data = float(data)
+                        memory.append( data )
+
+                    elif substring6 in line:
+                        data = parseLine(line, 3, '', debug)
+                        if debug: print ("found memory value: %s, for substring %s" % (data, substring6) )
+                        data = float(data)
+                        memory.append( data )
+                    
+                elif algorithm == 'Dijkstra':
+
+                    substring1 = "G = nx.Graph( input_data.values )"
+                    substring2 = "nodeList = G.nodes()"
+                    substring3 = "nodeListData = G.nodes(data=True)"
+                    substring4 = "dijkstraPath = nx.dijkstra_path(G, startNode, destNode )"
+                    substring5 = "dijkstraPathLength = nx.dijkstra_path_length(G, startNode, destNode )"                
+
+                    if substring1 in line:
+                        data = parseLine(line, 3, '', debug)
+                        if debug: print ("found memory value: %s, for substring %s" % (data, substring1) )
+                        data = float(data)
+                        memory.append( data )
+                    
+                    elif substring2 in line:
+                        data = parseLine(line, 3, '', debug)
+                        if debug: print ("found memory value: %s, for substring %s" % (data, substring2) )
+                        data = float(data)
+                        memory.append( data )
+                    
+                    elif substring3 in line:
+                        data = parseLine(line, 3, '', debug)
+                        if debug: print ("found memory value: %s, for substring %s" % (data, substring3) )
+                        data = float(data)
+                        memory.append( data )
+                    
+                    elif substring4 in line:
+                        data = parseLine(line, 3, '', debug)
+                        if debug: print ("found memory value: %s, for substring %s" % (data, substring4) )
+                        data = float(data)
+                        memory.append( data )
+                    
+                    elif substring5 in line:
+                        data = parseLine(line, 3, '', debug)
+                        if debug: print ("found memory value: %s, for substring %s" % (data, substring5) )
+                        data = float(data)
+                        memory.append( data )
+
+        #done collecting data from each (relevant)row. Now process memory values:
+
+        #can't use list.sort() as shown here: http://stackoverflow.com/questions/7301110/why-does-return-list-sort-return-none-not-the-list
+        # Python is weird that way...
+        memory = sorted(memory)
+        if debug: print ("memory (sorted):"),
+        if debug: print ( sorted(memory) ) 
+        if debug: print ("memory list items: %d" % len(memory) )
+        maximum = memory[ len(memory) -1 ]
+        minimum = memory[0]
+        total = sum(memory)
+        avg = total / len(memory)
+
+        if debug: print ("Memory: total = %f, min = %f, max = %f, avg = %f" % (total, minimum, maximum, avg) )
+        data = [str(total), str(minimum), str(maximum)]
+        return data
+
+    else:
+        return data
+
 
 ############################################################
 
