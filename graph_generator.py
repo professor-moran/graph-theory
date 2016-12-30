@@ -280,7 +280,7 @@ def writeGraphFile( csvFileNamePrefix, csvExtention, path, exportType, debug=Fal
 
     exportType = str.lower(exportType)
     print (">> Export file type = '%s'" % exportType)
-    
+
     if exportType == 'pajek':
         print (">> Export file type = '%s'" % exportType)
     elif exportType == 'graphml':
@@ -288,20 +288,20 @@ def writeGraphFile( csvFileNamePrefix, csvExtention, path, exportType, debug=Fal
     else:
         print("Error: file type for export can only be (a) 'graphml', or (b) 'pajek'")
         return False
-    
+
 
     csvFileName = csvFileNamePrefix + '.' + csvExtention
-    
+
     csvPathFile = os.path.join(path, csvFileName)
-    
+
     #does input CSV file exist?
     if checkFilePath( csvFileName, path, debug) == False:
         print ("Input CSV file %s not found." % csvPathFile )
         return False
     else:
         if debug: print("Found input CSV file %s" % csvPathFile )
-    
-    
+
+
     #read adjacency matrix file into pandas:
     #input_data = pd.read_csv(adjMatrixFileName, index_col=0)
     #input_data = pd.read_csv(adjMatrixFileName, header=None)
