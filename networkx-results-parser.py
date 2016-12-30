@@ -140,7 +140,7 @@ def writeCsvFile( fileNamePrefix, csvExtention, path, delimiter, maxWidth, maxHe
 #   
 #   RESULTS|A-star|pathLength|3
 #   RESULTS|A-star|path|[1, 1999, 1997, 1001]
-#   RESULTS|A-star|elapsedTime(ms)|1680.891991
+#   RESULTS|A-star|elapsedTime|1.680891991
 #
 #<end of record block>
 #
@@ -149,7 +149,7 @@ def writeCsvFile( fileNamePrefix, csvExtention, path, delimiter, maxWidth, maxHe
 #<end of file>
 #
 # So the start of one reading begins with "ALGORITHM|<algorithm name>"
-# And ends with "RESULTS|<algorithm name>|elapsedTime(ms)|<floating point value>"
+# And ends with "RESULTS|<algorithm name>|elapsedTime|<floating point value>"
 # NOTE: The algorithm will differ per file, and there are 3 aforementioned algorithms.
 #
 # Thus, there are 5 core data points to derive from each record block that need
@@ -159,7 +159,7 @@ def writeCsvFile( fileNamePrefix, csvExtention, path, delimiter, maxWidth, maxHe
 # (2) input file name -- as this can be useful for subsequent graph file post analysis.
 # (3) memory consumption in MB (for that algorithm) -- this will be most complicated as it involves multiple lines.
 # (4) path length (for that algorithm) -- an integer
-# (5) elapsedTime in milliseconds (for that algorithm)
+# (5) elapsedTime in seconds (for that algorithm)
 #
 # Currently, we don't care about the actual node path. 
 # We marginally care about the path length only because these may be interesting from
@@ -170,7 +170,8 @@ def parseFile( inPathFile, path, outCsvFileNamePrefix, outCsvFileExt, algorithm 
     outCsvPathFileName = createFilePath ( (outCsvFileNamePrefix + outCsvFileExt), path, debug)
     outFile = open(outCsvPathFileName, 'wt')    #will overwrite existing file (if there)
     #write column header line (comma separated) to the output file:
-    headerLine = 'ALGORITHM,FILE_NAME,PATH_LENGTH,ELAPSED_TIME,MEMORY_CONSUMED,MIN_MEMORY,MAX_MEMORY\n'
+    #headerLine = 'ALGORITHM,FILE_NAME,PATH_LENGTH,ELAPSED_TIME,MEMORY_CONSUMED,MIN_MEMORY,MAX_MEMORY\n'
+    headerLine = 'ALGORITHM,FILE_NAME,PATH_LENGTH,ELAPSED_TIME,MEMORY_CONSUMED\n'
     outFile.write( headerLine )
 
 
@@ -184,8 +185,8 @@ def parseFile( inPathFile, path, outCsvFileNamePrefix, outCsvFileExt, algorithm 
         pathLength = ''
         elapsedTime = ''
         memoryConsumed = '0.0'
-        minMemory = '0.0'
-        maxMemory = '0.0'
+        #minMemory = '0.0'
+        #maxMemory = '0.0'
 
         buffering = False
 
@@ -211,8 +212,8 @@ def parseFile( inPathFile, path, outCsvFileNamePrefix, outCsvFileExt, algorithm 
                     #memoryBuffList = parseEntireMemoryConsumptionBuffer( buffer, debug )
                     memoryBuffList = parseTargetedMemoryConsumptionBuffer( buffer, algorithm, debug )
                     memoryConsumed = memoryBuffList[0]
-                    minMemory = memoryBuffList[1]
-                    maxMemory = memoryBuffList[2]
+                    #minMemory = memoryBuffList[1]
+                    #maxMemory = memoryBuffList[2]
                     
                 #Else simply add the line to the buffer:
                 else: buffer.append(line)
@@ -235,7 +236,8 @@ def parseFile( inPathFile, path, outCsvFileNamePrefix, outCsvFileExt, algorithm 
                 elif buffering == False and line.startswith('RESULTS|' + algorithm + '|pathLength|'):
                     pathLength = parseLine( line, 3, '|', debug)
             
-                elif buffering == False and line.startswith('RESULTS|' + algorithm + '|elapsedTime(ms)|'):
+                #elif buffering == False and line.startswith('RESULTS|' + algorithm + '|elapsedTime(ms)|'):
+                elif buffering == False and line.startswith('RESULTS|' + algorithm + '|elapsedTime|'):
                     elapsedTime = parseLine( line, 3, '|', debug)
             
             
@@ -249,7 +251,8 @@ def parseFile( inPathFile, path, outCsvFileNamePrefix, outCsvFileExt, algorithm 
                     #and buffering == False:
                 
                     #Write the combined line, comma-separated, to the target CSV file:
-                    dataLine = algName + ',' + graphFileName + ',' + pathLength + ',' + elapsedTime + ',' + memoryConsumed + ',' + minMemory + ',' + maxMemory + '\n'
+                    #dataLine = algName + ',' + graphFileName + ',' + pathLength + ',' + elapsedTime + ',' + memoryConsumed + ',' + minMemory + ',' + maxMemory + '\n'
+                    dataLine = algName + ',' + graphFileName + ',' + pathLength + ',' + elapsedTime + ',' + memoryConsumed + '\n'
                     #print(">>dataLine = %s" % dataLine )
                     outFile.write( dataLine )
                 
@@ -259,8 +262,8 @@ def parseFile( inPathFile, path, outCsvFileNamePrefix, outCsvFileExt, algorithm 
                     pathLength = ''
                     elapsedTime = ''
                     memoryConsumed = '0.0'
-                    minMemory = '0.0'
-                    maxMemory = '0.0'
+                    #minMemory = '0.0'
+                    #maxMemory = '0.0'
                     buffer = []
                     buffering = False
 
@@ -322,7 +325,8 @@ def parseEntireMemoryConsumptionBuffer( buffer, debug=False ):
     consumed = 0.0
     min = 0.0
     max = 0.0
-    data = [consumed, min, max]
+    #data = [consumed, min, max]
+    data = [consumed]
     memory = []
 
     if len(buffer) > 0:
@@ -358,9 +362,12 @@ def parseEntireMemoryConsumptionBuffer( buffer, debug=False ):
         maximum = memory[ len(memory) -1]
         minimum = memory[0]
         consumed = maximum - minimum
+        #consumed = format(consumed, '.1f') # format the floating point values
+        consumed = format(consumed, '.2f') # format the floating point values
 
         if debug: print ("Memory: max = %f, min = %f, diff = %f" % (maximum, minimum, consumed) )
-        data = [str(consumed), str(minimum), str(maximum)]
+        #data = [str(consumed), str(minimum), str(maximum)]
+        data = [str(consumed)]
         return data
 
     else:
@@ -416,9 +423,10 @@ def parseEntireMemoryConsumptionBuffer( buffer, debug=False ):
 def parseTargetedMemoryConsumptionBuffer( buffer, algorithm = 'A-star', debug=False ):
 
     total = 0.0
-    min = 0.0
-    max = 0.0
-    data = [total, min, max]
+    #min = 0.0
+    #max = 0.0
+    #data = [total, min, max]
+    data = [total]
     memory = []
 
     if len(buffer) > 0:
@@ -578,13 +586,18 @@ def parseTargetedMemoryConsumptionBuffer( buffer, algorithm = 'A-star', debug=Fa
         if debug: print ("memory (sorted):"),
         if debug: print ( sorted(memory) ) 
         if debug: print ("memory list items: %d" % len(memory) )
-        maximum = memory[ len(memory) -1 ]
-        minimum = memory[0]
+        #maximum = memory[ len(memory) -1 ]
+        #minimum = memory[0]
         total = sum(memory)
-        avg = total / len(memory)
+        if debug: print ("Memory: total (before rounding) = %f" % total )
+        #total = format(total, '.1f') # format the floating point values
+        total = format(total, '.2f') # format the floating point values
+        #avg = float(total) / len(memory)
 
-        if debug: print ("Memory: total = %f, min = %f, max = %f, avg = %f" % (total, minimum, maximum, avg) )
-        data = [str(total), str(minimum), str(maximum)]
+        #if debug: print ("Memory: total = %f, min = %f, max = %f, avg = %f" % (total, minimum, maximum, avg) )
+        if debug: print ("Memory: total = %s" % total )
+        #data = [str(total), str(minimum), str(maximum)]
+        data = [ total ]
         return data
 
     else:

@@ -167,7 +167,7 @@ def performNetworkXCalculations(adjMatrixFileName, path, algorithm=1, viewWidth=
     if algorithm == 1:
         if debug: print("Algorithm: A-Star")
         print("RESULTS|A-star|memoryConsumption(MB)|...\n")
-        start_time = timeit.default_timer() #get the start time
+        #start_time = timeit.default_timer() #get the start time
 
         manager = multiprocessing.Manager()
         state = manager.list()
@@ -176,6 +176,8 @@ def performNetworkXCalculations(adjMatrixFileName, path, algorithm=1, viewWidth=
         args["input_data"] = input_data
         args["debug"] = debug
         state[0] = args
+        
+        start_time = timeit.default_timer() #get the start time
         #runAstar(G, startNode, destNode)
         p = multiprocessing.Process(target=runAstar, args=(state,) )
         p.start()
@@ -189,7 +191,7 @@ def performNetworkXCalculations(adjMatrixFileName, path, algorithm=1, viewWidth=
     elif algorithm == 2:
         if debug: print("Algorithm: Bellman-Ford")
         print("RESULTS|Bellman-Ford|memoryConsumption(MB)|...\n")
-        start_time = timeit.default_timer() #get the start time
+        #start_time = timeit.default_timer() #get the start time
 
         manager = multiprocessing.Manager()
         state = manager.list()
@@ -198,6 +200,8 @@ def performNetworkXCalculations(adjMatrixFileName, path, algorithm=1, viewWidth=
         args["input_data"] = input_data
         args["debug"] = debug
         state[0] = args
+        
+        start_time = timeit.default_timer() #get the start time
         #runBellmanFord(G, startNode, destNode)
         p = multiprocessing.Process(target=runBellmanFord, args=(state,) )
         p.start()
@@ -211,7 +215,7 @@ def performNetworkXCalculations(adjMatrixFileName, path, algorithm=1, viewWidth=
     elif algorithm == 3:
         if debug: print("Algorithm: Dijkstra")
         print("RESULTS|Dijkstra|memoryConsumption(MB)|...\n")
-        start_time = timeit.default_timer() #get the start time
+        #start_time = timeit.default_timer() #get the start time
 
         manager = multiprocessing.Manager()
         state = manager.list()
@@ -220,6 +224,8 @@ def performNetworkXCalculations(adjMatrixFileName, path, algorithm=1, viewWidth=
         args["input_data"] = input_data
         args["debug"] = debug
         state[0] = args
+        
+        start_time = timeit.default_timer() #get the start time
         #runDijkstra(G, startNode, destNode)
         p = multiprocessing.Process(target=runDijkstra, args=(state,) )
         p.start()
@@ -479,7 +485,7 @@ def run_tests():
     viewHeightInches = 10   #to do - parameterize this
 
 
-    print("\nProcessing CSV files in subdir: '%s'" % path)
+    print("\nProcessing graph files (CSV format) in subdir: '%s'" % path)
     count = 0
     for root, dirs, files in os.walk (path):
         for fileName in files:
@@ -496,7 +502,10 @@ def run_tests():
 
                 #call the function that does the pathfinding:
                 elapsed_time = performNetworkXCalculations( fileName, path, algorithm, viewWidthInches, viewHeightInches, displayGraphs, debug )
-                print("RESULTS|%s|elapsedTime(ms)|%f" % (algorithmName, elapsed_time*1000) )
+                #elapsed_time = format( float(elapsed_time), '.2f')
+                elapsed_time = format( float(elapsed_time), '.3f')
+                #print("RESULTS|%s|elapsedTime(ms)|%f" % (algorithmName, elapsed_time*1000) )
+                print("RESULTS|%s|elapsedTime|%s" % (algorithmName, elapsed_time) )
 
     print ("\nDone.\n")
 
