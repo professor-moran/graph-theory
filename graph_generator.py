@@ -334,9 +334,9 @@ def writeGraphFile( csvFileNamePrefix, csvExtention, path, exportType, debug=Fal
 # Main Graph Generator Test Harness:
 #For the doc study, consider (a) 50x50, k=2, p=.05; and (b) 1000x1000, k=2, p=0.0025
 
-print ("\nUsage: %s [#iterations: int] [size: int] [k: int] [p: float] [path: str] [filename: str] [exportType: 'graphml' or 'pajek'] [debugMode: 0 or 1]\n" % str(sys.argv[0]) )
-print ("e.g., for small '50x50' maps:\n  python  %s  10  50  2  0.05  outputDir  small_   graphml  0\n" % str(sys.argv[0]) )
-print ("e.g., for large '1000x1000' maps:\n  python  %s  10  1000  2  0.0025  outputDir  large_   pajek  1\n" % str(sys.argv[0]) )
+print ("\nUsage: %s [#iterations: int] [size: int] [k: int] [p: float] [path: str] [filename: str] [exportType: 'graphml' or 'pajek'] [starting ID: 1] [debugMode: 0 or 1]\n" % str(sys.argv[0]) )
+print ("e.g., for small '50x50' maps:\n  python  %s  10  50  2  0.05  outputDir  small_   graphml  1  0\n" % str(sys.argv[0]) )
+print ("e.g., for large '1000x1000' maps:\n  python  %s  10  1000  2  0.0025  outputDir  large_   pajek  1  1\n" % str(sys.argv[0]) )
 
 
 iterations = int(sys.argv[1]) #get first command line parameter after script name (argv[0])
@@ -359,24 +359,28 @@ path = str(sys.argv[5])
 if isNotEmpty(path) == False: path = "outputPath"
 
 fileNamePrefix = str(sys.argv[6])
-if isNotEmpty(fileNamePrefix) == False: fileNamePrefix = "graphFile_"
+if isNotEmpty(fileNamePrefix) == False: fileNamePrefix = "outGraph_"
 
 exportType = str(sys.argv[7])
 if isNotEmpty(exportType) == False: exportType="graphml"
 
-debug = int(sys.argv[8])
+startId = int(sys.argv[8])
+if startId < 1: startId = 1
+
+debug = int(sys.argv[9])
 if debug == 1: debug = True
 elif debug == 0: debug = False
 else: debug = False
 
-print("Running with options:\n #iterations=%d\n size=%d\n k=%d\n p=%f\n path=%s\n fileName=%s\n type=%s\n debug=%s" % (iterations, maxLen1, k, p, path, fileNamePrefix, exportType, debug) )
+print("Running with options:\n  #iterations=%d\n  size=%d\n  cluster depth k=%d\n  rewiring percentage p=%f\n  path=%s\n  fileName=%s\n  export file type=%s\n  starting file ID number=%s\n  debugMode=%s\n" % (iterations, maxLen1, k, p, path, fileNamePrefix, exportType, startId, debug) )
 
 
-count = 0
-while count < iterations:
-    count += 1
+count = startId #(startID is the starting number used in numbering the output files.) 
+if count < 0: count = 0
+
+while count < (iterations + startId):
     print("\nIteration: %d\n" % count)
-    
+
     width = maxLen1 
     height = maxLen1
 
@@ -388,13 +392,13 @@ while count < iterations:
 
     #Create a regular matrix, of type k-regular (where k is a positive integer).
     createRegularMatrix( k, width, height, matrix1)
-    if debug: print("Created a k-regular matrix (where k = %d)." % k)
+    if debug: print("Created a k-regular matrix (where cluster depth k = %d)." % k)
     if debug: printMatrix( width, height, matrix1 )
 
     #Create a small-world matrix, with rewiring probability 'p' equal to a value < 1.0:
     smallWorld = matrix1
     createSmallWorldMatrix( p, width, height, smallWorld, debug )
-    if debug: print("Created a small-world matrix with rewiring probability = %f" % p)
+    if debug: print("Created a small-world matrix with rewiring probability p = %f" % p)
     if debug: printMatrix( width, height, smallWorld )
 
     #now write simple adjacency matrix to text file in CSV format:
@@ -405,6 +409,8 @@ while count < iterations:
 
     #Call NetworkX to translate the CSV file into a Pajek format graph text file:
     writeGraphFile( fileName, csvExtention, path, exportType, debug)
+
+    count += 1
 
 
 print ("\nDone.\n")
