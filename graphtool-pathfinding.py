@@ -1,3 +1,7 @@
+from graph_tool.all import *
+
+
+"""
 import random
 import math
 import pandas as pd
@@ -14,6 +18,7 @@ from memory_profiler import memory_usage
 from memory_profiler import LogFile
 import guppy
 import multiprocessing
+"""
 
 
 """
@@ -33,6 +38,7 @@ and
 http://stackoverflow.com/questions/5086430/how-to-pass-parameters-of-a-function-when-using-timeit-timer
 """
 
+"""
 #globals:
 #memory_profiler_out_file = 'memory_profiler.log'
 ##mpLogFile=open(memory_profiler_out_file,'w+')
@@ -520,10 +526,85 @@ def run_tests():
     print ("\nDone.\n")
 
     #mpLogFile.close()
+"""
+
+def main():
+
+    g = Graph()
+    g = load_graph("small_100x100_k2_p05_1.graphml")
+    #verts = g.vertices()
+    #for v1 in verts:
+    #    print(v1)
+    
+    #graph_draw(g, vertex_text=g.vertex_index, vertex_font_size=18, output_size=(300,300), output="small_100x100_k2_p05_1.png")
+    
+    #pos= sfdp_layout(g)
+    #graph_draw(g, pos, output_size=(400,400), vertex_color=[1,1,1,0], vertex_size=10, edge_pen_width=1.2, output="gt_sfdp.png")
+    
+    #pos2= arf_layout(g, max_iter=0)
+    #graph_draw(g, pos=pos2, output_size=(400,400), output="gt_arf.png")
+
+
+    startNode = g.vertex(1)
+    destNode = g.vertex(51)
+    print ("start node = " + str(startNode) + ", destination node = " + str(destNode) )
+    
+    vertList, edgeList = shortest_path(g, startNode, destNode)
+    shortestPath = []
+    for v in vertList:
+        #print (str(v))
+        shortestPath.append( str(v) )
+    
+    print ("Shortest path from %s to %s =\n%s" % (startNode, destNode, str(shortestPath)) )
+    print ("Path length = %d" % (len(shortestPath) -1) ) #subtract 1 to not count starting node.
+    
+    #for e in edgeList:
+    #    print (str(e))
+
+
+    weight = g.new_edge_property("int")
+    #give all edges a weight of one
+    #weight.set_value(1)
+    for e in g.edges():
+        weight[e] = 1
+    
+    dist, pred = dijkstra_search(g, startNode, weight)
+    #print (dist)
+    #i = 0
+    #for d in dist:
+    #    print( "[%d: %s]" % (i, str(d)) ),
+    #    i += 1
+    print ("Path length to destination node '%d' = %d" % (destNode, dist[int(destNode)] ) )
+    
+    i = 0
+    path = []   #build the list of node predecessors.
+    for p in pred:
+        path.append( [i, int(p)] )
+        i += 1
+
+    #Graph-Tool's Dijkstra method doesn't return a simple path, nor
+    # a path length. Instead it returns two lists: a predecessor, and a distance list.
+    # So, we must do some list traversal to find the desired values:
+    destNode = g.vertex(51)
+    dijkPath = []
+    dijkPath.append( int(destNode) ) # append the destination node, then find its predecessor.
+    currNode = destNode #set current node to destination node
+
+    #The following loop will start from the destination and work our way back to 
+    # the start node, one node link at a time.
+    # The predecessor list is in [int][int] format, specifically [index][pred node index],
+    # so pred[99][1] means that while on the way to searching from the source to the
+    # destination node, the node at index 99 has a predecessor of node index 1.
+    while currNode != startNode:  #start with destination node...
+        dijkPath.append( path [int(currNode)][1] ) #append the predecessor node...
+        currNode = path [int(currNode)][1]  #update the current node... keep looping backwards.
+    dijkPath.reverse() #now reverse the list, so it displays in correct order
+    print("\nDijkstra Path = %s" % dijkPath)
+    print("Dijkstra Path Length = %d" % (len(dijkPath) -1) ) #subtract 1 to not count starting node.
 
 
 ############################################################
 
 if __name__ == '__main__':
     #print("In main()")
-    run_tests()
+    main()

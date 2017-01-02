@@ -279,7 +279,6 @@ def _regularMatrixCalc(k, maxWidth, maxHeight, matrix):
 def writeGraphFile( csvFileNamePrefix, csvExtention, path, exportType, debug=False ):
 
     exportType = str.lower(exportType)
-    print (">> Export file type = '%s'" % exportType)
 
     if exportType == 'pajek':
         print (">> Export file type = '%s'" % exportType)
