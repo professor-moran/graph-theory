@@ -476,17 +476,16 @@ def run_tests():
 
     displayGraphs = int(sys.argv[3])
     if displayGraphs == 1: displayGraphs = True
-    elif displayGraphs == 0: displayGraphs = False
     else: displayGraphs = False
 
 
     debug = int(sys.argv[4])
     if debug == 1: debug = True
-    elif debug == 0: debug = False
     else: debug = False
 
+
     advert = "(where 1 = A* (A-star), 2 = Bellman-Ford, 3 = Dijkstra)"
-    print("Running with user-selected options:\n"),
+    print("Running NetworkX pathfinding with user-selected options:\n"),
     print("  inputFilePath=%s\n  algorithm=%d  %s\n  displayGraphs=%s\n  debug=%s\n" 
         % (path, algorithm, advert, displayGraphs, debug) )
 

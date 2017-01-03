@@ -1,4 +1,12 @@
-from graph_tool.all import *
+import graph_tool.all as gt
+import sys
+import os
+import gc
+import timeit
+from memory_profiler import profile
+import multiprocessing
+
+#from graph_tool.all import *
 
 
 """
@@ -8,12 +16,10 @@ import pandas as pd
 import networkx as nx
 import pylab
 from pylab import rcParams
-import sys
-import os
-import timeit
+
 import functools
-import gc
-from memory_profiler import profile
+
+
 from memory_profiler import memory_usage
 from memory_profiler import LogFile
 import guppy
@@ -38,11 +44,6 @@ and
 http://stackoverflow.com/questions/5086430/how-to-pass-parameters-of-a-function-when-using-timeit-timer
 """
 
-"""
-#globals:
-#memory_profiler_out_file = 'memory_profiler.log'
-##mpLogFile=open(memory_profiler_out_file,'w+')
-#sys.stdout = LogFile(memory_profiler_out_file)
 
 
 ############################################################
@@ -122,6 +123,7 @@ def checkPath( path, debug=False):
         return False
 
 
+"""
 ############################################################
 # NetworkX graph manipulations
 #
@@ -528,10 +530,265 @@ def run_tests():
     #mpLogFile.close()
 """
 
-def main():
 
-    g = Graph()
-    g = load_graph("small_100x100_k2_p05_1.graphml")
+############################################################
+#def heuristic(v, target, pos):
+#
+#    return sqrt(sum((pos[v].a - pos[target].a) ** 2))
+#
+
+
+
+############################################################
+# Graph-Tool graph manipulations
+#
+# This function takes a simple GraphML text file name as input.
+# The file itself should follow GraphML characteristics, discussed here:
+# http://graphml.graphdrawing.org
+#
+# Warning: if drawGraph is True, it will write the graphs to the file system, one-by-one
+# as they are processed for pathfinding operations. You will not see them on the screen.
+# Additionally, this slows down the pathfinding operations!!!
+# So, set the drawGraph parameter to true only during testing.
+#
+# The pathfinding algorithm parameter accepts a 1, 2, or 3, 
+# which (alphabetical order) indicates the following:
+#   1 = A* (A-star) algorithm   <--- this is the default
+#   2 = Bellman-Ford algorithm
+#   3 = Dijkstra's algorithm
+#
+def performGraphToolCalculations(graphmlFileName, path, algorithm=1, drawGraph=False, debug=False):
+
+    """
+    if algorithm == 1:
+        print("\nRunning A-star search:")
+        runAstar(fileName, path)
+    elif algorithm == 2:
+        print("\nRunning Bellman-Ford search:")
+        runBellmanFord(fileName, path)
+    elif algorithm == 3:
+        print("\nRunning Dijkstra search:")
+        runDijkstra(fileName, path)
+    """
+
+
+    algorithm = int(algorithm)
+    drawGraph = bool(drawGraph)
+    debug = bool(debug)
+
+    if debug: print("Performing Graph-Tool pathfinding calculations...")
+
+    #boundary checking:
+    if algorithm < 1: algorithm = 1
+    if algorithm > 3: algorithm = 3
+
+
+    #Get the path to the target GraphML file:
+    graphmlPathFile = os.path.join(path, graphmlFileName)
+
+
+    start_time = 0.0
+
+    #Now calculate the shortest paths, based on the user-specified algorithm.
+    if algorithm == 1:
+        if debug: print("Algorithm: A-Star")
+        print("RESULTS|A-star|memoryConsumption(MB)|...\n")
+        start_time = timeit.default_timer() #get the start time
+
+        manager = multiprocessing.Manager()
+        state = manager.list()
+        state.append({})
+        args = state[0]
+        args["input_path_file"] = graphmlPathFile
+        args["draw_graph"] = drawGraph
+        args["debug"] = debug
+        state[0] = args
+        
+        #start_time = timeit.default_timer() #get the start time
+        #runAstar(G, startNode, destNode)
+        p = multiprocessing.Process(target=runAstar, args=(state,) )
+        p.start()
+        p.join() #wait for child process to finish.
+        print("RESULTS|A-star|pathLength|%d" % int(state[0]["pathLength"]) )
+        print("RESULTS|A-star|path|%s" % str(state[0]["path"]) )
+
+        end_time = timeit.default_timer() #get the end time
+        elapsed_time = end_time - start_time
+        
+    elif algorithm == 2:
+        if debug: print("Algorithm: Bellman-Ford")
+        print("RESULTS|Bellman-Ford|memoryConsumption(MB)|...\n")
+        start_time = timeit.default_timer() #get the start time
+
+        manager = multiprocessing.Manager()
+        state = manager.list()
+        state.append({})
+        args = state[0]
+        args["input_path_file"] = graphmlPathFile
+        args["draw_graph"] = drawGraph
+        args["debug"] = debug
+        state[0] = args
+        
+        #start_time = timeit.default_timer() #get the start time
+        #runBellmanFord(G, startNode, destNode)
+        p = multiprocessing.Process(target=runBellmanFord, args=(state,) )
+        p.start()
+        p.join() #wait for child process to finish.
+        print("RESULTS|Bellman-Ford|pathLength|%d" % int(state[0]["pathLength"]) )
+        print("RESULTS|Bellman-Ford|path|%s" % str(state[0]["path"]) )
+
+        end_time = timeit.default_timer() #get the end time
+        elapsed_time = end_time - start_time
+
+    elif algorithm == 3:
+        if debug: print("Algorithm: Dijkstra")
+        print("RESULTS|Dijkstra|memoryConsumption(MB)|...\n")
+        start_time = timeit.default_timer() #get the start time
+
+        manager = multiprocessing.Manager()
+        state = manager.list()
+        state.append({})
+        args = state[0]
+        args["input_path_file"] = graphmlPathFile
+        args["draw_graph"] = drawGraph
+        args["debug"] = debug
+        state[0] = args
+        
+        #start_time = timeit.default_timer() #get the start time
+        #runDijkstra(G, startNode, destNode)
+        p = multiprocessing.Process(target=runDijkstra, args=(state,) )
+        p.start()
+        p.join() #wait for child process to finish.
+        print("RESULTS|Dijkstra|pathLength|%d" % int(state[0]["pathLength"]) )
+        print("RESULTS|Dijkstra|path|%s" % str(state[0]["path"]) )
+
+        end_time = timeit.default_timer() #get the end time
+        elapsed_time = end_time - start_time
+
+
+
+    #cleanup:
+    #del input_data
+    del graphmlPathFile
+    
+    #Done:
+    return elapsed_time
+
+
+############################################################
+#
+@profile(precision=4)
+#def runAstar(fileName, debug=False):
+def runAstar(state):
+
+    print ("In runAstar()")
+    
+    input_path_file = state[0]["input_path_file"]
+    draw_graph = state[0]["draw_graph"]
+    debug = state[0]["debug"]
+
+    print ("input_path_file = %s" % input_path_file)
+    print ("draw_graph = %s" % draw_graph)
+    print ("debugMode = %s" % debug)
+    
+    g = gt.Graph()
+    g = gt.load_graph( input_path_file )
+    
+    #verts = g.vertices()
+    #for v1 in verts:
+    #    print(v1)
+    
+    #graph_draw(g, vertex_text=g.vertex_index, vertex_font_size=18, output_size=(300,300), output="small_100x100_k2_p05_1.png")
+    
+    #pos= sfdp_layout(g)
+    #graph_draw(g, pos, output_size=(400,400), vertex_color=[1,1,1,0], vertex_size=10, edge_pen_width=1.2, output="gt_sfdp.png")
+    
+    #pos2= arf_layout(g, max_iter=0)
+    #graph_draw(g, pos=pos2, output_size=(400,400), output="gt_arf.png")
+
+
+    startNode = g.vertex(1) #always start at node index 1 (not zero)
+    destNode = g.num_vertices()/2 + 1 # destination node is always halfway between first and last nodes
+
+
+    #give all edges a weight of 1:
+    weights = g.new_edge_property("int")
+    #weight.set_value(1)
+    for e in g.edges():
+        weights[e] = 1
+    
+    
+    dist, pred = gt.astar_search(g, startNode, weight=weights)
+    #print ("Path length to destination node '%d' = %d" % (destNode, dist[int(destNode)] ) )
+
+    #Graph-Tool's A* method doesn't return a simple path, nor
+    # a path length. Instead it returns two lists: a predecessor, and a distance list.
+    # So, we must do some list traversal to find the desired values:
+    i = 0
+    path = []   #build the list of node predecessors.
+    for p in pred:
+        path.append( [i, int(p)] )
+        i += 1
+
+    #destNode = g.vertex(51)
+    #destNode = g.num_vertices()/2 + 1
+    astarPath = []
+    astarPath.append( int(destNode) ) # append the destination node, then find its predecessor.
+    currNode = destNode #set current node to destination node
+
+    #The following loop will start from the destination and work our way back to 
+    # the start node, one node link at a time.
+    # The predecessor list is in [int][int] format, specifically [index][pred node index],
+    # so pred[99][1] means that while on the way to searching from the source to the
+    # destination node, the node at index 99 has a predecessor of node index 1.
+    while currNode != startNode:  #start with destination node...
+        astarPath.append( path [int(currNode)][1] ) #append the predecessor node...
+        currNode = path [int(currNode)][1]  #update the current node... keep looping backwards.
+    astarPath.reverse() #now reverse the list, so it displays in correct order
+    #print("A-Star Path = %s" % astarPath)
+    #print("A-Star Path Length = %d" % (len(astarPath) -1) ) #subtract 1 to not count starting node.
+
+
+    if draw_graph == True:
+        #verts = g.vertices()
+        #for v1 in verts:
+            #print(v1)
+    
+        #graph_draw(g, vertex_text=g.vertex_index, vertex_font_size=18, output_size=(300,300), output="small_100x100_k2_p05_1.png")
+
+        #pos = gt.sfdp_layout(g)
+        #gt.graph_draw(g, pos, output_size=(800,800), vertex_color=[1,1,1,0], vertex_size=10, edge_pen_width=1.2, output=(input_path_file + ".png") )
+
+        pos= gt.arf_layout(g, max_iter=0)
+        gt.graph_draw(g, pos=pos, output_size=(800,800), vertex_color=[1,1,1,0], vertex_size=10, edge_pen_width=1.2, output=(input_path_file + ".png") )
+
+
+    #Return results by loading the list shared between processes.
+    state.append({})
+    args = state[0]
+    args["pathLength"] = len(astarPath) -1 #subtract 1 to not count starting node.
+    args["path"] = astarPath
+    state[0] = args
+
+
+############################################################
+@profile(precision=4)
+def runBellmanFord(state):
+
+    print ("In runBellmanFord()")
+    
+    input_path_file = state[0]["input_path_file"]
+    draw_graph = state[0]["draw_graph"]
+    debug = state[0]["debug"]
+
+    print ("input_path_file = %s" % input_path_file)
+    print ("draw_graph = %s" % draw_graph)
+    print ("debugMode = %s" % debug)
+
+    g = gt.Graph()
+    g = gt.load_graph( input_path_file )
+    
+    
     #verts = g.vertices()
     #for v1 in verts:
     #    print(v1)
@@ -547,45 +804,136 @@ def main():
 
     startNode = g.vertex(1)
     destNode = g.vertex(51)
-    print ("start node = " + str(startNode) + ", destination node = " + str(destNode) )
-    
-    vertList, edgeList = shortest_path(g, startNode, destNode)
+    #print ("start node = " + str(startNode) + ", destination node = " + str(destNode) )
+
+
+    #give all edges a weight of 1:
+    weights = g.new_edge_property("int")
+    #weight.set_value(1)
+    for e in g.edges():
+        weights[e] = 1
+
+
+    #According to documentation, if negative_weights=True, then the shortest_path()
+    # should start a Bellman_Ford path search (no specific weights property needed).
+    # For documentation and details, see: https://graph-tool.skewed.de/static/doc/topology.html?highlight=shortest_path#graph_tool.topology.shortest_path
+    vertList, edgeList = gt.shortest_path(g, startNode, destNode, negative_weights=True)
+
+
     shortestPath = []
     for v in vertList:
         #print (str(v))
-        shortestPath.append( str(v) )
+        shortestPath.append( int(v) )
+
+
+    ##print ("Bellman-Ford: Shortest path from nodes %s to %s =\n%s" % (startNode, destNode, str(shortestPath)) )
+    #print ("Bellman-Ford Path = %s" % ( str(shortestPath)) )
+    #print ("Bellman-Ford Path length = %d" % (len(shortestPath) -1) ) #subtract 1 to not count starting node.
+
+
+    if draw_graph == True:
+        #verts = g.vertices()
+        #for v1 in verts:
+            #print(v1)
     
-    print ("Shortest path from %s to %s =\n%s" % (startNode, destNode, str(shortestPath)) )
-    print ("Path length = %d" % (len(shortestPath) -1) ) #subtract 1 to not count starting node.
+        #graph_draw(g, vertex_text=g.vertex_index, vertex_font_size=18, output_size=(300,300), output="small_100x100_k2_p05_1.png")
+
+        #pos = gt.sfdp_layout(g)
+        #gt.graph_draw(g, pos, output_size=(800,800), vertex_color=[1,1,1,0], vertex_size=10, edge_pen_width=1.2, output=(input_path_file + ".png") )
+
+        pos= gt.arf_layout(g, max_iter=0)
+        gt.graph_draw(g, pos=pos, output_size=(800,800), vertex_color=[1,1,1,0], vertex_size=10, edge_pen_width=1.2, output=(input_path_file + ".png") )
+
+
+    #Return results by loading the list shared between processes.
+    state.append({})
+    args = state[0]
+    args["pathLength"] = len(shortestPath) -1 #subtract 1 to not count starting node.
+    args["path"] = str(shortestPath)
+    state[0] = args
+
+
+############################################################
+@profile(precision=4)
+def runDijkstra(state):
+
+    print ("In runDijkstra()")
+    
+    input_path_file = state[0]["input_path_file"]
+    draw_graph = state[0]["draw_graph"]
+    debug = state[0]["debug"]
+
+    print ("input_path_file = %s" % input_path_file)
+    print ("draw_graph = %s" % draw_graph)
+    print ("debugMode = %s" % debug)
+    
+    g = gt.Graph()
+    g = gt.load_graph( input_path_file )
+    
+
+    #verts = g.vertices()
+    #for v1 in verts:
+    #    print(v1)
+    
+    #graph_draw(g, vertex_text=g.vertex_index, vertex_font_size=18, output_size=(300,300), output="small_100x100_k2_p05_1.png")
+    
+    #pos= sfdp_layout(g)
+    #graph_draw(g, pos, output_size=(400,400), vertex_color=[1,1,1,0], vertex_size=10, edge_pen_width=1.2, output="gt_sfdp.png")
+    
+    #pos2= arf_layout(g, max_iter=0)
+    #graph_draw(g, pos=pos2, output_size=(400,400), output="gt_arf.png")
+
+
+    #startNode = g.vertex(1)
+    #destNode = g.vertex(51)
+    #print ("start node = " + str(startNode) + ", destination node = " + str(destNode) )
+    
+    #Generic shortest path algorithm:
+    #vertList, edgeList = shortest_path(g, startNode, destNode)
+    #shortestPath = []
+    #for v in vertList:
+    #    #print (str(v))
+    #    shortestPath.append( str(v) )
+    
+    
+    #print ("Dijkstra: Shortest path from %s to %s =\n%s" % (startNode, destNode, str(shortestPath)) )
+    #print ("Dijkstra: Path length = %d" % (len(shortestPath) -1) ) #subtract 1 to not count starting node.
+    
     
     #for e in edgeList:
     #    print (str(e))
 
 
-    weight = g.new_edge_property("int")
-    #give all edges a weight of one
+    startNode = g.vertex(1) #always start at node index 1 (not zero)
+    #destNode = g.vertex(51)
+    destNode = g.num_vertices()/2 + 1 # destination node is always halfway between first and last nodes
+
+
+    weights = g.new_edge_property("int")
+    #give all edges a weight of 1
     #weight.set_value(1)
     for e in g.edges():
-        weight[e] = 1
+        weights[e] = 1
     
-    dist, pred = dijkstra_search(g, startNode, weight)
+    dist, pred = gt.dijkstra_search(g, startNode, weight=weights)
     #print (dist)
     #i = 0
     #for d in dist:
     #    print( "[%d: %s]" % (i, str(d)) ),
     #    i += 1
-    print ("Path length to destination node '%d' = %d" % (destNode, dist[int(destNode)] ) )
-    
+    #print ("Path length to destination node '%d' = %d" % (destNode, dist[int(destNode)] ) )
+
+
+    #Graph-Tool's Dijkstra method doesn't return a simple path, nor
+    # a path length. Instead it returns two lists: a predecessor, and a distance list.
+    # So, we must do some list traversal to find the desired values:
     i = 0
     path = []   #build the list of node predecessors.
     for p in pred:
         path.append( [i, int(p)] )
         i += 1
 
-    #Graph-Tool's Dijkstra method doesn't return a simple path, nor
-    # a path length. Instead it returns two lists: a predecessor, and a distance list.
-    # So, we must do some list traversal to find the desired values:
-    destNode = g.vertex(51)
+    #destNode = g.vertex(51)
     dijkPath = []
     dijkPath.append( int(destNode) ) # append the destination node, then find its predecessor.
     currNode = destNode #set current node to destination node
@@ -599,8 +947,104 @@ def main():
         dijkPath.append( path [int(currNode)][1] ) #append the predecessor node...
         currNode = path [int(currNode)][1]  #update the current node... keep looping backwards.
     dijkPath.reverse() #now reverse the list, so it displays in correct order
-    print("\nDijkstra Path = %s" % dijkPath)
-    print("Dijkstra Path Length = %d" % (len(dijkPath) -1) ) #subtract 1 to not count starting node.
+    #print("Dijkstra Path = %s" % dijkPath)
+    #print("Dijkstra Path Length = %d" % (len(dijkPath) -1) ) #subtract 1 to not count starting node.
+
+
+    if draw_graph == True:
+        #verts = g.vertices()
+        #for v1 in verts:
+            #print(v1)
+    
+        #graph_draw(g, vertex_text=g.vertex_index, vertex_font_size=18, output_size=(300,300), output="small_100x100_k2_p05_1.png")
+
+        #pos = gt.sfdp_layout(g)
+        #gt.graph_draw(g, pos, output_size=(800,800), vertex_color=[1,1,1,0], vertex_size=10, edge_pen_width=1.2, output=(input_path_file + ".png") )
+
+        pos= gt.arf_layout(g, max_iter=0)
+        gt.graph_draw(g, pos=pos, output_size=(800,800), vertex_color=[1,1,1,0], vertex_size=10, edge_pen_width=1.2, output=(input_path_file + ".png") )
+
+
+    #Return results by loading the list shared between processes.
+    state.append({})
+    args = state[0]
+    args["pathLength"] = len(dijkPath) -1 #subtract 1 to not count starting node.
+    args["path"] = dijkPath
+    state[0] = args
+
+
+############################################################
+
+def main():
+
+    print ("\nUsage:\n %s [path to input GraphML files] [algorithm: 1, 2, or 3] [drawGraphs: 0 or 1] [debugMode: 0 or 1]\n" % str(sys.argv[0]) )
+    print ("Where algorithm: 1 = A* (A-star), 2 = Bellman-Ford, 3 = Dijkstra.\n")
+    print ("To save the output, redirect ('>') this program to file output.")
+    print ("e.g.,\n  python  %s  inputSubDir  1  0  0  > ./temp/output.txt \n" % str(sys.argv[0]) )
+
+
+    path = str(sys.argv[1])
+    if isNotEmpty(path) == False:
+        print("Target folder cannot be null or blank.")
+        sys.exit(1)
+    else:
+        #verify if the path exists:
+        if checkPath( path, False) == False:
+            print("Target folder '%s' could not be found." % path)
+            sys.exit(2)
+        else:
+            print("Found target folder: %s" % path)
+
+
+    algorithm = int(sys.argv[2])
+    if algorithm < 1: algorithm = 1
+    if algorithm > 3: algorithm = 3
+    algorithmName = ''
+    if algorithm == 1: algorithmName = 'A-star'
+    elif algorithm == 2: algorithmName = 'Bellman-Ford'
+    elif algorithm == 3: algorithmName = 'Dijkstra'
+    else: algorithmName = 'Unknown'
+
+
+    drawGraphs = int(sys.argv[3])
+    if drawGraphs == 1: drawGraphs = True
+    else: displayGraphs = False
+
+
+    debug = int(sys.argv[4])
+    if debug == 1: debug = True
+    else: debug = False
+
+
+    advert = "(where 1 = A* (A-star), 2 = Bellman-Ford, 3 = Dijkstra)"
+    print("Running Graph-Tool pathfinding with user-selected options:\n"),
+    print("  inputFilePath=%s\n  algorithm=%d  %s\n  drawGraphs=%s\n  debug=%s\n" 
+        % (path, algorithm, advert, drawGraphs, debug) )
+
+
+    print("\nProcessing GraphML graph files (text format) in subdir: '%s'" % path)
+    count = 0
+    for root, dirs, files in os.walk (path):
+        for fileName in files:
+            if fileName.endswith('.graphml'):
+                count += 1
+
+                #force a garbage collection before data collection.
+                gc.enable()
+                gc.collect()
+
+                print ("ALGORITHM|%s" % algorithmName)
+                print ("INFILECOUNTER|%d" % count)
+                print ("INFILENAME|%s" % fileName)
+
+                #call the function that does the pathfinding:
+                elapsed_time = performGraphToolCalculations( fileName, path, algorithm, drawGraphs, debug )
+
+                elapsed_time = format( float(elapsed_time), '.4f') #bring it all through, let subsequent scripts change precision as they need.
+                print("RESULTS|%s|elapsedTime|%s" % (algorithmName, elapsed_time) )
+
+
+    print ("\nDone.\n")
 
 
 ############################################################
