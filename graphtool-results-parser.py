@@ -3,9 +3,9 @@ import os
 import csv
 
 
-#Program to parse the results of the NetworkX pathfinding program that 
+#Program to parse the results of the Graph-Tool pathfinding program that 
 # collected memory consumption and elapsed time data from parsing
-# input CSV graph files.
+# input graph files saved in GraphML text format.
 
 
 ############################################################
@@ -120,27 +120,29 @@ def writeCsvFile( fileNamePrefix, csvExtention, path, delimiter, maxWidth, maxHe
 #<...snip...>
 #
 #<start of record block>
-#
+##
 #   ALGORITHM|A-star
 #   INFILECOUNTER|1
-#   INFILENAME|large2000_1.csv
+#   INFILENAME|small_100x100_k2_p05_1.graphml
 #   RESULTS|A-star|memoryConsumption(MB)|...
-#   
-#   Filename: networkx-docstudy.py
-#   
+#
+#   Filename: graphtool-pathfinding.py
+#
 #   Line #    Mem usage    Increment   Line Contents
 #   ================================================
-#      270  20.0078 MiB   0.0000 MiB   @profile(precision=4)
-#      271                             def runAstar(state):
+#      509  17.0391 MiB   0.0000 MiB   @profile(precision=4)
+#      510                             def runAstar(state):
+#      511                             
+#      512  17.1016 MiB   0.0625 MiB       input_path_file = state[0]["input_path_file"]
 #   <snip...>
-#      296 178.8203 MiB   0.0117 MiB       args = state[0]
-#      297 178.8203 MiB   0.0000 MiB       args["pathLength"] = aStarPathLength
-#      298 178.8203 MiB   0.0000 MiB       args["path"] = aStarPath
-#      299 148.6953 MiB -30.1250 MiB       state[0] = args
-#   
-#   RESULTS|A-star|pathLength|3
-#   RESULTS|A-star|path|[1, 1999, 1997, 1001]
-#   RESULTS|A-star|elapsedTime|1.680891991
+#      581  22.3516 MiB   0.0000 MiB       args = state[0]
+#      582  22.3516 MiB   0.0000 MiB       args["pathLength"] = len(astarPath) -1 #subtract 1 to not count starting node.
+#      583  22.3516 MiB   0.0000 MiB       args["path"] = astarPath
+#      584  22.3555 MiB   0.0039 MiB       state[0] = args
+#
+#   RESULTS|A-star|pathLength|4
+#   RESULTS|A-star|path|[1, 40, 20, 19, 51]
+#   RESULTS|A-star|elapsedTime|0.1940
 #
 #<end of record block>
 #
@@ -282,7 +284,7 @@ def parseFile( inPathFile, path, outCsvFileNamePrefix, outCsvFileExt, algorithm 
 #
 # NOTE: the parameter 'indexFieldToExtract' is zero-based.
 #
-# WARNING: This is VERY fragile code. Any change to the NetworkX pathfinding program 
+# WARNING: This is VERY fragile code. Any change to the Graph-Tool pathfinding program 
 # may break the parsing done in this function!
 #
 def parseLine( line, indexFieldToExtract=0, delimiter='', debug=False ):
@@ -320,7 +322,7 @@ def parseLine( line, indexFieldToExtract=0, delimiter='', debug=False ):
 # algorithm, but nonetheless had to occur for the pathfinding
 # operation to commence).
 #
-# WARNING: This is VERY fragile code. Any change to the NetworkX pathfinding program 
+# WARNING: This is VERY fragile code. Any change to the Graph-Tool pathfinding program 
 # may break the parsing done in this function!
 #
 def parseEntireMemoryConsumptionBuffer( buffer, debug=False ):
@@ -386,7 +388,7 @@ def parseEntireMemoryConsumptionBuffer( buffer, debug=False ):
 # Unlike the function "parseEntireMemoryConsumptionBuffer()",
 # this function will search for specific lines within the memory
 # buffer, so as to capture a more accurate reading on the amount of memory
-# consumed by each pathfinding algorithm tested by the NetworkX graph
+# consumed by each pathfinding algorithm tested by the Graph-Tool graph
 # analysis framework.
 #
 # This function will seek specific values of the "Increment" column, not the "Mem usage"
@@ -396,33 +398,33 @@ def parseEntireMemoryConsumptionBuffer( buffer, debug=False ):
 # The specific lines parsed from the buffer, in this function, will contain 
 # the following substrings
 # (NOTE: Bellman-Ford is slightly different because the
-# interface provided by NetworkX for the BellmanFord algorithm is different
+# interface provided by Graph-Tool for the BellmanFord algorithm is different
 # than the interfaces it provides for the A-star and Dijkstra algorithms):
 #
 # 1. For A-star pathfinding algorithm (5 lines):
 #
-#       "G = nx.Graph( input_data.values )"
-#       "nodeList = G.nodes()"
-#       "nodeListData = G.nodes(data=True)"
-#       "aStarPath = nx.astar_path(G, startNode, destNode )"
-#       "aStarPathLength = nx.astar_path_length(G, startNode, destNode )"
+#       "g = gt.Graph()"
+#       "g = gt.load_graph( input_path_file )"
+#       "dist, pred = gt.astar_search(g, startNode, weight=weights)"
+#       "for p in pred:"
+#       "while currNode != startNode:"
 #
 # 2. For Bellman-Ford pathfinding algorithm (4 lines):
 #
-#       "G = nx.Graph( input_data.values )"
-#       "nodeList = G.nodes()"
-#       "nodeListData = G.nodes(data=True)"
-#       "pred, dist = nx.bellman_ford(G, startNode )"
+#       "g = gt.Graph()"
+#       "g = gt.load_graph( input_path_file )"
+#       "vertList, edgeList = gt.shortest_path(g, startNode, destNode, negative_weights=True)"
+#       "args["path"] = str(bellmanFordPath)"
 #
 # 3. For Dijkstra algorithm (5 lines):
 #
-#       "G = nx.Graph( input_data.values )"
-#       "nodeList = G.nodes()"
-#       "nodeListData = G.nodes(data=True)"
-#       "dijkstraPath = nx.dijkstra_path(G, startNode, destNode )"
-#       "dijkstraPathLength = nx.dijkstra_path_length(G, startNode, destNode )"
+#       "g = gt.Graph()"
+#       "g = gt.load_graph( input_path_file )"
+#       "dist, pred = gt.dijkstra_search(g, startNode, weight=weights)"
+#       "for p in pred:"
+#       "while currNode != startNode:"
 #
-# WARNING: This is VERY fragile code. Any change to the NetworkX pathfinding program 
+# WARNING: This is VERY fragile code. Any change to the Graph-Tool pathfinding program 
 # may break the parsing done in this function!
 #
 def parseTargetedMemoryConsumptionBuffer( buffer, algorithm = 'A-star', debug=False ):
@@ -464,11 +466,11 @@ def parseTargetedMemoryConsumptionBuffer( buffer, algorithm = 'A-star', debug=Fa
                 
                 if algorithm == 'A-star':
 
-                    substring1 = "G = nx.Graph( input_data.values )"
-                    substring2 = "nodeList = G.nodes()"
-                    #substring3 = "nodeListData = G.nodes(data=True)"
-                    substring4 = "aStarPath = nx.astar_path(G, startNode, destNode )"
-                    #substring5 = "aStarPathLength = nx.astar_path_length(G, startNode, destNode )"
+                    substring1 = "g = gt.Graph()"
+                    substring2 = "g = gt.load_graph( input_path_file )"
+                    substring3 = "dist, pred = gt.astar_search(g, startNode, weight=weights)"
+                    #substring4 = "for p in pred:"
+                    #substring5 = "while currNode != startNode:"
 
                     if substring1 in line:
                         data = parseLine(line, 3, '', debug)
@@ -482,17 +484,17 @@ def parseTargetedMemoryConsumptionBuffer( buffer, algorithm = 'A-star', debug=Fa
                         data = float(data)
                         memory.append( data )
                     
-                    #elif substring3 in line:
-                    #    data = parseLine(line, 3, '', debug)
-                    #    if debug: print ("found memory value: %s, for substring %s" % (data, substring3) )
-                    #    data = float(data)
-                    #    memory.append( data )
-                    
-                    elif substring4 in line:
+                    elif substring3 in line:
                         data = parseLine(line, 3, '', debug)
-                        if debug: print ("found memory value: %s, for substring %s" % (data, substring4) )
+                        if debug: print ("found memory value: %s, for substring %s" % (data, substring3) )
                         data = float(data)
                         memory.append( data )
+                    
+                    #elif substring4 in line:
+                    #    data = parseLine(line, 3, '', debug)
+                    #    if debug: print ("found memory value: %s, for substring %s" % (data, substring4) )
+                    #    data = float(data)
+                    #    memory.append( data )
                     
                     #elif substring5 in line:
                     #    data = parseLine(line, 3, '', debug)
@@ -502,12 +504,10 @@ def parseTargetedMemoryConsumptionBuffer( buffer, algorithm = 'A-star', debug=Fa
 
                 elif algorithm == 'Bellman-Ford':
 
-                    substring1 = "G = nx.Graph( input_data.values )"
-                    substring2 = "nodeList = G.nodes()"
-                    #substring3 = "nodeListData = G.nodes(data=True)"
-                    substring4 = "pred, dist = nx.bellman_ford(G, startNode )"
-                    #substring5 = "while currNode != startNode:"
-                    #substring6 = "bfPathLengthsAll = dict(dist)"
+                    substring1 = "g = gt.Graph()"
+                    substring2 = "g = gt.load_graph( input_path_file )"
+                    substring3 = "vertList, edgeList = gt.shortest_path(g, startNode, destNode, negative_weights=True)"
+                    #substring4 = "args["path"] = str(bellmanFordPath)"
 
                     if substring1 in line:
                         data = parseLine(line, 3, '', debug)
@@ -521,27 +521,15 @@ def parseTargetedMemoryConsumptionBuffer( buffer, algorithm = 'A-star', debug=Fa
                         data = float(data)
                         memory.append( data )
                     
-                    #elif substring3 in line:
-                    #    data = parseLine(line, 3, '', debug)
-                    #    if debug: print ("found memory value: %s, for substring %s" % (data, substring3) )
-                    #    data = float(data)
-                    #    memory.append( data )
-                    
-                    elif substring4 in line:
+                    elif substring3 in line:
                         data = parseLine(line, 3, '', debug)
-                        if debug: print ("found memory value: %s, for substring %s" % (data, substring4) )
+                        if debug: print ("found memory value: %s, for substring %s" % (data, substring3) )
                         data = float(data)
                         memory.append( data )
-
-                    #elif substring5 in line:
+                    
+                    #elif substring4 in line:
                     #    data = parseLine(line, 3, '', debug)
-                    #    if debug: print ("found memory value: %s, for substring %s" % (data, substring5) )
-                    #    data = float(data)
-                    #    memory.append( data )
-                    #
-                    #elif substring6 in line:
-                    #    data = parseLine(line, 3, '', debug)
-                    #    if debug: print ("found memory value: %s, for substring %s" % (data, substring6) )
+                    #    if debug: print ("found memory value: %s, for substring %s" % (data, substring4) )
                     #    data = float(data)
                     #    memory.append( data )
 
@@ -553,6 +541,12 @@ def parseTargetedMemoryConsumptionBuffer( buffer, algorithm = 'A-star', debug=Fa
                     substring4 = "dijkstraPath = nx.dijkstra_path(G, startNode, destNode )"
                     #substring5 = "dijkstraPathLength = nx.dijkstra_path_length(G, startNode, destNode )"                
 
+                    substring1 = "g = gt.Graph()"
+                    substring2 = "g = gt.load_graph( input_path_file )"
+                    substring3 = "dist, pred = gt.dijkstra_search(g, startNode, weight=weights)"
+                    substring4 = "for p in pred:"
+                    substring5 = "while currNode != startNode:"
+
                     if substring1 in line:
                         data = parseLine(line, 3, '', debug)
                         if debug: print ("found memory value: %s, for substring %s" % (data, substring1) )
@@ -565,17 +559,17 @@ def parseTargetedMemoryConsumptionBuffer( buffer, algorithm = 'A-star', debug=Fa
                         data = float(data)
                         memory.append( data )
                     
-                    #elif substring3 in line:
-                    #    data = parseLine(line, 3, '', debug)
-                    #    if debug: print ("found memory value: %s, for substring %s" % (data, substring3) )
-                    #    data = float(data)
-                    #    memory.append( data )
-                    
-                    elif substring4 in line:
+                    elif substring3 in line:
                         data = parseLine(line, 3, '', debug)
-                        if debug: print ("found memory value: %s, for substring %s" % (data, substring4) )
+                        if debug: print ("found memory value: %s, for substring %s" % (data, substring3) )
                         data = float(data)
                         memory.append( data )
+                    
+                    #elif substring4 in line:
+                    #    data = parseLine(line, 3, '', debug)
+                    #    if debug: print ("found memory value: %s, for substring %s" % (data, substring4) )
+                    #    data = float(data)
+                    #    memory.append( data )
                     
                     #elif substring5 in line:
                     #    data = parseLine(line, 3, '', debug)
@@ -612,10 +606,10 @@ def parseTargetedMemoryConsumptionBuffer( buffer, algorithm = 'A-star', debug=Fa
 ############################################################
 
 
-# Main NetworkX Results Parser:
+# Main Graph-Tool Results Parser:
 def run_parser():
 
-    print ("\nProgram to parse NetworkX pathfinding results.")
+    print ("\nProgram to parse Graph-Tool pathfinding results.")
     print ("\nUsage:\n %s [path to files: str] [input file: str] [output filename prefix: str] [algorithm: 1, 2 or 3] [debugMode: 0 or 1]" \
         % str(sys.argv[0]) )
     print ("e.g.,\n  python  %s  aSubDir  inFile.txt  outFileNamePrefix  1  0\n" \
