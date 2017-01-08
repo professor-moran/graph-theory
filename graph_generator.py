@@ -333,7 +333,7 @@ def writeGraphFile( csvFileNamePrefix, csvExtention, path, exportType, debug=Fal
 # Main Graph Generator Test Harness:
 #For the doc study, consider (a) 50x50, k=2, p=.05; and (b) 1000x1000, k=2, p=0.0025
 
-print ("\nUsage: %s [#iterations: int] [size: int] [k: int] [p: float] [path: str] [filename: str] [exportType: 'graphml' or 'pajek'] [starting ID: 1] [debugMode: 0 or 1]\n" % str(sys.argv[0]) )
+print ("\nUsage:\n %s [#iterations: int] [size: int] [k: int] [p: float] [path: str] [filename: str] [exportType: 'graphml' or 'pajek'] [starting ID: 1] [debugMode: 0 or 1]\n" % str(sys.argv[0]) )
 print ("e.g., for small '50x50' maps:\n  python  %s  10  50  2  0.05  outputDir  small_   graphml  1  0\n" % str(sys.argv[0]) )
 print ("e.g., for large '1000x1000' maps:\n  python  %s  10  1000  2  0.0025  outputDir  large_   pajek  1  1\n" % str(sys.argv[0]) )
 
