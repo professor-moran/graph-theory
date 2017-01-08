@@ -147,7 +147,14 @@ def performNetworkXCalculations(adjMatrixFileName, path, algorithm=1, viewWidth=
     showGraph = bool(showGraph)
     debug = bool(debug)
 
-    if debug: print("Performing NetworkX pathfinding calculations...")
+    if debug: 
+        print("Performing NetworkX pathfinding calculations...")
+        print("Adjacency Matrix File Name = %s" % adjMatrixFileName)
+        print("Path = %s" % path)
+        print("Algorithm = %d" % algorithm) #1 = Astar, 2 = BellmanFord, 3 = Dijkstra
+        print("View Width = %s, Height = %s" % (viewWidth, viewHeight) )
+        print("Show Graph = %s" % showGraph)
+
 
     #boundary checking:
     if viewWidth < 0 or viewWidth > 16: viewWidth = 10
@@ -168,7 +175,6 @@ def performNetworkXCalculations(adjMatrixFileName, path, algorithm=1, viewWidth=
         if debug: print("Algorithm: A-Star")
         print("RESULTS|A-star|memoryConsumption(MB)|...\n")
         start_time = timeit.default_timer() #get the start time
-
         manager = multiprocessing.Manager()
         state = manager.list()
         state.append({})
@@ -176,7 +182,6 @@ def performNetworkXCalculations(adjMatrixFileName, path, algorithm=1, viewWidth=
         args["input_data"] = input_data
         args["debug"] = debug
         state[0] = args
-        
         #start_time = timeit.default_timer() #get the start time
         #runAstar(G, startNode, destNode)
         p = multiprocessing.Process(target=runAstar, args=(state,) )
@@ -184,7 +189,6 @@ def performNetworkXCalculations(adjMatrixFileName, path, algorithm=1, viewWidth=
         p.join() #wait for child process to finish.
         print("RESULTS|A-star|pathLength|%d" % int(state[0]["pathLength"]) )
         print("RESULTS|A-star|path|%s" % str(state[0]["path"]) )
-
         end_time = timeit.default_timer() #get the end time
         elapsed_time = end_time - start_time
 
@@ -192,7 +196,6 @@ def performNetworkXCalculations(adjMatrixFileName, path, algorithm=1, viewWidth=
         if debug: print("Algorithm: Bellman-Ford")
         print("RESULTS|Bellman-Ford|memoryConsumption(MB)|...\n")
         start_time = timeit.default_timer() #get the start time
-
         manager = multiprocessing.Manager()
         state = manager.list()
         state.append({})
@@ -200,7 +203,6 @@ def performNetworkXCalculations(adjMatrixFileName, path, algorithm=1, viewWidth=
         args["input_data"] = input_data
         args["debug"] = debug
         state[0] = args
-        
         #start_time = timeit.default_timer() #get the start time
         #runBellmanFord(G, startNode, destNode)
         p = multiprocessing.Process(target=runBellmanFord, args=(state,) )
@@ -208,7 +210,6 @@ def performNetworkXCalculations(adjMatrixFileName, path, algorithm=1, viewWidth=
         p.join() #wait for child process to finish.
         print("RESULTS|Bellman-Ford|pathLength|%d" % int(state[0]["pathLength"]) )
         print("RESULTS|Bellman-Ford|path|%s" % str(state[0]["path"]) )
-
         end_time = timeit.default_timer() #get the end time
         elapsed_time = end_time - start_time
 
@@ -216,7 +217,6 @@ def performNetworkXCalculations(adjMatrixFileName, path, algorithm=1, viewWidth=
         if debug: print("Algorithm: Dijkstra")
         print("RESULTS|Dijkstra|memoryConsumption(MB)|...\n")
         start_time = timeit.default_timer() #get the start time
-
         manager = multiprocessing.Manager()
         state = manager.list()
         state.append({})
@@ -224,7 +224,6 @@ def performNetworkXCalculations(adjMatrixFileName, path, algorithm=1, viewWidth=
         args["input_data"] = input_data
         args["debug"] = debug
         state[0] = args
-        
         #start_time = timeit.default_timer() #get the start time
         #runDijkstra(G, startNode, destNode)
         p = multiprocessing.Process(target=runDijkstra, args=(state,) )
@@ -232,7 +231,6 @@ def performNetworkXCalculations(adjMatrixFileName, path, algorithm=1, viewWidth=
         p.join() #wait for child process to finish.
         print("RESULTS|Dijkstra|pathLength|%d" % int(state[0]["pathLength"]) )
         print("RESULTS|Dijkstra|path|%s" % str(state[0]["path"]) )
-
         end_time = timeit.default_timer() #get the end time
         elapsed_time = end_time - start_time
 
@@ -249,10 +247,11 @@ def performNetworkXCalculations(adjMatrixFileName, path, algorithm=1, viewWidth=
         #nx.draw_random(G, with_labels=True)
         pylab.show() #show the graph to screen for viewing
 
+
     #cleanup:
     del input_data
     del csvPathFile
-    
+
     #Done:
     return elapsed_time
 
@@ -436,19 +435,18 @@ def runDijkstra(state):
 
 
 ############################################################
-
-# Main Graph Generator Performance - Test Harness:
-# This script assumes that graph files (in CSV format) have already been generated.
-# If this is not the case, then the Python script: graph_generator.py
-# See that script for more details.
-
+#
+# Main NetworkX Graph Generator and Performance Test Harness:
+# This script assumes that graph files (in CSV format) have already been generated
+# by the script: graph_generator.py
+#
 def run_tests():
 
     #print ("In run_tests()")
     print ("\nUsage:\n %s [path to input CSV files] [algorithm: 1, 2, or 3] [showGraphs: 0 or 1] [debugMode: 0 or 1]\n" % str(sys.argv[0]) )
     print ("Where algorithm: 1 = A* (A-star), 2 = Bellman-Ford, 3 = Dijkstra.\n")
-    print ("To save the output, redirect ('>') this program to file output.")
-    print ("e.g.,\n  python  %s  inputSubDir  3  0  1  > ./temp/output.txt \n" % str(sys.argv[0]) )
+    print ("To save program output for parsing, redirect ('>') stdout to text file.")
+    print ("e.g.,\n  python  %s  inputSubDir  3  0  1  >  ./temp/output.txt \n\n" % str(sys.argv[0]) )
 
 
     path = str(sys.argv[1])
