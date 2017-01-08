@@ -303,7 +303,7 @@ def runAstar(state):
     #Return results by loading the list shared between processes.
     state.append({})
     args = state[0]
-    args["pathLength"] = aStarPathLength
+    args["pathLength"] = aStarPathLength - 1 #subtract 1 to not include the source node
     args["path"] = aStarPath
     state[0] = args
 
@@ -377,7 +377,7 @@ def runBellmanFord(state):
     #Return results by loading the list shared between processes.
     state.append({})
     args = state[0]
-    args["pathLength"] = bfPathLength
+    args["pathLength"] = bfPathLength #already includes a -1 for path length.
     args["path"] = bfPath
     state[0] = args
 
@@ -429,7 +429,7 @@ def runDijkstra(state):
     #Return results by loading the list shared between processes.
     state.append({})
     args = state[0]
-    args["pathLength"] = dijkstraPathLength
+    args["pathLength"] = dijkstraPathLength - 1 #subtract 1 to not include the source node
     args["path"] = dijkstraPath
     state[0] = args
 
