@@ -6,6 +6,7 @@ import pylab
 from pylab import rcParams
 import sys
 import os
+import shutil
 
 
 """
@@ -24,7 +25,7 @@ is not a recommended approach as randomization is important in experimental stud
 
 REQUIREMENTS: 
 1. This script requires that the "graph_generator.py" program be run first.
-2. This script assumes the input files in the input file directory, have unique file names.
+2. This script assumes all input files in the input directory, have unique file names.
 
 
 Steps to follow:
@@ -83,7 +84,7 @@ def isNotEmpty(s):
 
 
 ############################################################
-def createFilePath( fileName, path, debug=False):
+def createFilePathName( fileName, path, debug=False):
 
     #get path to this running Python script:
     script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -191,74 +192,6 @@ def getFilenamesByExtention( path, extension ):
     return count, desired_files
 
 
-"""
-############################################################
-# NetworkX graph manipulations
-#
-# This function takes a simple adjacency matrix CSV file name as input.
-# The adjacency matrix itself should have no label/column/row headers.
-# It just needs the connection data. 
-# E.g., an example of 3x3 adjacency matrix file contents:
-#
-#       1,0,0
-#       0,1,1
-#       1,0,0
-#
-# The export file type can be "graphml" for GraphML format, or
-# it can be "pajek" for Pajek file format.
-#
-def writeGraphFile( csvFileNamePrefix, csvExtention, path, exportType, debug=False ):
-
-    exportType = str.lower(exportType)
-
-    if exportType == 'pajek':
-        print (">> Export file type = '%s'" % exportType)
-    elif exportType == 'graphml':
-        print (">> Export file type = '%s'" % exportType)
-    else:
-        print("Error: file type for export can only be (a) 'graphml', or (b) 'pajek'")
-        return False
-
-
-    csvFileName = csvFileNamePrefix + '.' + csvExtention
-
-    csvPathFile = os.path.join(path, csvFileName)
-
-    #does input CSV file exist?
-    if checkFilePath( csvFileName, path, debug) == False:
-        print ("Input CSV file %s not found." % csvPathFile )
-        return False
-    else:
-        if debug: print("Found input CSV file %s" % csvPathFile )
-
-
-    #read adjacency matrix file into pandas:
-    #input_data = pd.read_csv(adjMatrixFileName, index_col=0)
-    #input_data = pd.read_csv(adjMatrixFileName, header=None)
-    input_data = pd.read_csv(csvPathFile, header=None)
-
-    #load NetworkX with adjacency matrix graph data (via Pandas)
-    #G = nx.grid_graph(dim=[10,10] )
-    #G = nx.DiGraph( input_data.values ) #for directed graphs
-    G = nx.Graph( input_data.values )  #for undirected graphs
-
-    #Use NetworkX to translate/write graph to Pajek graph file (text) format.
-    #extention = "pajek"
-    extention = exportType
-    exportFile = csvFileNamePrefix + "." + extention
-    exportPathFile = os.path.join(path, exportFile)
-    if exportType == 'pajek':
-        nx.write_pajek(G, exportPathFile)
-        print ("Wrote network graph (Pajek format) to text file: %s") % exportPathFile
-    elif exportType == 'graphml':
-        nx.write_graphml(G, exportPathFile)
-        print ("Wrote network graph (GraphML format) to text file: %s") % exportPathFile    
-    else:
-        print ("Error: unknown export type '%s'" % exportType)
-        return False
-"""
-
-
 ############################################################
 # Main Graph Random Selector Main Test Harness:
 
@@ -312,7 +245,7 @@ def main():
     #get count and names of desired files in source folder:
     fileCount, fileNames = getFilenamesByExtention( sourcePath, extention )
     if numFilesToRandomSelect > fileCount:
-        print("Error: you want %d files, but only %d input files were found in directory:" % (numFilesToRandomSelect, fileCount) )
+        print("Error: you want %d files, but only %d input files (with extention '%s') were found in directory:" % (numFilesToRandomSelect, fileCount, extention) )
         print(sourcePath)
         sys.exit(-3)
 
@@ -320,10 +253,6 @@ def main():
     for name in fileNames:
         print (">> [%s]" % name)
     print ("File count (with extention [%s]): %d" % (extention, fileCount) )
-    #rand = random.randint(0, fileCount-1)
-    #print ("fileNames[0] = %s" % fileNames[0] ) 
-    #print ("fileNames[%d] = %s" % (fileCount-1, fileNames[fileCount-1]) )
-    #print ("fileNames[%d] = %s" % (rand, fileNames[rand]) )
 
 
     count = 0
@@ -348,54 +277,33 @@ def main():
         count += 1
 
 
-    print("\nRandomly selected the following file(s):")
-    for name in sorted(outputFileNames):
-        print (">> [%s]" % name)
+    if debug:
+        print("\nRandomly selected the following file(s):")
+        for name in sorted(outputFileNames):
+            print (">> [%s]" % name)
+
+        print("\nRemaining file(s) in input folder:")
+        for name in sorted(fileNames):
+            print (">> [%s]" % name)
 
 
-    print("\nRemaining file(s) in input folder:")
-    for name in sorted(fileNames):
-        print (">> [%s]" % name)
+    #now copy the randomly selected files to the target subdir:
+    count = 0
+    while count < len( sorted(outputFileNames) ):
+        #check if source file exists:
+        if checkFilePath( outputFileNames[count], sourcePath):
+            #file exists:
+            inFile = os.path.join(sourcePath, outputFileNames[count])
+            outFile = os.path.join(destPath, outputFileNames[count])
+            #if debug: 
+            print("\n>> (%d) Copying..." % (count+1) )
+            print(">> " + str(inFile) )
+            print(">> to...")
+            print(">> " + str(outFile) + "\n" )
+            #move file to destination:
+            shutil.move( inFile, outFile )
+        count += 1  #update the counter for next iteration
 
-
-    """
-    count = startId #(startID is the starting number used in numbering the output files.) 
-    if count < 0: count = 0
-
-    while count < (iterations + startId):
-        print("\nIteration: %d\n" % count)
-
-        width = maxLen1 
-        height = maxLen1
-
-        #Initialize the 2D matrix, and set each cell value to desired initial value:
-        initialValue = 0 #zero means unconnected.
-        matrix1 = [[ initialValue for x in range(width) ] for y in range(height) ]
-        if debug: print("Created initial empty matrix.")
-        if debug: printMatrix( width, height, matrix1 )
-
-        #Create a regular matrix, of type k-regular (where k is a positive integer).
-        createRegularMatrix( k, width, height, matrix1)
-        if debug: print("Created a k-regular matrix (where cluster depth k = %d)." % k)
-        if debug: printMatrix( width, height, matrix1 )
-
-        #Create a small-world matrix, with rewiring probability 'p' equal to a value < 1.0:
-        smallWorld = matrix1
-        createSmallWorldMatrix( p, width, height, smallWorld, debug )
-        if debug: print("Created a small-world matrix with rewiring probability p = %f" % p)
-        if debug: printMatrix( width, height, smallWorld )
-
-        #now write simple adjacency matrix to text file in CSV format:
-        csvExtention = 'csv'
-        fileName = str(fileNamePrefix + str(count)) #append count to file name
-        results = writeCsvFile( fileName, csvExtention, path, ",", width, height, matrix1, debug)
-        print ("Wrote network graph to CSV file to: %s" % results )
-
-        #Call NetworkX to translate the CSV file into a Pajek format graph text file:
-        writeGraphFile( fileName, csvExtention, path, exportType, debug)
-
-        count += 1
-    """
 
     print ("\nDone.\n")
 
