@@ -22,7 +22,9 @@ for your treatment groups, then this script is important. Else you can skip this
 and run your pathfinding tests on the file samples in the main population folder(s) (but
 is not a recommended approach as randomization is important in experimental studies).
 
-REQUIREMENT: This script requires that the "graph_generator.py" program be run first.
+REQUIREMENTS: 
+1. This script requires that the "graph_generator.py" program be run first.
+2. This script assumes the input files in the input file directory, have unique file names.
 
 
 Steps to follow:
@@ -42,7 +44,7 @@ Second, determine how many treatment groups need samples from the subdir contain
 files in the first demographic subgroup (in this case, "small and simple").
 --> Let's say, 3 treatment groups need such files.
 
-Third, create 2 (in this case) target directories for the small and simple files:
+Third, create three (in this case) target directories for the small and simple files:
  a. mkdir "ss_1"  (for small & simple, treatment group #1)
  b. mkdir "ss_2"  (for small & simple, treatment group #2)
  c. mkdir "ss_3"  (for small & simple, treatment group #3)
@@ -64,7 +66,7 @@ Sixth, repeat step 5, but for the other "small & simple" treatment group(s), unt
 all treatment groups have received their randomly selected stratified samples (where 
 stratification was based on the demographic traits described in step 1 above).
 
-Seventh, repeat steps 2 through 6, but for the other demographically stratified subgroup,
+Seventh, repeat steps 2 through 6, but for the other demographically stratified subgroups,
 which in this case would be the "large and complex" files. 
 
 Once all treatment group subdirectories have been populated with randomly selected files
@@ -78,7 +80,8 @@ Done!
 ############################################################
 def isNotEmpty(s):
     return bool(s and s.strip())
-    
+
+
 ############################################################
 def createFilePath( fileName, path, debug=False):
 
@@ -130,7 +133,28 @@ def checkFilePath( fileName, path, debug=False):
 
 
 ############################################################
-#def writeCsvFile( fileName, path, delimiter, maxWidth, maxHeight, matrix, debug=False ):
+def checkPath( path, debug=False):
+
+    #get path to this running Python script:
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    if debug: print("Script_dir = [%s]" % script_dir)
+    
+    #get path to input path:
+    input_dir = os.path.join(script_dir, path)
+    if debug: print("Target dir = [%s]" % input_dir)
+    
+    #does path exist?
+    if os.path.exists(input_dir):
+        
+        if debug: print("Found path: [%s]" % input_dir)
+        return True
+        
+    else: 
+        print("Path does not exist: [%s]" % input_dir)
+        return False
+
+
+############################################################
 def writeCsvFile( fileNamePrefix, csvExtention, path, delimiter, maxWidth, maxHeight, matrix, debug=False ):
 
     csvFileName = fileNamePrefix + '.' + csvExtention
@@ -151,6 +175,20 @@ def writeCsvFile( fileNamePrefix, csvExtention, path, delimiter, maxWidth, maxHe
                 file.write(line + "\n")
     file.close()
     return finalPathFileName #return output filename
+
+
+############################################################
+def getFilenamesByExtention( path, extension ):
+    list_dir = []
+    list_dir = os.listdir(path)
+    desired_files = []
+    count = 0
+    for file in list_dir:
+        if file.endswith(extension): # eg: '.txt'
+            desired_files.append( str(file) )
+            count += 1
+
+    return count, desired_files
 
 
 """
@@ -249,6 +287,76 @@ def main():
 
     advert = "(where 0 = CSV files, and 1 = graphML files)"
     print("Running with options:\n  source file path=%s\n  destination file path=%s\n  number of files to random select=%d\n  file type=%d  %s\n  debugMode=%s\n" % (sourceDir, destDir, numFilesToRandomSelect, fileType, advert, debug) )
+
+
+    csvExtention = ".csv"
+    graphmlExtention = ".graphml"
+    extention = ""
+    if fileType == 0: extention = csvExtention
+    elif fileType == 1: extention = graphmlExtention
+    else: fileType = -1 #error
+
+
+    #Calculate path to current working directory (where we assume this program runs):
+    cwd = os.path.abspath(".")
+    #Calculate paths to input and output files folders:
+    sourcePath = os.path.join(cwd, sourceDir)
+    destPath = os.path.join(cwd, destDir)
+
+
+    #do input and output directories exist?
+    if checkPath( sourcePath, debug ) == False: sys.exit(-1)
+    if checkPath(  destPath, debug  ) == False: sys.exit(-2)
+
+
+    #get count and names of desired files in source folder:
+    fileCount, fileNames = getFilenamesByExtention( sourcePath, extention )
+    if numFilesToRandomSelect > fileCount:
+        print("Error: you want %d files, but only %d input files were found in directory:" % (numFilesToRandomSelect, fileCount) )
+        print(sourcePath)
+        sys.exit(-3)
+
+    print("Found file(s):")
+    for name in fileNames:
+        print (">> [%s]" % name)
+    print ("File count (with extention [%s]): %d" % (extention, fileCount) )
+    #rand = random.randint(0, fileCount-1)
+    #print ("fileNames[0] = %s" % fileNames[0] ) 
+    #print ("fileNames[%d] = %s" % (fileCount-1, fileNames[fileCount-1]) )
+    #print ("fileNames[%d] = %s" % (rand, fileNames[rand]) )
+
+
+    count = 0
+    inputListFileCount = fileCount
+    outputFileNames = []
+    while count < numFilesToRandomSelect:
+        
+        #1. get a random file from the input list
+        rand = random.randint(0, inputListFileCount-1)
+        selectedFileName = fileNames[rand]
+        print("Random selected file: %s", selectedFileName)
+        
+        #2. add it to the output list
+        outputFileNames.append(selectedFileName)
+
+        #3. remove the randomly selected file from input list:
+        fileNames = list( set(fileNames) - set(outputFileNames) )
+        
+        #4. update counts:
+        inputListFileCount = len( fileNames ) #should decrement by 1 each iteration
+        print ("new length of input file list = %d" % len(fileNames) )
+        count += 1
+
+
+    print("\nRandomly selected the following file(s):")
+    for name in sorted(outputFileNames):
+        print (">> [%s]" % name)
+
+
+    print("\nRemaining file(s) in input folder:")
+    for name in sorted(fileNames):
+        print (">> [%s]" % name)
+
 
     """
     count = startId #(startID is the starting number used in numbering the output files.) 
