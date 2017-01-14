@@ -362,51 +362,33 @@ def writeGraphFile( csvFileNamePrefix, csvExtention, path, exportType, debug=Fal
 
 
 ############################################################
-
-
 # Main Graph Random Selector Main Test Harness:
 
-print ("\nUsage:\n %s [#iterations: int] [size: int] [k: int] [p: float] [path: str] [filename: str] [exportType: 'graphml' or 'pajek'] [starting ID: 1] [debugMode: 0 or 1]\n" % str(sys.argv[0]) )
-print ("e.g., for small '50x50' maps:\n  python  %s  10  50  2  0.05  outputDir  small_   graphml  1  0\n" % str(sys.argv[0]) )
-print ("e.g., for large '1000x1000' maps:\n  python  %s  10  1000  2  0.0025  outputDir  large_   pajek  1  1\n" % str(sys.argv[0]) )
+
+print ("\nUsage:\n %s [source files subdir: str] [target subdir: str] [# files to randomly select: int] [file type: 0 = 'csv', 1 = 'graphml'] [[debugMode: 0 or 1]\n" % str(sys.argv[0]) )
+print ("e.g., python  %s  small_maps_100x100  group1  100  0  1\n" % str(sys.argv[0]) )
+print ("e.g., python  %s  large_maps_1000x1000  group2  75  1  0\n" % str(sys.argv[0]) )
 
 
-iterations = int(sys.argv[1]) #get first command line parameter after script name (argv[0])
-if iterations <= 1: iterations = 1
-if iterations >= 200: iterations = 200
+sourceDir = str(sys.argv[1]) #get first command line parameter after argv[0]
 
-maxLen1 = int(sys.argv[2])
-if maxLen1 < 10: maxLen1 = 10
-if maxLen1 > 3000: maxLen1 = 3000
+destDir = str(sys.argv[2])
 
-k = int(sys.argv[3])
-if k < 0: k = 1
-if k > 4: k = 4
+numFilesToRandomSelect = int(sys.argv[3])
+if numFilesToRandomSelect < 0: numFilesToRandomSelect = 0
 
-p = float(sys.argv[4])
-if p < 0.0: p = 0.0
-if p > 1.0: p = 1.0
+fileType = int(sys.argv[4])
+if fileType < 0: fileType = 0   #csv
+if fileType > 1: fileType = 1   #graphml
 
-path = str(sys.argv[5])
-if isNotEmpty(path) == False: path = "outputPath"
-
-fileNamePrefix = str(sys.argv[6])
-if isNotEmpty(fileNamePrefix) == False: fileNamePrefix = "outGraph_"
-
-exportType = str(sys.argv[7])
-if isNotEmpty(exportType) == False: exportType="graphml"
-
-startId = int(sys.argv[8])
-if startId < 1: startId = 1
-
-debug = int(sys.argv[9])
+debug = int(sys.argv[5])
 if debug == 1: debug = True
 elif debug == 0: debug = False
 else: debug = False
 
-print("Running with options:\n  #iterations=%d\n  size=%d\n  cluster depth k=%d\n  rewiring percentage p=%f\n  path=%s\n  fileName=%s\n  export file type=%s\n  starting file ID number=%s\n  debugMode=%s\n" % (iterations, maxLen1, k, p, path, fileNamePrefix, exportType, startId, debug) )
+print("Running with options:\n  source file path=%s\n  destination file path=%s\n  number of files to random select=%d\n  file type=%d\n  debugMode=%s\n" % (sourceDir, destDir, numFilesToRandomSelect, fileType, debug) )
 
-
+"""
 count = startId #(startID is the starting number used in numbering the output files.) 
 if count < 0: count = 0
 
@@ -443,6 +425,12 @@ while count < (iterations + startId):
     writeGraphFile( fileName, csvExtention, path, exportType, debug)
 
     count += 1
-
+"""
 
 print ("\nDone.\n")
+
+
+############################################################
+
+if __name__ == '__main__':
+    main()
