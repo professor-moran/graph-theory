@@ -80,28 +80,6 @@ def isNotEmpty(s):
     return bool(s and s.strip())
     
 ############################################################
-def printMatrix( maxWidth, maxHeight, matrix ):
-    x,y = 0, 0
-    for y in range(maxHeight):
-        for x in range(maxWidth):
-            print matrix[x][y],     #the ',' keeps printing on same line
-        print   #now print new line to wrap the row.
-
-
-############################################################
-def removeLoops( maxWidth, maxHeight, matrix ):
-    #Set the values of the main diagonal to zero to remove loops.
-    newValue = 0
-    x,y = 0, 0
-    for y in range(maxHeight):
-        for x in range(maxWidth):
-            if x == y:
-                matrix[x][y] = newValue
-                #print "Setting cell [%d][%d] to %d" % (x, y, newValue)
-    #print("Removed the self-loops (i.e., main diagonal cleared).")
-
-
-############################################################
 def createFilePath( fileName, path, debug=False):
 
     #get path to this running Python script:
@@ -175,126 +153,7 @@ def writeCsvFile( fileNamePrefix, csvExtention, path, delimiter, maxWidth, maxHe
     return finalPathFileName #return output filename
 
 
-############################################################
-#
-# This method assumes the input matrix is a k-regular matrix
-# that has already been initialized to k-regular form.
-#
-# Variable 'prob' is a float, and represents the probability of 
-# rewiring, a la Watts & Strogatz (1998) "small world" network style.
-#
-# This method doesn't change the main diagonal cells, to 
-# prevent generation of self-loops.
-#
-def createSmallWorldMatrix( prob, maxWidth, maxHeight, matrix, debug=False ):
-    # check boundaries:
-    if prob < 0.0:  prob = 0.0      #a 0-percent chance of rewiring
-    if prob > 1.0:  prob = 1.0      #a 100-percent chance of rewiring
-    
-    x,y = 0, 0
-    for y in range(maxHeight):
-        for x in range(maxWidth):
-            #Ignore the main diagonal (where x = y), don't create self-loops:
-            if x != y: 
-                rand = random.random()
-                if (rand <= prob) and matrix[x][y] != 0:
-                
-                    #time to rewire...
-                    if debug==True:
-                        print ("Rand = %f, Prob = %f. [x,y]: [%d,%d] = %d" % (rand, prob, x, y, matrix[x][y] ) )
-
-                    #1. disconnect the 2-way (x,y) and (y,x) connections:
-                    matrix[x][y] = 0
-                    matrix[y][x] = 0
-                    if debug==True:
-                        print (">> Set [%d][%d] to 0, and [%d][%d] to 0" % (x,y,y,x) )
-                    
-                    
-                    #2. find new random connection for (x,y) and (y,x), and ensure
-                    # that we don't reconnect to the already existing links. 
-                    newY = y
-                    done = False
-                    while done != True:
-                        newY = random.randint(0, maxHeight-1)
-                        
-                        #Don't create edges to already existing edges, and don't
-                        # create self-loops:
-                        if y != newY and x != newY and matrix[x][newY] != 1 \
-                            and matrix[newY][x] != 1:
-                            done = True
-                    
-                    if debug==True:
-                        print (">> original x,y = [%d][%d], and y,x = [%d][%d]" % (x,y,y,x) )
-                        print (">> new [x]-->[y] = [%d][%d]" % (x, newY) )
-                        print (">> new [y]-->[x] = [%d][%d]" % (newY, x) )
-                    
-                    # Now set new matrix cells to connected:
-                    matrix[x][newY] = 1
-                    matrix[newY][x] = 1
-
-
-############################################################
-#
-# This method assumes the input matrix is initialized to zero.
-# This method calls in the internal function _regularMatrixCalc()
-# which does the actual link creation for the regular network graph.
-#
-def createRegularMatrix( k, maxWidth, maxHeight, matrix):
-
-    #check the boundaries:
-    if maxWidth < 5 or maxHeight < 5: maxWidth, maxHeight, k = 5, 5, 2
-    if k < 1: k = 1
-    if k > 4: k = 4
-    print("Creating k-regular matrix with x = %d, y = %d, k = %d" % (width, height, k) )
-    
-    #Set the values of the main diagonal to zero to remove loops.
-    removeLoops( maxWidth, maxHeight, matrix ) #clear the diagonal, just in case.
-
-    #call the method that does the actual work.
-    count = 1
-    while count <= k:
-        _regularMatrixCalc(count, maxWidth, maxHeight, matrix )
-        count += 1
-
-
-############################################################
-#
-# This internal method does the k-regular network link creation.
-# It should only be called by the method createRegularMatrix().
-#
-def _regularMatrixCalc(k, maxWidth, maxHeight, matrix):
-
-    #set the row k-below the diagonal to 1 (connected)
-    x = 0
-    y = k
-    while y <= maxHeight-1:
-        x = 0
-        while x <= maxWidth-1:
-            if y-x == (1*k):
-                matrix[x][y] = 1
-            x += 1
-        y += 1
-
-    #set the row k-above the diagonal to 1 (connected)
-    x = k
-    y = 0
-    while y <= maxHeight-1:
-        x = k
-        while x <= maxWidth-1:
-            if x-y == (1*k):
-                matrix[x][y] = 1
-            x += 1
-        y += 1
-
-    #now link the ends of the chain together (i.e., connect
-    # the SW, and NE nodes in the matrix):
-    count = 0
-    while count < k:
-        matrix[count][maxHeight - k + count] = 1
-        matrix[maxWidth - k + count][count] = 1
-        count += 1
-
-
+"""
 ############################################################
 # NetworkX graph manipulations
 #
@@ -359,75 +218,78 @@ def writeGraphFile( csvFileNamePrefix, csvExtention, path, exportType, debug=Fal
     else:
         print ("Error: unknown export type '%s'" % exportType)
         return False
+"""
 
 
 ############################################################
 # Main Graph Random Selector Main Test Harness:
 
+def main():
 
-print ("\nUsage:\n %s [source files subdir: str] [target subdir: str] [# files to randomly select: int] [file type: 0 = 'csv', 1 = 'graphml'] [[debugMode: 0 or 1]\n" % str(sys.argv[0]) )
-print ("e.g., python  %s  small_maps_100x100  group1  100  0  1\n" % str(sys.argv[0]) )
-print ("e.g., python  %s  large_maps_1000x1000  group2  75  1  0\n" % str(sys.argv[0]) )
+    print ("\nUsage:\n %s [source files subdir: str] [target subdir: str] [# files to randomly select: int] [file type: 0 = 'csv', 1 = 'graphml'] [[debugMode: 0 or 1]\n" % str(sys.argv[0]) )
+    print ("e.g., python  %s  small_maps_100x100  group1  100  0  1\n" % str(sys.argv[0]) )
+    print ("e.g., python  %s  large_maps_1000x1000  group2  75  1  0\n" % str(sys.argv[0]) )
 
 
-sourceDir = str(sys.argv[1]) #get first command line parameter after argv[0]
+    sourceDir = str(sys.argv[1]) #get first command line parameter after argv[0]
 
-destDir = str(sys.argv[2])
+    destDir = str(sys.argv[2])
 
-numFilesToRandomSelect = int(sys.argv[3])
-if numFilesToRandomSelect < 0: numFilesToRandomSelect = 0
+    numFilesToRandomSelect = int(sys.argv[3])
+    if numFilesToRandomSelect < 0: numFilesToRandomSelect = 0
 
-fileType = int(sys.argv[4])
-if fileType < 0: fileType = 0   #csv
-if fileType > 1: fileType = 1   #graphml
+    fileType = int(sys.argv[4])
+    if fileType < 0: fileType = 0   #csv
+    if fileType > 1: fileType = 1   #graphml
 
-debug = int(sys.argv[5])
-if debug == 1: debug = True
-elif debug == 0: debug = False
-else: debug = False
+    debug = int(sys.argv[5])
+    if debug == 1: debug = True
+    elif debug == 0: debug = False
+    else: debug = False
 
-print("Running with options:\n  source file path=%s\n  destination file path=%s\n  number of files to random select=%d\n  file type=%d\n  debugMode=%s\n" % (sourceDir, destDir, numFilesToRandomSelect, fileType, debug) )
+    advert = "(where 0 = CSV files, and 1 = graphML files)"
+    print("Running with options:\n  source file path=%s\n  destination file path=%s\n  number of files to random select=%d\n  file type=%d  %s\n  debugMode=%s\n" % (sourceDir, destDir, numFilesToRandomSelect, fileType, advert, debug) )
 
-"""
-count = startId #(startID is the starting number used in numbering the output files.) 
-if count < 0: count = 0
+    """
+    count = startId #(startID is the starting number used in numbering the output files.) 
+    if count < 0: count = 0
 
-while count < (iterations + startId):
-    print("\nIteration: %d\n" % count)
+    while count < (iterations + startId):
+        print("\nIteration: %d\n" % count)
 
-    width = maxLen1 
-    height = maxLen1
+        width = maxLen1 
+        height = maxLen1
 
-    #Initialize the 2D matrix, and set each cell value to desired initial value:
-    initialValue = 0 #zero means unconnected.
-    matrix1 = [[ initialValue for x in range(width) ] for y in range(height) ]
-    if debug: print("Created initial empty matrix.")
-    if debug: printMatrix( width, height, matrix1 )
+        #Initialize the 2D matrix, and set each cell value to desired initial value:
+        initialValue = 0 #zero means unconnected.
+        matrix1 = [[ initialValue for x in range(width) ] for y in range(height) ]
+        if debug: print("Created initial empty matrix.")
+        if debug: printMatrix( width, height, matrix1 )
 
-    #Create a regular matrix, of type k-regular (where k is a positive integer).
-    createRegularMatrix( k, width, height, matrix1)
-    if debug: print("Created a k-regular matrix (where cluster depth k = %d)." % k)
-    if debug: printMatrix( width, height, matrix1 )
+        #Create a regular matrix, of type k-regular (where k is a positive integer).
+        createRegularMatrix( k, width, height, matrix1)
+        if debug: print("Created a k-regular matrix (where cluster depth k = %d)." % k)
+        if debug: printMatrix( width, height, matrix1 )
 
-    #Create a small-world matrix, with rewiring probability 'p' equal to a value < 1.0:
-    smallWorld = matrix1
-    createSmallWorldMatrix( p, width, height, smallWorld, debug )
-    if debug: print("Created a small-world matrix with rewiring probability p = %f" % p)
-    if debug: printMatrix( width, height, smallWorld )
+        #Create a small-world matrix, with rewiring probability 'p' equal to a value < 1.0:
+        smallWorld = matrix1
+        createSmallWorldMatrix( p, width, height, smallWorld, debug )
+        if debug: print("Created a small-world matrix with rewiring probability p = %f" % p)
+        if debug: printMatrix( width, height, smallWorld )
 
-    #now write simple adjacency matrix to text file in CSV format:
-    csvExtention = 'csv'
-    fileName = str(fileNamePrefix + str(count)) #append count to file name
-    results = writeCsvFile( fileName, csvExtention, path, ",", width, height, matrix1, debug)
-    print ("Wrote network graph to CSV file to: %s" % results )
+        #now write simple adjacency matrix to text file in CSV format:
+        csvExtention = 'csv'
+        fileName = str(fileNamePrefix + str(count)) #append count to file name
+        results = writeCsvFile( fileName, csvExtention, path, ",", width, height, matrix1, debug)
+        print ("Wrote network graph to CSV file to: %s" % results )
 
-    #Call NetworkX to translate the CSV file into a Pajek format graph text file:
-    writeGraphFile( fileName, csvExtention, path, exportType, debug)
+        #Call NetworkX to translate the CSV file into a Pajek format graph text file:
+        writeGraphFile( fileName, csvExtention, path, exportType, debug)
 
-    count += 1
-"""
+        count += 1
+    """
 
-print ("\nDone.\n")
+    print ("\nDone.\n")
 
 
 ############################################################
