@@ -331,7 +331,6 @@ def runAstar(state):
 # https://docs.python.org/2/library/multiprocessing.html
 # http://deeplearning.net/software/theano/tutorial/python-memory-management.html
 #
-
 @profile(precision=4)
 def runBellmanFord(state):
 
@@ -494,10 +493,10 @@ def runDijkstra(state):
 #
 def main():
 
-    print ("\nUsage:\n %s [path to input GraphML files] [algorithm: 1, 2, or 3] [drawGraphs: 0 or 1] [debugMode: 0 or 1]\n" % str(sys.argv[0]) )
+    print ("\nUsage:\n %s [path to input GraphML files] [algorithm: 1, 2, or 3] [drawGraphs: 0 or 1] [debugMode: 0 or 1] [forceGC: 0 or 1]\n" % str(sys.argv[0]) )
     print ("Where algorithm: 1 = A* (A-star), 2 = Bellman-Ford, 3 = Dijkstra.\n")
     print ("To save program output for parsing, redirect ('>') stdout to text file.")
-    print ("e.g.,\n  python  %s  inputSubDir  1  0  0  >  ./temp/output.txt \n\n" % str(sys.argv[0]) )
+    print ("e.g.,\n  python  %s  inputSubDir  3  0  1  0  >  ./temp/output.txt \n\n" % str(sys.argv[0]) )
 
 
     path = str(sys.argv[1])
@@ -533,10 +532,15 @@ def main():
     else: debug = False
 
 
+    forceGC = int(sys.argv[5])
+    if forceGC == 1: forceGC = True
+    else: forceGC = False
+
+
     advert = "(where 1 = A* (A-star), 2 = Bellman-Ford, 3 = Dijkstra)"
     print("Running Graph-Tool pathfinding with user-selected options:\n"),
-    print("  inputFilePath=%s\n  algorithm=%d  %s\n  drawGraphs=%s\n  debug=%s\n" 
-        % (path, algorithm, advert, drawGraphs, debug) )
+    print("  inputFilePath=%s\n  algorithm=%d  %s\n  drawGraphs=%s\n  debug=%s\n  forceGarbageCollection=%s\n" 
+        % (path, algorithm, advert, drawGraphs, debug, forceGC) )
 
 
     print("\nProcessing GraphML graph files (text format) in subdir: '%s'" % path)
@@ -546,9 +550,10 @@ def main():
             if fileName.endswith('.graphml'):
                 count += 1
 
-                #force a garbage collection before data collection.
-                gc.enable()
-                gc.collect()
+                #Force a garbage collection before data collection:
+                if forceGC:
+                    gc.enable()
+                    gc.collect()
 
                 print ("ALGORITHM|%s" % algorithmName)
                 print ("INFILECOUNTER|%d" % count)
