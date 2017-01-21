@@ -443,10 +443,10 @@ def runDijkstra(state):
 def run_tests():
 
     #print ("In run_tests()")
-    print ("\nUsage:\n %s [path to input CSV files] [algorithm: 1, 2, or 3] [showGraphs: 0 or 1] [debugMode: 0 or 1]\n" % str(sys.argv[0]) )
+    print ("\nUsage:\n %s [path to input CSV files] [algorithm: 1, 2, or 3] [showGraphs: 0 or 1] [debugMode: 0 or 1] [forceGC: 0 or 1]\n" % str(sys.argv[0]) )
     print ("Where algorithm: 1 = A* (A-star), 2 = Bellman-Ford, 3 = Dijkstra.\n")
     print ("To save program output for parsing, redirect ('>') stdout to text file.")
-    print ("e.g.,\n  python  %s  inputSubDir  3  0  1  >  ./temp/output.txt \n\n" % str(sys.argv[0]) )
+    print ("e.g.,\n  python  %s  inputSubDir  3  0  1  0  >  ./temp/output.txt \n\n" % str(sys.argv[0]) )
 
 
     path = str(sys.argv[1])
@@ -482,10 +482,15 @@ def run_tests():
     else: debug = False
 
 
+    forceGC = int(sys.argv[5])
+    if forceGC == 1: forceGC = True
+    else: forceGC = False
+
+
     advert = "(where 1 = A* (A-star), 2 = Bellman-Ford, 3 = Dijkstra)"
     print("Running NetworkX pathfinding with user-selected options:\n"),
-    print("  inputFilePath=%s\n  algorithm=%d  %s\n  displayGraphs=%s\n  debug=%s\n" 
-        % (path, algorithm, advert, displayGraphs, debug) )
+    print("  inputFilePath=%s\n  algorithm=%d  %s\n  displayGraphs=%s\n  debug=%s\n  forceGarbageCollection=%s\n" 
+        % (path, algorithm, advert, displayGraphs, debug, forceGC) )
 
 
     viewWidthInches = 10    #to do - parameterize this
@@ -499,9 +504,10 @@ def run_tests():
             if fileName.endswith('.csv'):
                 count += 1
 
-                #force a garbage collection before data collection.
-                gc.enable()
-                gc.collect()
+                #Force a garbage collection before data collection:
+                if forceGC:
+                    gc.enable()
+                    gc.collect()
 
                 print ("ALGORITHM|%s" % algorithmName)
                 print ("INFILECOUNTER|%d" % count)
@@ -515,8 +521,6 @@ def run_tests():
                 print("RESULTS|%s|elapsedTime|%s" % (algorithmName, elapsed_time) )
 
     print ("\nDone.\n")
-
-    #mpLogFile.close()
 
 
 ############################################################
