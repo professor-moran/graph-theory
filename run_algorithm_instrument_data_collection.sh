@@ -1,8 +1,16 @@
 #!/bin/sh
 
+# Created: 2017-01-21
+#
 # This is the main test harness driver for my doctoral study's algorithm
 # instrument validation and reliability tests.
-# Created: 2017-01-21
+# It's purpose is the run the pathfinding tests on (already existing) graph
+# files, and then parses the raw output for export to CSV (Excel) and then
+# eventually into SPSS (for statistical analyses).
+# This file assumes the graph files have already been generated.
+# If the graph files have not been generated, then consider running
+# the graph generation script (or running its steps manually):
+#   run_graph_gen.sh
 #
 # Useful "pause" commands:
 #   sleep 5s (for pausing 5 seconds)
