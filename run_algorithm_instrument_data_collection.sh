@@ -118,33 +118,33 @@ echo "STEP 2: Generating NETWORKX data..."
 
 python  networkx-pathfinding.py  mann-whitney-networkx-astar_grp1  1  0  0  0  >  mw_nx_astar_grp1.txt
 echo '.'
-sleep 2s
+sleep 1s
 python  networkx-pathfinding.py  mann-whitney-networkx-astar_grp1  1  0  0  0  >  mw_nx_astar_grp1.txt
 echo '..'
-sleep 2s
+sleep 1s
 python  networkx-pathfinding.py  mann-whitney-networkx-astar_grp1  1  0  0  0  >  mw_nx_astar_grp1.txt
 echo '...'
-sleep 2s
+sleep 1s
 
 python  networkx-pathfinding.py  mann-whitney-networkx-bellmanford_grp1  2  0  0  0  >  mw_nx_bellford_grp1.txt
 echo '....'
-sleep 2s
+sleep 1s
 python  networkx-pathfinding.py  mann-whitney-networkx-bellmanford_grp1  2  0  0  0  >  mw_nx_bellford_grp1.txt
 echo '.....'
-sleep 2s
+sleep 1s
 python  networkx-pathfinding.py  mann-whitney-networkx-bellmanford_grp1  2  0  0  0  >  mw_nx_bellford_grp1.txt
 echo '......'
-sleep 2s
+sleep 1s
 
 python  networkx-pathfinding.py  mann-whitney-networkx-dijkstra_grp1  3  0  0  0  >  mw_nx_dijk_grp1.txt
 echo '.......'
-sleep 2s
+sleep 1s
 python  networkx-pathfinding.py  mann-whitney-networkx-dijkstra_grp1  3  0  0  0  >  mw_nx_dijk_grp1.txt
 echo '........'
-sleep 2s
+sleep 1s
 python  networkx-pathfinding.py  mann-whitney-networkx-dijkstra_grp1  3  0  0  0  >  mw_nx_dijk_grp1.txt
 echo '.........'
-sleep 2s
+sleep 1s
 echo "NETWORKX data created for group 1 (of 2)."
 
 #Group (i.e., iteration) #2:
@@ -153,40 +153,41 @@ echo "NETWORKX data created for group 1 (of 2)."
 
 python  networkx-pathfinding.py  mann-whitney-networkx-astar_grp2  1  0  0  0  >  mw_nx_astar_grp2.txt
 echo '.'
-sleep 2s
+sleep 1s
 python  networkx-pathfinding.py  mann-whitney-networkx-astar_grp2  1  0  0  0  >  mw_nx_astar_grp2.txt
 echo '..'
-sleep 2s
+sleep 1s
 python  networkx-pathfinding.py  mann-whitney-networkx-astar_grp2  1  0  0  0  >  mw_nx_astar_grp2.txt
 echo '...'
-sleep 2s
+sleep 1s
 
 python  networkx-pathfinding.py  mann-whitney-networkx-bellmanford_grp2  2  0  0  0  >  mw_nx_bellford_grp2.txt
 echo '....'
-sleep 5s
+sleep 1s
 python  networkx-pathfinding.py  mann-whitney-networkx-bellmanford_grp2  2  0  0  0  >  mw_nx_bellford_grp2.txt
 echo '.....'
-sleep 5s
+sleep 1s
 python  networkx-pathfinding.py  mann-whitney-networkx-bellmanford_grp2  2  0  0  0  >  mw_nx_bellford_grp2.txt
 echo '......'
-sleep 5s
+sleep 1s
 
 python  networkx-pathfinding.py  mann-whitney-networkx-dijkstra_grp2  3  0  0  0  >  mw_nx_dijk_grp2.txt
 echo '.......'
-sleep 2s
+sleep 1s
 python  networkx-pathfinding.py  mann-whitney-networkx-dijkstra_grp2  3  0  0  0  >  mw_nx_dijk_grp2.txt
 echo '........'
-sleep 2s
+sleep 1s
 python  networkx-pathfinding.py  mann-whitney-networkx-dijkstra_grp2  3  0  0  0  >  mw_nx_dijk_grp2.txt
 echo '.........'
-sleep 2s
+sleep 1s
 echo "NETWORKX data created for group 2 (of 2)."
-sleep 2s
+sleep 1s
 
 
 ###########################################
 #STEP 3: Moving all raw output files generated above to a work results folder for simplicity.
 echo "STEP 3: Movinging raw output files to working folder."
+rm -rf mann-whitney-instrument-analysis
 mkdir mann-whitney-instrument-analysis
 mv  mw_gt_astar_grp1.txt  mann-whitney-instrument-analysis
 mv  mw_gt_bellford_grp1.txt  mann-whitney-instrument-analysis
