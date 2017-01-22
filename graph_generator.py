@@ -339,20 +339,36 @@ print ("e.g., for large '1000x1000' maps:\n  python  %s  10  1000  2  0.0025  ou
 
 
 iterations = int(sys.argv[1]) #get first command line parameter after script name (argv[0])
-if iterations <= 1: iterations = 1
-if iterations >= 200: iterations = 200
+if iterations <= 1: 
+    iterations = 1
+    print ("Changing iterations to %d" % iterations)
+if iterations > 2000: 
+    iterations = 2000
+    print ("Changing iterations to %d" % iterations)
 
 maxLen1 = int(sys.argv[2])
-if maxLen1 < 10: maxLen1 = 10
-if maxLen1 > 3000: maxLen1 = 3000
+if maxLen1 < 10: 
+    maxLen1 = 10
+    print ("Changing max dimension (size) to %d" % maxLen1)
+if maxLen1 > 2000: 
+    maxLen1 = 2000
+    print ("Changing max dimension (size) to %d" % maxLen1)
 
 k = int(sys.argv[3])
-if k < 0: k = 1
-if k > 4: k = 4
+if k < 0: 
+    k = 1
+    print ("Changing k to %d" % k)
+if k > 4: 
+    k = 4
+    print ("Changing k to %d" % k)
 
 p = float(sys.argv[4])
-if p < 0.0: p = 0.0
-if p > 1.0: p = 1.0
+if p < 0.0: 
+    p = 0.0
+    print ("Changing p to %f" % p)
+if p > 1.0: 
+    p = 1.0
+    print ("Changing p to %f" % p)
 
 path = str(sys.argv[5])
 if isNotEmpty(path) == False: path = "outputPath"
