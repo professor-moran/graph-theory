@@ -12,13 +12,30 @@
 # the graph generation script (or running its steps manually):
 #   run_graph_gen.sh
 #
-# Useful "pause" commands:
+# NOTE: This script assumes the following directories exist in the same location as
+# this script, and that they contain relevant graph files (*.csv for NetworkX, and 
+# *.graphml for Graph-Tool):
+#
+# mann-whitney-graphtool-astar_grp1
+# mann-whitney-graphtool-astar_grp2
+# mann-whitney-graphtool-bellmanford_grp1
+# mann-whitney-graphtool-bellmanford_grp2
+# mann-whitney-graphtool-dijkstra_grp1
+# mann-whitney-graphtool-dijkstra_grp2
+# mann-whitney-networkx-astar_grp1
+# mann-whitney-networkx-astar_grp2
+# mann-whitney-networkx-bellmanford_grp1
+# mann-whitney-networkx-bellmanford_grp2
+# mann-whitney-networkx-dijkstra_grp1
+# mann-whitney-networkx-dijkstra_grp2
+#
+#
+# For reference on useful Bash script pause commands, see:
+# http://stackoverflow.com/questions/21620406/how-do-i-pause-my-shell-script-for-1-second-before-continuing
+# e.g., 
 #   sleep 5s (for pausing 5 seconds)
 #   sleep 5m (for pausing 5 minutes)
 #   read -p "Press ENTER to continue"
-#
-# For reference, see:
-# http://stackoverflow.com/questions/21620406/how-do-i-pause-my-shell-script-for-1-second-before-continuing
 #
 ###########################################
 
@@ -40,6 +57,7 @@ cd /Volumes/ExtMacDrive1/edu/GRAPH_FILES
 #(do each of the following commands, 3 times): 
 echo "STEP 1: Generating GRAPH-TOOL data..."
 
+echo "Graph-Tool: A*"
 python  graphtool-pathfinding.py  mann-whitney-graphtool-astar_grp1  1  0  0  0  >  mw_gt_astar_grp1.txt
 echo '.'
 sleep 2s
@@ -50,24 +68,26 @@ python  graphtool-pathfinding.py  mann-whitney-graphtool-astar_grp1  1  0  0  0 
 echo '...'
 sleep 2s
 
+echo "Graph-Tool: Bellman-Ford"
 python  graphtool-pathfinding.py  mann-whitney-graphtool-bellmanford_grp1  2  0  0  0  >  mw_gt_bellford_grp1.txt
-echo '....'
+echo '.'
 sleep 2s
 python  graphtool-pathfinding.py  mann-whitney-graphtool-bellmanford_grp1  2  0  0  0  >  mw_gt_bellford_grp1.txt
-echo '.....'
+echo '..'
 sleep 2s
 python  graphtool-pathfinding.py  mann-whitney-graphtool-bellmanford_grp1  2  0  0  0  >  mw_gt_bellford_grp1.txt
-echo '......'
+echo '...'
 sleep 2s
 
+echo "Graph-Tool: Dijkstra"
 python  graphtool-pathfinding.py  mann-whitney-graphtool-dijkstra_grp1  3  0  0  0  >  mw_gt_dijk_grp1.txt
-echo '.......'
+echo '.'
 sleep 2s
 python  graphtool-pathfinding.py  mann-whitney-graphtool-dijkstra_grp1  3  0  0  0  >  mw_gt_dijk_grp1.txt
-echo '........'
+echo '..'
 sleep 2s
 python  graphtool-pathfinding.py  mann-whitney-graphtool-dijkstra_grp1  3  0  0  0  >  mw_gt_dijk_grp1.txt
-echo '.........'
+echo '...'
 sleep 2s
 echo "GRAPH-TOOL data created for group 1 (of 2)."
 
@@ -75,6 +95,7 @@ echo "GRAPH-TOOL data created for group 1 (of 2)."
 #_______________________
 #(do each of the following commands, 3 times):
 
+echo "Graph-Tool: A*"
 python  graphtool-pathfinding.py  mann-whitney-graphtool-astar_grp2  1  0  0  0  >  mw_gt_astar_grp2.txt
 echo '.'
 sleep 2s
@@ -85,24 +106,26 @@ python  graphtool-pathfinding.py  mann-whitney-graphtool-astar_grp2  1  0  0  0 
 echo '...'
 sleep 2s
 
+echo "Graph-Tool: Bellman-Ford"
 python  graphtool-pathfinding.py  mann-whitney-graphtool-bellmanford_grp2  2  0  0  0  >  mw_gt_bellford_grp2.txt
-echo '....'
+echo '.'
 sleep 2s
 python  graphtool-pathfinding.py  mann-whitney-graphtool-bellmanford_grp2  2  0  0  0  >  mw_gt_bellford_grp2.txt
-echo '.....'
+echo '..'
 sleep 2s
 python  graphtool-pathfinding.py  mann-whitney-graphtool-bellmanford_grp2  2  0  0  0  >  mw_gt_bellford_grp2.txt
-echo '......'
+echo '...'
 sleep 2s
 
+echo "Graph-Tool: Dijkstra"
 python  graphtool-pathfinding.py  mann-whitney-graphtool-dijkstra_grp2  3  0  0  0  >  mw_gt_dijk_grp2.txt
-echo '.......'
+echo '.'
 sleep 2s
 python  graphtool-pathfinding.py  mann-whitney-graphtool-dijkstra_grp2  3  0  0  0  >  mw_gt_dijk_grp2.txt
-echo '........'
+echo '..'
 sleep 2s
 python  graphtool-pathfinding.py  mann-whitney-graphtool-dijkstra_grp2  3  0  0  0  >  mw_gt_dijk_grp2.txt
-echo '.........'
+echo '...'
 sleep 2s
 echo "GRAPH-TOOL data created for group 2 (of 2)."
 sleep 2s
@@ -116,6 +139,7 @@ sleep 2s
 #(do each of the following commands, 3 times): 
 echo "STEP 2: Generating NETWORKX data..."
 
+echo "NetworkX: A*"
 python  networkx-pathfinding.py  mann-whitney-networkx-astar_grp1  1  0  0  0  >  mw_nx_astar_grp1.txt
 echo '.'
 sleep 1s
@@ -126,24 +150,27 @@ python  networkx-pathfinding.py  mann-whitney-networkx-astar_grp1  1  0  0  0  >
 echo '...'
 sleep 1s
 
+
+echo "NetworkX: Bellman-Ford"
 python  networkx-pathfinding.py  mann-whitney-networkx-bellmanford_grp1  2  0  0  0  >  mw_nx_bellford_grp1.txt
-echo '....'
+echo '.'
 sleep 1s
 python  networkx-pathfinding.py  mann-whitney-networkx-bellmanford_grp1  2  0  0  0  >  mw_nx_bellford_grp1.txt
-echo '.....'
+echo '..'
 sleep 1s
 python  networkx-pathfinding.py  mann-whitney-networkx-bellmanford_grp1  2  0  0  0  >  mw_nx_bellford_grp1.txt
-echo '......'
+echo '...'
 sleep 1s
 
+echo "NetworkX: Dijkstra"
 python  networkx-pathfinding.py  mann-whitney-networkx-dijkstra_grp1  3  0  0  0  >  mw_nx_dijk_grp1.txt
-echo '.......'
+echo '.'
 sleep 1s
 python  networkx-pathfinding.py  mann-whitney-networkx-dijkstra_grp1  3  0  0  0  >  mw_nx_dijk_grp1.txt
-echo '........'
+echo '..'
 sleep 1s
 python  networkx-pathfinding.py  mann-whitney-networkx-dijkstra_grp1  3  0  0  0  >  mw_nx_dijk_grp1.txt
-echo '.........'
+echo '...'
 sleep 1s
 echo "NETWORKX data created for group 1 (of 2)."
 
@@ -151,6 +178,7 @@ echo "NETWORKX data created for group 1 (of 2)."
 #_______________________
 #(do each of the following commands, 3 times): 
 
+echo "NetworkX: A*"
 python  networkx-pathfinding.py  mann-whitney-networkx-astar_grp2  1  0  0  0  >  mw_nx_astar_grp2.txt
 echo '.'
 sleep 1s
@@ -161,24 +189,26 @@ python  networkx-pathfinding.py  mann-whitney-networkx-astar_grp2  1  0  0  0  >
 echo '...'
 sleep 1s
 
+echo "NetworkX: Bellman-Ford"
 python  networkx-pathfinding.py  mann-whitney-networkx-bellmanford_grp2  2  0  0  0  >  mw_nx_bellford_grp2.txt
-echo '....'
+echo '.'
 sleep 1s
 python  networkx-pathfinding.py  mann-whitney-networkx-bellmanford_grp2  2  0  0  0  >  mw_nx_bellford_grp2.txt
-echo '.....'
+echo '..'
 sleep 1s
 python  networkx-pathfinding.py  mann-whitney-networkx-bellmanford_grp2  2  0  0  0  >  mw_nx_bellford_grp2.txt
-echo '......'
+echo '...'
 sleep 1s
 
+echo "NetworkX: Dijkstra"
 python  networkx-pathfinding.py  mann-whitney-networkx-dijkstra_grp2  3  0  0  0  >  mw_nx_dijk_grp2.txt
-echo '.......'
+echo '.'
 sleep 1s
 python  networkx-pathfinding.py  mann-whitney-networkx-dijkstra_grp2  3  0  0  0  >  mw_nx_dijk_grp2.txt
-echo '........'
+echo '..'
 sleep 1s
 python  networkx-pathfinding.py  mann-whitney-networkx-dijkstra_grp2  3  0  0  0  >  mw_nx_dijk_grp2.txt
-echo '.........'
+echo '...'
 sleep 1s
 echo "NETWORKX data created for group 2 (of 2)."
 sleep 1s
@@ -186,7 +216,7 @@ sleep 1s
 
 ###########################################
 #STEP 3: Moving all raw output files generated above to a work results folder for simplicity.
-echo "STEP 3: Movinging raw output files to working folder."
+echo "STEP 3: Moving raw output files to working folder."
 rm -rf mann-whitney-instrument-analysis
 mkdir mann-whitney-instrument-analysis
 mv  mw_gt_astar_grp1.txt  mann-whitney-instrument-analysis

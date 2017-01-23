@@ -15,6 +15,16 @@
 ###########################################
 
 
+#Clear out the variables:
+#$OUTFOLDER = ''
+#$COUNT = ''
+#$DIMENSION = ''
+#$K = ''
+#$P = ''
+#$N = ''
+#$NUMSTRATIFY = ''
+
+
 echo
 echo "Usage:"
 echo "run_graph_gen.sh -f {folder name: str} -c {count: int} -d {dimension: int} -k {cluster depth: int} -p {randomization factor: float} -n {filename prefix: str} -r {number to random stratify: int}"
@@ -89,9 +99,53 @@ echo Number to random stratify into each treatment group = $NUMSTRATIFY
 echo
 
 
+#Check for null or empty values. Exit if any of the inputs are null.
+if [ -z "$OUTFOLDER" ]
+then
+      echo "\$OUTFOLDER is empty"
+      exit 1
+
+elif [ -z "$COUNT" ]
+then
+      echo "\$COUNT is empty"
+      exit 1
+
+elif [ -z "$DIMENSION" ]
+then
+      echo "\$DIMENSION is empty"
+      exit 1
+
+elif [ -z "$K" ]
+then
+      echo "\$K is empty"
+      exit 1
+
+elif [ -z "$P" ]
+then
+      echo "\$P is empty"
+      exit 1
+
+elif [ -z "$N" ]
+then
+      echo "\$N is empty"
+      exit 1
+
+elif [ -z "$NUMSTRATIFY" ]
+then
+      echo "\$NUMSTRATIFY is empty"
+      exit 1
+#else
+#      echo "\$NUMSTRATIFY is NOT empty"
+fi
+
+
 #PART 1. Create main graph file output folder
-echo "Creating folder."
+echo "(Re)Creating folder: " $OUTFOLDER
+rm -rf $OUTFOLDER
 mkdir $OUTFOLDER
+
+
+#<<"COMMENT"
 
 
 #PART 2. Random generate the graph files
@@ -145,6 +199,8 @@ python  graph_rand_selector.py  $OUTFOLDER  mann-whitney-networkx-bellmanford_gr
 python  graph_rand_selector.py  $OUTFOLDER  mann-whitney-networkx-dijkstra_grp1/  $NUMSTRATIFY  0  0
 python  graph_rand_selector.py  $OUTFOLDER  mann-whitney-networkx-dijkstra_grp2/  $NUMSTRATIFY  0  0
 
+
+#COMMENT
 
 echo
 echo Done!
