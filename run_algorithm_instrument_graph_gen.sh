@@ -15,23 +15,16 @@
 ###########################################
 
 
-#Clear out the variables:
-#$OUTFOLDER = ''
-#$COUNT = ''
-#$DIMENSION = ''
-#$K = ''
-#$P = ''
-#$N = ''
-#$NUMSTRATIFY = ''
-
-
 echo
 echo "Usage:"
 echo "run_graph_gen.sh -f {folder name: str} -c {count: int} -d {dimension: int} -k {cluster depth: int} -p {randomization factor: float} -n {filename prefix: str} -r {number to random stratify: int}"
 echo
 echo "Examples:"
-echo ". run_graph_gen.sh -o 'graphs_100'  -c 2000  -d 100  -k 2  -p 0.05  -n 'small_100x100_k2_p05_' -r 150"
-echo ". run_graph_gen.sh -o 'graphs_1000'  -c 2000  -d 1000  -k 2  -p 0.0025  -n 'large_1000x1000_k2_p0025_' -r 300"
+echo ". run_algorithm_instrument_graph_gen.sh -o 'graphs_100x100'  -c 24  -d 100  -k 2  -p 0.05  -n 'small_100x100_k2_p05_' -r 2"
+echo ". run_algorithm_instrument_graph_gen.sh -o 'graphs_100x100'  -c 2500  -d 100  -k 2  -p 0.05  -n 'small_100x100_k2_p05_' -r 200"
+echo ". run_algorithm_instrument_graph_gen.sh -o 'graphs_1000x1000'  -c 2000  -d 1000  -k 2  -p 0.0025  -n 'large_1000x1000_k2_p0025_' -r 100"
+echo
+echo "Make sure that (r * 6) <= c, since there are 6 groups (per graph analysis framework) c must be divided into"
 echo
 
 while [[ $# -gt 1 ]]
@@ -85,6 +78,9 @@ do
 done
 
 
+source activate 2.7
+
+
 echo Running with the following inputs:
 echo
 #echo Folder name = "${FOLDER}"
@@ -102,37 +98,37 @@ echo
 #Check for null or empty values. Exit if any of the inputs are null.
 if [ -z "$OUTFOLDER" ]
 then
-      echo "\$OUTFOLDER is empty"
+      echo "OUTFOLDER is empty"
       exit 1
 
 elif [ -z "$COUNT" ]
 then
-      echo "\$COUNT is empty"
+      echo "COUNT is empty"
       exit 1
 
 elif [ -z "$DIMENSION" ]
 then
-      echo "\$DIMENSION is empty"
+      echo "DIMENSION is empty"
       exit 1
 
 elif [ -z "$K" ]
 then
-      echo "\$K is empty"
+      echo "K is empty"
       exit 1
 
 elif [ -z "$P" ]
 then
-      echo "\$P is empty"
+      echo "P is empty"
       exit 1
 
 elif [ -z "$N" ]
 then
-      echo "\$N is empty"
+      echo "N is empty"
       exit 1
 
 elif [ -z "$NUMSTRATIFY" ]
 then
-      echo "\$NUMSTRATIFY is empty"
+      echo "NUMSTRATIFY is empty"
       exit 1
 #else
 #      echo "\$NUMSTRATIFY is NOT empty"
@@ -155,49 +151,49 @@ python graph_generator.py $COUNT $DIMENSION $K $P $OUTFOLDER $N graphml 1 0
 
 #PART 3. Create statistical treatment group folders.
 echo "Creating statistic output folders."
-rm -rf mann-whitney-graphtool-astar_grp1
-rm -rf mann-whitney-graphtool-astar_grp2
-rm -rf mann-whitney-graphtool-bellmanford_grp1
-rm -rf mann-whitney-graphtool-bellmanford_grp2
-rm -rf mann-whitney-graphtool-dijkstra_grp1
-rm -rf mann-whitney-graphtool-dijkstra_grp2
-rm -rf mann-whitney-networkx-astar_grp1
-rm -rf mann-whitney-networkx-astar_grp2
-rm -rf mann-whitney-networkx-bellmanford_grp1
-rm -rf mann-whitney-networkx-bellmanford_grp2
-rm -rf mann-whitney-networkx-dijkstra_grp1
-rm -rf mann-whitney-networkx-dijkstra_grp2
+rm -rf graphtool-astar_grp1
+rm -rf graphtool-astar_grp2
+rm -rf graphtool-bellmanford_grp1
+rm -rf graphtool-bellmanford_grp2
+rm -rf graphtool-dijkstra_grp1
+rm -rf graphtool-dijkstra_grp2
+rm -rf networkx-astar_grp1
+rm -rf networkx-astar_grp2
+rm -rf networkx-bellmanford_grp1
+rm -rf networkx-bellmanford_grp2
+rm -rf networkx-dijkstra_grp1
+rm -rf networkx-dijkstra_grp2
 
-mkdir mann-whitney-graphtool-astar_grp1
-mkdir mann-whitney-graphtool-astar_grp2
-mkdir mann-whitney-graphtool-bellmanford_grp1
-mkdir mann-whitney-graphtool-bellmanford_grp2
-mkdir mann-whitney-graphtool-dijkstra_grp1
-mkdir mann-whitney-graphtool-dijkstra_grp2
-mkdir mann-whitney-networkx-astar_grp1
-mkdir mann-whitney-networkx-astar_grp2
-mkdir mann-whitney-networkx-bellmanford_grp1
-mkdir mann-whitney-networkx-bellmanford_grp2
-mkdir mann-whitney-networkx-dijkstra_grp1
-mkdir mann-whitney-networkx-dijkstra_grp2
+mkdir graphtool-astar_grp1
+mkdir graphtool-astar_grp2
+mkdir graphtool-bellmanford_grp1
+mkdir graphtool-bellmanford_grp2
+mkdir graphtool-dijkstra_grp1
+mkdir graphtool-dijkstra_grp2
+mkdir networkx-astar_grp1
+mkdir networkx-astar_grp2
+mkdir networkx-bellmanford_grp1
+mkdir networkx-bellmanford_grp2
+mkdir networkx-dijkstra_grp1
+mkdir networkx-dijkstra_grp2
 
 
 #PART 4. Random stratification and assignment to target folders (GraphTool):
-python  graph_rand_selector.py  $OUTFOLDER  mann-whitney-graphtool-astar_grp1/  $NUMSTRATIFY  1  0
-python  graph_rand_selector.py  $OUTFOLDER  mann-whitney-graphtool-astar_grp2/  $NUMSTRATIFY  1  0
-python  graph_rand_selector.py  $OUTFOLDER  mann-whitney-graphtool-bellmanford_grp1/  $NUMSTRATIFY  1  0
-python  graph_rand_selector.py  $OUTFOLDER  mann-whitney-graphtool-bellmanford_grp2/  $NUMSTRATIFY  1  0
-python  graph_rand_selector.py  $OUTFOLDER  mann-whitney-graphtool-dijkstra_grp1/  $NUMSTRATIFY  1  0
-python  graph_rand_selector.py  $OUTFOLDER  mann-whitney-graphtool-dijkstra_grp2/  $NUMSTRATIFY  1  0
+python  graph_rand_selector.py  $OUTFOLDER  graphtool-astar_grp1/  $NUMSTRATIFY  1  0
+python  graph_rand_selector.py  $OUTFOLDER  graphtool-astar_grp2/  $NUMSTRATIFY  1  0
+python  graph_rand_selector.py  $OUTFOLDER  graphtool-bellmanford_grp1/  $NUMSTRATIFY  1  0
+python  graph_rand_selector.py  $OUTFOLDER  graphtool-bellmanford_grp2/  $NUMSTRATIFY  1  0
+python  graph_rand_selector.py  $OUTFOLDER  graphtool-dijkstra_grp1/  $NUMSTRATIFY  1  0
+python  graph_rand_selector.py  $OUTFOLDER  graphtool-dijkstra_grp2/  $NUMSTRATIFY  1  0
 
 
 #PART 5. Random stratification and assignment to target folders (NetworkX):
-python  graph_rand_selector.py  $OUTFOLDER  mann-whitney-networkx-astar_grp1/  $NUMSTRATIFY  0  0
-python  graph_rand_selector.py  $OUTFOLDER  mann-whitney-networkx-astar_grp2/  $NUMSTRATIFY  0  0
-python  graph_rand_selector.py  $OUTFOLDER  mann-whitney-networkx-bellmanford_grp1/  $NUMSTRATIFY  0  0
-python  graph_rand_selector.py  $OUTFOLDER  mann-whitney-networkx-bellmanford_grp2/  $NUMSTRATIFY  0  0
-python  graph_rand_selector.py  $OUTFOLDER  mann-whitney-networkx-dijkstra_grp1/  $NUMSTRATIFY  0  0
-python  graph_rand_selector.py  $OUTFOLDER  mann-whitney-networkx-dijkstra_grp2/  $NUMSTRATIFY  0  0
+python  graph_rand_selector.py  $OUTFOLDER  networkx-astar_grp1/  $NUMSTRATIFY  0  0
+python  graph_rand_selector.py  $OUTFOLDER  networkx-astar_grp2/  $NUMSTRATIFY  0  0
+python  graph_rand_selector.py  $OUTFOLDER  networkx-bellmanford_grp1/  $NUMSTRATIFY  0  0
+python  graph_rand_selector.py  $OUTFOLDER  networkx-bellmanford_grp2/  $NUMSTRATIFY  0  0
+python  graph_rand_selector.py  $OUTFOLDER  networkx-dijkstra_grp1/  $NUMSTRATIFY  0  0
+python  graph_rand_selector.py  $OUTFOLDER  networkx-dijkstra_grp2/  $NUMSTRATIFY  0  0
 
 
 #COMMENT
