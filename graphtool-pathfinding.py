@@ -535,6 +535,7 @@ def main():
     forceGC = int(sys.argv[5])
     if forceGC == 1: forceGC = True
     else: forceGC = False
+    print ("Forced garbage collection = %r" % forceGC)
 
 
     advert = "(where 1 = A* (A-star), 2 = Bellman-Ford, 3 = Dijkstra)"

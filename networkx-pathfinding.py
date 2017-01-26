@@ -440,7 +440,7 @@ def runDijkstra(state):
 # This script assumes that graph files (in CSV format) have already been generated
 # by the script: graph_generator.py
 #
-def run_tests():
+def main():
 
     #print ("In run_tests()")
     print ("\nUsage:\n %s [path to input CSV files] [algorithm: 1, 2, or 3] [showGraphs: 0 or 1] [debugMode: 0 or 1] [forceGC: 0 or 1]\n" % str(sys.argv[0]) )
@@ -485,6 +485,7 @@ def run_tests():
     forceGC = int(sys.argv[5])
     if forceGC == 1: forceGC = True
     else: forceGC = False
+    print ("Forced garbage collection = %r" % forceGC)
 
 
     advert = "(where 1 = A* (A-star), 2 = Bellman-Ford, 3 = Dijkstra)"
@@ -526,5 +527,4 @@ def run_tests():
 ############################################################
 
 if __name__ == '__main__':
-    #print("In main()")
-    run_tests()
+    main()
