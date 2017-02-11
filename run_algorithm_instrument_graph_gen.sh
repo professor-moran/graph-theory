@@ -19,12 +19,18 @@ echo
 echo "Usage:"
 echo "run_graph_gen.sh -f {folder name: str} -c {count: int} -d {dimension: int} -k {cluster depth: int} -p {randomization factor: float} -n {filename prefix: str} -r {number to random stratify: int}"
 echo
-echo "Examples:"
-echo ". run_algorithm_instrument_graph_gen.sh -o 'graphs_100x100'  -c 24  -d 100  -k 2  -p 0.05  -n 'small_100x100_k2_p05_' -r 2"
-echo ". run_algorithm_instrument_graph_gen.sh -o 'graphs_100x100'  -c 2500  -d 100  -k 2  -p 0.05  -n 'small_100x100_k2_p05_' -r 200"
-echo ". run_algorithm_instrument_graph_gen.sh -o 'graphs_1000x1000'  -c 2000  -d 1000  -k 2  -p 0.0025  -n 'large_1000x1000_k2_p0025_' -r 100"
+echo "Where 'count' is the total number of graph files to generate."
+echo " and 'dimension' is the X dimension of the square grid map (thus will also be the Y dimension too)."
+echo " and 'randomization factor' is the small-world randomization coefficient, ranging between 0.0 (no randomization) to 1.0 (complete randomization)."
+echo 
+echo "Some examples:"
 echo
-echo "Make sure that (r * 6) <= c, since there are 6 groups (per graph analysis framework) c must be divided into"
+echo ". run_algorithm_instrument_graph_gen.sh -o 'graphs_100x100'  -c 24  -d 100  -k 2  -p 0.05  -n 'small_100x100_k2_p05_' -r 4"
+echo ". run_algorithm_instrument_graph_gen.sh -o 'graphs_100x100'  -c 750  -d 100  -k 2  -p 0.05  -n 'small_100x100_k2_p05_' -r 125"
+echo ". run_algorithm_instrument_graph_gen.sh -o 'graphs_1000x1000' -c 750 -d 1000 -k 2  -p 0.0025 -n 'large_1000x1000_k2_p0025_' -r 125"
+echo
+echo "Make sure that (r * 6) <= c, since there are 6 groups (per graph analysis framework) c must be divided into."
+echo
 echo
 
 while [[ $# -gt 1 ]]
@@ -93,6 +99,8 @@ echo Randomization coefficient = $P
 echo Output filename prefix = $N
 echo Number to random stratify into each treatment group = $NUMSTRATIFY
 echo
+date
+echo
 
 
 #Check for null or empty values. Exit if any of the inputs are null.
@@ -136,17 +144,18 @@ fi
 
 
 #PART 1. Create main graph file output folder
-echo "(Re)Creating folder: " $OUTFOLDER
-rm -rf $OUTFOLDER
-mkdir $OUTFOLDER
+#echo "(Re)Creating folder: " $OUTFOLDER
+#rm -rf $OUTFOLDER
+#mkdir $OUTFOLDER
 
 
 #<<"COMMENT"
 
 
 #PART 2. Random generate the graph files
-echo "Running Python script to generate " $COUNT " graphs."
-python graph_generator.py $COUNT $DIMENSION $K $P $OUTFOLDER $N graphml 1 0
+#echo "Running Python script to generate " $COUNT " graphs."
+#python graph_generator.py $COUNT $DIMENSION $K $P $OUTFOLDER $N graphml 1 0
+#sleep 3s
 
 
 #PART 3. Create statistical treatment group folders.
@@ -200,3 +209,4 @@ python  graph_rand_selector.py  $OUTFOLDER  networkx-dijkstra_grp2/  $NUMSTRATIF
 
 echo
 echo Done!
+date
