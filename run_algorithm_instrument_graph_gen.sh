@@ -144,18 +144,18 @@ fi
 
 
 #PART 1. Create main graph file output folder
-#echo "(Re)Creating folder: " $OUTFOLDER
-#rm -rf $OUTFOLDER
-#mkdir $OUTFOLDER
+echo "(Re)Creating folder: " $OUTFOLDER
+rm -rf $OUTFOLDER
+mkdir $OUTFOLDER
 
 
 #<<"COMMENT"
 
 
 #PART 2. Random generate the graph files
-#echo "Running Python script to generate " $COUNT " graphs."
-#python graph_generator.py $COUNT $DIMENSION $K $P $OUTFOLDER $N graphml 1 0
-#sleep 3s
+echo "Running Python script to generate " $COUNT " graphs."
+python graph_generator.py $COUNT $DIMENSION $K $P $OUTFOLDER $N graphml 1 0
+sleep 3s
 
 
 #PART 3. Create statistical treatment group folders.
