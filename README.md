@@ -5,23 +5,22 @@ This GitHub project contains Python source code used to randomly generate, strat
 Steps to follow.
 
 1. To randomly generate graph files, run this script:
-    graph_generator.py
+ + graph_generator.py  
 
 2. To randomly stratify the graph files into treatment group subdirectories, run this script:
-    graph_rand_selector.py
+ + graph_rand_selector.py  
 
 3. To run GraphTool pathfinding algorithm tests on the graph files to generate raw data, run this script:
-    graphtool-pathfinding.py
+ + graphtool-pathfinding.py  
 
 4. To collect the raw data from the aforementioned GraphTool pathfinding algorithms, run this script:
-    graphtool-results-parser.py
+ + graphtool-results-parser.py  
 
 5. To run NetworkX pathfinding algorithm tests on the graph files to generate raw data, run this script:
-    networkx-pathfinding.py
+ + networkx-pathfinding.py  
 
 6. To collect the raw data from the aforementioned NetworkX pathfinding algorithms, run this script:
-    networkx-results-parser.py
-
+ + networkx-results-parser.py  
 
 Some utility scripts (which combine some of the aforementioned singular scripts) for the statistical validity/reliabilty testing:
 
