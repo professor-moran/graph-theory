@@ -23,15 +23,18 @@ Steps to follow.
     networkx-results-parser.py
 
 
-Some utility scripts (which combine some of the aforementioned singular scripts) for the Wilcoxon validity/reliabilty testing:
+Some utility scripts (which combine some of the aforementioned singular scripts) for the statistical validity/reliabilty testing:
 
 * run_algorithm_instrument_graph_gen.sh
-
 * run_algorithm_instrument_data_collection.sh
+
+A useful utility script used to combine CSV files during the data collection/collation phase:
+
+* csv_combiner.py
 
 
 Caveats: 
-I'm learning Python, so my Python code is probably not "Pythonic". However, the code works, so it achieves its goal.
+I'm learning Python, so my Python code is likely not "Pythonic". However, the code works, so it achieves its main goal. Later, as I learn more Python, I may update the code to be more "Pythonic" in nature.
 
 
 Best regards,
