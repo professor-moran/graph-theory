@@ -1,7 +1,12 @@
-import pandas as pd
-import sys
 import os
+import sys
+import pandas as pd
+import numpy as np
 
+# Created: 02-01-2017
+#
+# (c) Michael Moran
+#
 # Program to combine CSV files, by copying all column data from the input
 # CSV file, then adding them as new columns to the destination CSV file.
 #
@@ -41,8 +46,12 @@ import os
 # 
 # Done!
 #
-
-
+# NOTE: 
+# Make sure that if you are writing to a new file, that the file doesn't already
+# exist but is empty. In that case, just delete it, and let this script create the file
+# from scratch, else you will get a Pandas error: "No columns to parse from file"
+# The solution is to simply delete the empty target file, and rerun this script.
+#
 ############################################################
 def isNotEmpty(s):
     return bool(s and s.strip())
@@ -253,6 +262,7 @@ def main():
     #output file is new, so just add new data to it:
     if (outresults == False):
         print("Writing to new csv file...")
+        df1.index = np.arange(1,len(df1)+1) #to start indexing at 1, not 0.
         df1.to_csv(outputfile, sep=',', encoding='utf-8', index_label='INDEX', header=True, index=True) 
         print("Done.")
         

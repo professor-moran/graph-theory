@@ -2,6 +2,8 @@
 
 # Created: 2017-01-22
 #
+# (c) Michael Moran
+#
 # The purpose of this script is to automate the raw graph file creation process.
 # It will also random stratify the graph samples into the appropriate 12 test
 # folders needed for Mann-Whitney U-Test work (6 for GraphTool, and 6 for NetworkX).

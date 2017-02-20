@@ -9,6 +9,11 @@ import os
 import shutil
 
 
+# Created: 12-17-2016
+#
+# (c) Michael Moran
+#
+#
 """
 Program to randomly select graph files (with either .CSV or .graphml file extention)
 in a source directory, and move those (randomly selected) files to a target directory.
