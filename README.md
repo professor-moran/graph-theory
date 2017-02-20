@@ -2,7 +2,7 @@ Feb 10, 2017.
 
 This GitHub project contains Python source code used to randomly generate, stratify, and collect small-world graph data for comparative shortest path algorithm research for my doctoral study.
 
-Steps to follow.
+Options:
 
 1. To randomly generate graph files, run this script:
  + graph_generator.py  
@@ -22,19 +22,18 @@ Steps to follow.
 6. To collect the raw data from the aforementioned NetworkX pathfinding algorithms, run this script:
  + networkx-results-parser.py  
 
+7. A useful utility script used to combine CSV files during the data collection/collation phase:
+ + csv_combiner.py 
+
 Some utility scripts (which combine some of the aforementioned singular scripts) for the statistical validity/reliabilty testing:
 
 * run_algorithm_instrument_graph_gen.sh
 * run_algorithm_instrument_data_collection.sh
-
-A useful utility script used to combine CSV files during the data collection/collation phase:
-
-* csv_combiner.py
-
+* run_algorithm_instrument_csv_collation.sh
 
 Caveats: 
-I'm learning Python, so my Python code is likely not "Pythonic". However, the code works, so it achieves its main goal. Later, as I learn more Python, I may update the code to be more "Pythonic" in nature.
-
+I'm learning Python, so my Python code is likely not "Pythonic", however, the code works, so it achieves its goal. 
+Later, time permitting and after I learn more Python, I may update the code to be more "Pythonic" in nature.
 
 Best regards,
 
