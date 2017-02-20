@@ -8,6 +8,11 @@ import sys
 import os
 
 
+# Created: 12-17-2016
+#
+# (c) Michael Moran
+#
+#
 """
 Program to create random small-world graphs in the form of
 two-dimensional adjacency matrices. 

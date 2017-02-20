@@ -2,6 +2,8 @@
 
 # Created: 2017-01-21
 #
+# (c) Michael Moran
+#
 # This is the main test harness driver for my doctoral study's algorithm
 # instrument validation and reliability tests.
 # It's purpose is the run the pathfinding tests on (already existing) graph

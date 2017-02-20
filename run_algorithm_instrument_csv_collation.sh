@@ -2,6 +2,8 @@
 
 # Created: 2017-02-19
 #
+# (c) Michael Moran
+#
 # This script collates the data already generated, processed and put into 
 # CSV files from either:
 # (1) manually calling the Python script:  graphtool-results-parser.py
@@ -45,14 +47,14 @@ rm ./instrument-analysis-graphtool-wilcoxon/wlcx_gt_bellford_grp1abcde-COMBINED.
 rm ./instrument-analysis-graphtool-wilcoxon/wlcx_gt_bellford_grp2abcde-COMBINED.csv
 rm ./instrument-analysis-graphtool-wilcoxon/wlcx_gt_dijk_grp1abcde-COMBINED.csv
 rm ./instrument-analysis-graphtool-wilcoxon/wlcx_gt_dijk_grp2abcde-COMBINED.csv
-sleep 5s
+sleep 1s
 rm ./instrument-analysis-networkx-wilcoxon/wlcx_nx_astar_grp1abcde-COMBINED.csv
 rm ./instrument-analysis-networkx-wilcoxon/wlcx_nx_astar_grp2abcde-COMBINED.csv
 rm ./instrument-analysis-networkx-wilcoxon/wlcx_nx_bellford_grp1abcde-COMBINED.csv
 rm ./instrument-analysis-networkx-wilcoxon/wlcx_nx_bellford_grp2abcde-COMBINED.csv
 rm ./instrument-analysis-networkx-wilcoxon/wlcx_nx_dijk_grp1abcde-COMBINED.csv
 rm ./instrument-analysis-networkx-wilcoxon/wlcx_nx_dijk_grp2abcde-COMBINED.csv
-sleep 5s
+sleep 1s
 
 
 ###########################################
@@ -62,66 +64,90 @@ echo
 echo "STEP 1: Collating GRAPH-TOOL 'A*' algorithm data (for Group 1):"
 echo
 python  csv_combiner.py  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_astar_grp1a-PARSED.csv  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_astar_grp1abcde-COMBINED.csv  a  0
-python  csv_combiner.py  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_astar_grp1b-PARSED.csv  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_astar_grp1abcde-COMBINED.csv  b  0
-python  csv_combiner.py  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_astar_grp1c-PARSED.csv  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_astar_grp1abcde-COMBINED.csv  c  0
-python  csv_combiner.py  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_astar_grp1d-PARSED.csv  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_astar_grp1abcde-COMBINED.csv  d  0
-python  csv_combiner.py  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_astar_grp1e-PARSED.csv  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_astar_grp1abcde-COMBINED.csv  e  0
 sleep 2s
+python  csv_combiner.py  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_astar_grp1b-PARSED.csv  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_astar_grp1abcde-COMBINED.csv  b  0
+sleep 1s
+python  csv_combiner.py  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_astar_grp1c-PARSED.csv  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_astar_grp1abcde-COMBINED.csv  c  0
+sleep 1s
+python  csv_combiner.py  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_astar_grp1d-PARSED.csv  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_astar_grp1abcde-COMBINED.csv  d  0
+sleep 1s
+python  csv_combiner.py  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_astar_grp1e-PARSED.csv  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_astar_grp1abcde-COMBINED.csv  e  0
+sleep 1s
 
 
 echo
 echo "STEP 2: Collating GRAPH-TOOL 'Bellman-Ford' algorithm data (for Group 1):"
 echo
 python  csv_combiner.py  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_bellford_grp1a-PARSED.csv  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_bellford_grp1abcde-COMBINED.csv  a  0
-python  csv_combiner.py  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_bellford_grp1b-PARSED.csv  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_bellford_grp1abcde-COMBINED.csv  b  0
-python  csv_combiner.py  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_bellford_grp1c-PARSED.csv  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_bellford_grp1abcde-COMBINED.csv  c  0
-python  csv_combiner.py  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_bellford_grp1d-PARSED.csv  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_bellford_grp1abcde-COMBINED.csv  d  0
-python  csv_combiner.py  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_bellford_grp1e-PARSED.csv  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_bellford_grp1abcde-COMBINED.csv  e  0
 sleep 2s
+python  csv_combiner.py  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_bellford_grp1b-PARSED.csv  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_bellford_grp1abcde-COMBINED.csv  b  0
+sleep 1s
+python  csv_combiner.py  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_bellford_grp1c-PARSED.csv  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_bellford_grp1abcde-COMBINED.csv  c  0
+sleep 1s
+python  csv_combiner.py  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_bellford_grp1d-PARSED.csv  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_bellford_grp1abcde-COMBINED.csv  d  0
+sleep 1s
+python  csv_combiner.py  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_bellford_grp1e-PARSED.csv  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_bellford_grp1abcde-COMBINED.csv  e  0
+sleep 1s
 
 
 echo
 echo "STEP 3: Collating GRAPH-TOOL 'Dijkstra' algorithm data (for Group 1):"
 echo
 python  csv_combiner.py  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_dijk_grp1a-PARSED.csv  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_dijk_grp1abcde-COMBINED.csv  a  0
-python  csv_combiner.py  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_dijk_grp1b-PARSED.csv  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_dijk_grp1abcde-COMBINED.csv  b  0
-python  csv_combiner.py  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_dijk_grp1c-PARSED.csv  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_dijk_grp1abcde-COMBINED.csv  c  0
-python  csv_combiner.py  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_dijk_grp1d-PARSED.csv  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_dijk_grp1abcde-COMBINED.csv  d  0
-python  csv_combiner.py  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_dijk_grp1e-PARSED.csv  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_dijk_grp1abcde-COMBINED.csv  e  0
 sleep 2s
+python  csv_combiner.py  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_dijk_grp1b-PARSED.csv  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_dijk_grp1abcde-COMBINED.csv  b  0
+sleep 1s
+python  csv_combiner.py  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_dijk_grp1c-PARSED.csv  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_dijk_grp1abcde-COMBINED.csv  c  0
+sleep 1s
+python  csv_combiner.py  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_dijk_grp1d-PARSED.csv  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_dijk_grp1abcde-COMBINED.csv  d  0
+sleep 1s
+python  csv_combiner.py  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_dijk_grp1e-PARSED.csv  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_dijk_grp1abcde-COMBINED.csv  e  0
+sleep 1s
 
 
 echo
 echo "STEP 4: Collating GRAPH-TOOL 'A*' algorithm data (for Group 2):"
 echo
 python  csv_combiner.py  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_astar_grp2a-PARSED.csv  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_astar_grp2abcde-COMBINED.csv  a  0
-python  csv_combiner.py  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_astar_grp2b-PARSED.csv  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_astar_grp2abcde-COMBINED.csv  b  0
-python  csv_combiner.py  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_astar_grp2c-PARSED.csv  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_astar_grp2abcde-COMBINED.csv  c  0
-python  csv_combiner.py  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_astar_grp2d-PARSED.csv  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_astar_grp2abcde-COMBINED.csv  d  0
-python  csv_combiner.py  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_astar_grp2e-PARSED.csv  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_astar_grp2abcde-COMBINED.csv  e  0
 sleep 2s
+python  csv_combiner.py  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_astar_grp2b-PARSED.csv  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_astar_grp2abcde-COMBINED.csv  b  0
+sleep 1s
+python  csv_combiner.py  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_astar_grp2c-PARSED.csv  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_astar_grp2abcde-COMBINED.csv  c  0
+sleep 1s
+python  csv_combiner.py  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_astar_grp2d-PARSED.csv  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_astar_grp2abcde-COMBINED.csv  d  0
+sleep 1s
+python  csv_combiner.py  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_astar_grp2e-PARSED.csv  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_astar_grp2abcde-COMBINED.csv  e  0
+sleep 1s
 
 
 echo
 echo "STEP 5: Collating GRAPH-TOOL 'Bellman-Ford' algorithm data (for Group 2):"
 echo
 python  csv_combiner.py  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_bellford_grp2a-PARSED.csv  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_bellford_grp2abcde-COMBINED.csv  a  0
-python  csv_combiner.py  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_bellford_grp2b-PARSED.csv  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_bellford_grp2abcde-COMBINED.csv  b  0
-python  csv_combiner.py  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_bellford_grp2c-PARSED.csv  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_bellford_grp2abcde-COMBINED.csv  c  0
-python  csv_combiner.py  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_bellford_grp2d-PARSED.csv  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_bellford_grp2abcde-COMBINED.csv  d  0
-python  csv_combiner.py  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_bellford_grp2e-PARSED.csv  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_bellford_grp2abcde-COMBINED.csv  e  0
 sleep 2s
+python  csv_combiner.py  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_bellford_grp2b-PARSED.csv  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_bellford_grp2abcde-COMBINED.csv  b  0
+sleep 1s
+python  csv_combiner.py  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_bellford_grp2c-PARSED.csv  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_bellford_grp2abcde-COMBINED.csv  c  0
+sleep 1s
+python  csv_combiner.py  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_bellford_grp2d-PARSED.csv  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_bellford_grp2abcde-COMBINED.csv  d  0
+sleep 1s
+python  csv_combiner.py  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_bellford_grp2e-PARSED.csv  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_bellford_grp2abcde-COMBINED.csv  e  0
+sleep 1s
 
 
 echo
 echo "STEP 6: Collating GRAPH-TOOL 'Dijkstra' algorithm data (for Group 2):"
 echo
 python  csv_combiner.py  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_dijk_grp2a-PARSED.csv  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_dijk_grp2abcde-COMBINED.csv  a  0
-python  csv_combiner.py  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_dijk_grp2b-PARSED.csv  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_dijk_grp2abcde-COMBINED.csv  b  0
-python  csv_combiner.py  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_dijk_grp2c-PARSED.csv  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_dijk_grp2abcde-COMBINED.csv  c  0
-python  csv_combiner.py  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_dijk_grp2d-PARSED.csv  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_dijk_grp2abcde-COMBINED.csv  d  0
-python  csv_combiner.py  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_dijk_grp2e-PARSED.csv  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_dijk_grp2abcde-COMBINED.csv  e  0
 sleep 2s
+python  csv_combiner.py  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_dijk_grp2b-PARSED.csv  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_dijk_grp2abcde-COMBINED.csv  b  0
+sleep 1s
+python  csv_combiner.py  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_dijk_grp2c-PARSED.csv  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_dijk_grp2abcde-COMBINED.csv  c  0
+sleep 1s
+python  csv_combiner.py  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_dijk_grp2d-PARSED.csv  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_dijk_grp2abcde-COMBINED.csv  d  0
+sleep 1s
+python  csv_combiner.py  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_dijk_grp2e-PARSED.csv  ./instrument-analysis-graphtool-wilcoxon/  wlcx_gt_dijk_grp2abcde-COMBINED.csv  e  0
+sleep 1s
 
 
 ###########################################
@@ -131,66 +157,90 @@ echo
 echo "STEP 7: Collating NETWORK-X 'A*' algorithm data (for Group 1):"
 echo
 python  csv_combiner.py  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_astar_grp1a-PARSED.csv  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_astar_grp1abcde-COMBINED.csv  a  0
-python  csv_combiner.py  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_astar_grp1b-PARSED.csv  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_astar_grp1abcde-COMBINED.csv  b  0
-python  csv_combiner.py  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_astar_grp1c-PARSED.csv  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_astar_grp1abcde-COMBINED.csv  c  0
-python  csv_combiner.py  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_astar_grp1d-PARSED.csv  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_astar_grp1abcde-COMBINED.csv  d  0
-python  csv_combiner.py  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_astar_grp1e-PARSED.csv  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_astar_grp1abcde-COMBINED.csv  e  0
 sleep 2s
+python  csv_combiner.py  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_astar_grp1b-PARSED.csv  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_astar_grp1abcde-COMBINED.csv  b  0
+sleep 1s
+python  csv_combiner.py  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_astar_grp1c-PARSED.csv  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_astar_grp1abcde-COMBINED.csv  c  0
+sleep 1s
+python  csv_combiner.py  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_astar_grp1d-PARSED.csv  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_astar_grp1abcde-COMBINED.csv  d  0
+sleep 1s
+python  csv_combiner.py  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_astar_grp1e-PARSED.csv  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_astar_grp1abcde-COMBINED.csv  e  0
+sleep 1s
 
 
 echo
 echo "STEP 8: Collating NETWORK-X 'Bellman-Ford' algorithm data (for Group 1):"
 echo
 python  csv_combiner.py  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_bellford_grp1a-PARSED.csv  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_bellford_grp1abcde-COMBINED.csv  a  0
-python  csv_combiner.py  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_bellford_grp1b-PARSED.csv  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_bellford_grp1abcde-COMBINED.csv  b  0
-python  csv_combiner.py  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_bellford_grp1c-PARSED.csv  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_bellford_grp1abcde-COMBINED.csv  c  0
-python  csv_combiner.py  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_bellford_grp1d-PARSED.csv  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_bellford_grp1abcde-COMBINED.csv  d  0
-python  csv_combiner.py  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_bellford_grp1e-PARSED.csv  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_bellford_grp1abcde-COMBINED.csv  e  0
 sleep 2s
+python  csv_combiner.py  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_bellford_grp1b-PARSED.csv  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_bellford_grp1abcde-COMBINED.csv  b  0
+sleep 1s
+python  csv_combiner.py  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_bellford_grp1c-PARSED.csv  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_bellford_grp1abcde-COMBINED.csv  c  0
+sleep 1s
+python  csv_combiner.py  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_bellford_grp1d-PARSED.csv  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_bellford_grp1abcde-COMBINED.csv  d  0
+sleep 1s
+python  csv_combiner.py  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_bellford_grp1e-PARSED.csv  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_bellford_grp1abcde-COMBINED.csv  e  0
+sleep 1s
 
 
 echo
 echo "STEP 9: Collating NETWORK-X 'Dijkstra' algorithm data (for Group 1):"
 echo
 python  csv_combiner.py  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_dijk_grp1a-PARSED.csv  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_dijk_grp1abcde-COMBINED.csv  a  0
-python  csv_combiner.py  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_dijk_grp1b-PARSED.csv  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_dijk_grp1abcde-COMBINED.csv  b  0
-python  csv_combiner.py  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_dijk_grp1c-PARSED.csv  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_dijk_grp1abcde-COMBINED.csv  c  0
-python  csv_combiner.py  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_dijk_grp1d-PARSED.csv  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_dijk_grp1abcde-COMBINED.csv  d  0
-python  csv_combiner.py  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_dijk_grp1e-PARSED.csv  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_dijk_grp1abcde-COMBINED.csv  e  0
 sleep 2s
+python  csv_combiner.py  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_dijk_grp1b-PARSED.csv  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_dijk_grp1abcde-COMBINED.csv  b  0
+sleep 1s
+python  csv_combiner.py  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_dijk_grp1c-PARSED.csv  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_dijk_grp1abcde-COMBINED.csv  c  0
+sleep 1s
+python  csv_combiner.py  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_dijk_grp1d-PARSED.csv  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_dijk_grp1abcde-COMBINED.csv  d  0
+sleep 1s
+python  csv_combiner.py  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_dijk_grp1e-PARSED.csv  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_dijk_grp1abcde-COMBINED.csv  e  0
+sleep 1s
 
 
 echo
 echo "STEP 10: Collating NETWORK-X 'A*' algorithm data (for Group 2):"
 echo
 python  csv_combiner.py  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_astar_grp2a-PARSED.csv  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_astar_grp2abcde-COMBINED.csv  a  0
-python  csv_combiner.py  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_astar_grp2b-PARSED.csv  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_astar_grp2abcde-COMBINED.csv  b  0
-python  csv_combiner.py  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_astar_grp2c-PARSED.csv  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_astar_grp2abcde-COMBINED.csv  c  0
-python  csv_combiner.py  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_astar_grp2d-PARSED.csv  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_astar_grp2abcde-COMBINED.csv  d  0
-python  csv_combiner.py  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_astar_grp2e-PARSED.csv  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_astar_grp2abcde-COMBINED.csv  e  0
 sleep 2s
+python  csv_combiner.py  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_astar_grp2b-PARSED.csv  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_astar_grp2abcde-COMBINED.csv  b  0
+sleep 1s
+python  csv_combiner.py  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_astar_grp2c-PARSED.csv  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_astar_grp2abcde-COMBINED.csv  c  0
+sleep 1s
+python  csv_combiner.py  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_astar_grp2d-PARSED.csv  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_astar_grp2abcde-COMBINED.csv  d  0
+sleep 1s
+python  csv_combiner.py  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_astar_grp2e-PARSED.csv  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_astar_grp2abcde-COMBINED.csv  e  0
+sleep 1s
 
 
 echo
 echo "STEP 11: Collating NETWORK-X 'Bellman-Ford' algorithm data (for Group 2):"
 echo
 python  csv_combiner.py  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_bellford_grp2a-PARSED.csv  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_bellford_grp2abcde-COMBINED.csv  a  0
-python  csv_combiner.py  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_bellford_grp2b-PARSED.csv  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_bellford_grp2abcde-COMBINED.csv  b  0
-python  csv_combiner.py  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_bellford_grp2c-PARSED.csv  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_bellford_grp2abcde-COMBINED.csv  c  0
-python  csv_combiner.py  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_bellford_grp2d-PARSED.csv  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_bellford_grp2abcde-COMBINED.csv  d  0
-python  csv_combiner.py  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_bellford_grp2e-PARSED.csv  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_bellford_grp2abcde-COMBINED.csv  e  0
 sleep 2s
+python  csv_combiner.py  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_bellford_grp2b-PARSED.csv  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_bellford_grp2abcde-COMBINED.csv  b  0
+sleep 1s
+python  csv_combiner.py  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_bellford_grp2c-PARSED.csv  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_bellford_grp2abcde-COMBINED.csv  c  0
+sleep 1s
+python  csv_combiner.py  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_bellford_grp2d-PARSED.csv  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_bellford_grp2abcde-COMBINED.csv  d  0
+sleep 1s
+python  csv_combiner.py  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_bellford_grp2e-PARSED.csv  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_bellford_grp2abcde-COMBINED.csv  e  0
+sleep 1s
 
 
 echo
 echo "STEP 12: Collating NETWORK-X 'Dijkstra' algorithm data (for Group 2):"
 echo
 python  csv_combiner.py  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_dijk_grp2a-PARSED.csv  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_dijk_grp2abcde-COMBINED.csv  a  0
-python  csv_combiner.py  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_dijk_grp2b-PARSED.csv  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_dijk_grp2abcde-COMBINED.csv  b  0
-python  csv_combiner.py  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_dijk_grp2c-PARSED.csv  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_dijk_grp2abcde-COMBINED.csv  c  0
-python  csv_combiner.py  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_dijk_grp2d-PARSED.csv  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_dijk_grp2abcde-COMBINED.csv  d  0
-python  csv_combiner.py  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_dijk_grp2e-PARSED.csv  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_dijk_grp2abcde-COMBINED.csv  e  0
 sleep 2s
+python  csv_combiner.py  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_dijk_grp2b-PARSED.csv  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_dijk_grp2abcde-COMBINED.csv  b  0
+sleep 1s
+python  csv_combiner.py  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_dijk_grp2c-PARSED.csv  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_dijk_grp2abcde-COMBINED.csv  c  0
+sleep 1s
+python  csv_combiner.py  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_dijk_grp2d-PARSED.csv  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_dijk_grp2abcde-COMBINED.csv  d  0
+sleep 1s
+python  csv_combiner.py  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_dijk_grp2e-PARSED.csv  ./instrument-analysis-networkx-wilcoxon/  wlcx_nx_dijk_grp2abcde-COMBINED.csv  e  0
+sleep 1s
 
 
 ###########################################

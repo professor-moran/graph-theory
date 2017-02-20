@@ -3,6 +3,11 @@ import os
 import csv
 
 
+# Created: 12-17-2016
+#
+# (c) Michael Moran
+#
+#
 #Program to parse the results of the Graph-Tool pathfinding program that 
 # collected memory consumption and elapsed time data from parsing
 # input graph files saved in GraphML text format.
