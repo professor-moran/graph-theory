@@ -236,8 +236,9 @@ def main():
             print ("Output file [%s] does not exist." % outputfile)
             #file doesn't exist, so create it:
             touch( outputfile )
+            print ("Created new output file named: [%s]" % outputfile)
         else:
-            print ("len(outresults) = %d" % len(outresults) )
+            if debug: print ("len(outresults) = %d" % len(outresults) )
             print ("Output file [%s] already exists." % outputfile)
 
 

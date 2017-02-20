@@ -106,40 +106,40 @@ echo
 #Check for null or empty values. Exit if any of the inputs are null.
 if [ -z "$OUTFOLDER" ]
 then
-      echo "OUTFOLDER is empty"
+      echo "OUTFOLDER parameter is empty"
       exit 1
 
 elif [ -z "$COUNT" ]
 then
-      echo "COUNT is empty"
+      echo "COUNT parameter is empty"
       exit 1
 
 elif [ -z "$DIMENSION" ]
 then
-      echo "DIMENSION is empty"
+      echo "DIMENSION parameter is empty"
       exit 1
 
 elif [ -z "$K" ]
 then
-      echo "K is empty"
+      echo "K parameter is empty"
       exit 1
 
 elif [ -z "$P" ]
 then
-      echo "P is empty"
+      echo "P parameter is empty"
       exit 1
 
 elif [ -z "$N" ]
 then
-      echo "N is empty"
+      echo "N parameter is empty"
       exit 1
 
 elif [ -z "$NUMSTRATIFY" ]
 then
-      echo "NUMSTRATIFY is empty"
+      echo "NUMSTRATIFY parameter is empty"
       exit 1
 #else
-#      echo "\$NUMSTRATIFY is NOT empty"
+#      echo "\$NUMSTRATIFY parameter is NOT empty"
 fi
 
 
