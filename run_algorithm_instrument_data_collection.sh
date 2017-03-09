@@ -67,11 +67,11 @@ echo
 echo "STEP 1: Generating GRAPH-TOOL data for Wilcoxon pairs test (within-group, using Group1 files for input):"
 echo
 # Warm up the Python virtual machine (Graph-Tool).
-echo "Warming up Graph-Tool... (for Graph-Tool A*)"
-date
-python  graphtool-pathfinding.py  graphtool-astar_grp1  1  0  0  0  >  /dev/null
-sleep 4s
-echo "Warmup complete."
+#echo "Warming up Graph-Tool... (for Graph-Tool A*)"
+#date
+#python  graphtool-pathfinding.py  graphtool-astar_grp1  1  0  0  0  >  /dev/null
+#sleep 4s
+#echo "Warmup complete."
 date
 echo "[Wilcoxon] Graph-Tool: A* (grp 1)"
 echo '.'
@@ -91,11 +91,11 @@ python  graphtool-pathfinding.py  graphtool-astar_grp1  1  0  0  0  >  wlcx_gt_a
 sleep 4s
 
 # Warm up the Python virtual machine (Graph-Tool).
-echo "Warming up Graph-Tool... (for Graph-Tool Bellman-Ford)"
-date
-python  graphtool-pathfinding.py  graphtool-bellmanford_grp1  2  0  0  0  >  /dev/null
-sleep 4s
-echo "Warmup complete."
+#echo "Warming up Graph-Tool... (for Graph-Tool Bellman-Ford)"
+#date
+#python  graphtool-pathfinding.py  graphtool-bellmanford_grp1  2  0  0  0  >  /dev/null
+#sleep 4s
+#echo "Warmup complete."
 date
 echo "[Wilcoxon] Graph-Tool: Bellman-Ford (grp 1)"
 echo '.'
@@ -115,11 +115,11 @@ python  graphtool-pathfinding.py  graphtool-bellmanford_grp1  2  0  0  0  >  wlc
 sleep 4s
 
 # Warm up the Python virtual machine (Graph-Tool).
-echo "Warming up Graph-Tool... (for Graph-Tool Dijkstra)"
-date
-python  graphtool-pathfinding.py  graphtool-dijkstra_grp1  3  0  0  0  >  /dev/null
-sleep 4s
-echo "Warmup complete."
+#echo "Warming up Graph-Tool... (for Graph-Tool Dijkstra)"
+#date
+#python  graphtool-pathfinding.py  graphtool-dijkstra_grp1  3  0  0  0  >  /dev/null
+#sleep 4s
+#echo "Warmup complete."
 date
 echo "[Wilcoxon] Graph-Tool: Dijkstra (grp 1)"
 echo '.'
@@ -145,11 +145,11 @@ echo
 echo "STEP 2: Generating GRAPH-TOOL data for Wilcoxon pairs test (within-group, using Group2 files for input):"
 echo
 # Warm up the Python virtual machine (Graph-Tool).
-echo "Warming up Graph-Tool... (for Graph-Tool A*)"
-date
-python  graphtool-pathfinding.py  graphtool-astar_grp2  1  0  0  0  >  /dev/null
-sleep 4s
-echo "Warmup complete."
+#echo "Warming up Graph-Tool... (for Graph-Tool A*)"
+#date
+#python  graphtool-pathfinding.py  graphtool-astar_grp2  1  0  0  0  >  /dev/null
+#sleep 4s
+#echo "Warmup complete."
 date
 echo "[Wilcoxon] Graph-Tool: A* (grp 2)"
 echo '.'
@@ -169,11 +169,11 @@ python  graphtool-pathfinding.py  graphtool-astar_grp2  1  0  0  0  >  wlcx_gt_a
 sleep 4s
 
 # Warm up the Python virtual machine (Graph-Tool).
-echo "Warming up Graph-Tool... (for Graph-Tool Bellman-Ford)"
-date
-python  graphtool-pathfinding.py  graphtool-bellmanford_grp2  2  0  0  0  >  /dev/null
-sleep 4s
-echo "Warmup complete."
+#echo "Warming up Graph-Tool... (for Graph-Tool Bellman-Ford)"
+#date
+#python  graphtool-pathfinding.py  graphtool-bellmanford_grp2  2  0  0  0  >  /dev/null
+#sleep 4s
+#echo "Warmup complete."
 date
 echo "[Wilcoxon] Graph-Tool: Bellman-Ford (grp 2)"
 echo '.'
@@ -193,11 +193,11 @@ python  graphtool-pathfinding.py  graphtool-bellmanford_grp2  2  0  0  0  >  wlc
 sleep 4s
 
 # Warm up the Python virtual machine (Graph-Tool).
-echo "Warming up Graph-Tool... (for Graph-Tool Dijkstra)"
-date
-python  graphtool-pathfinding.py  graphtool-dijkstra_grp2  3  0  0  0  >  /dev/null
-sleep 4s
-echo "Warmup complete."
+#echo "Warming up Graph-Tool... (for Graph-Tool Dijkstra)"
+#date
+#python  graphtool-pathfinding.py  graphtool-dijkstra_grp2  3  0  0  0  >  /dev/null
+#sleep 4s
+#echo "Warmup complete."
 date
 echo "[Wilcoxon] Graph-Tool: Dijkstra (grp 2)"
 echo '.'
@@ -225,11 +225,11 @@ echo
 echo "STEP 3: Generating NETWORKX data for Wilcoxon pairs test (within-group, using Group1 files for input):"
 echo
 # Warm up the Python virtual machine (NetworkX).
-echo "Warming up NetworkX... (for NetworkX A*)"
-date
-python  networkx-pathfinding.py  networkx-astar_grp1  1  0  0  0  >  /dev/null
-sleep 4s
-echo "Warmup complete."
+#echo "Warming up NetworkX... (for NetworkX A*)"
+#date
+#python  networkx-pathfinding.py  networkx-astar_grp1  1  0  0  0  >  /dev/null
+#sleep 4s
+#echo "Warmup complete."
 date
 echo "[Wilcoxon] NetworkX: A* (grp 1):"
 echo '.'
@@ -249,11 +249,11 @@ python  networkx-pathfinding.py  networkx-astar_grp1  1  0  0  0  >  wlcx_nx_ast
 sleep 4s
 
 # Warm up the Python virtual machine (NetworkX).
-echo "Warming up NetworkX... (for NetworkX Bellman-Ford)"
-date
-python  networkx-pathfinding.py  networkx-bellmanford_grp1  2  0  0  0  >  /dev/null
-sleep 4s
-echo "Warmup complete."
+#echo "Warming up NetworkX... (for NetworkX Bellman-Ford)"
+#date
+#python  networkx-pathfinding.py  networkx-bellmanford_grp1  2  0  0  0  >  /dev/null
+#sleep 4s
+#echo "Warmup complete."
 date
 echo "[Wilcoxon] NetworkX: Bellman-Ford (grp 1)"
 echo '.'
@@ -273,11 +273,11 @@ python  networkx-pathfinding.py  networkx-bellmanford_grp1  2  0  0  0  >  wlcx_
 sleep 4s
 
 # Warm up the Python virtual machine (NetworkX).
-echo "Warming up NetworkX... (for NetworkX Dijkstra)"
-date
-python  networkx-pathfinding.py  networkx-dijkstra_grp1  3  0  0  0  >  /dev/null
-sleep 4s
-echo "Warmup complete."
+#echo "Warming up NetworkX... (for NetworkX Dijkstra)"
+#date
+#python  networkx-pathfinding.py  networkx-dijkstra_grp1  3  0  0  0  >  /dev/null
+#sleep 4s
+#echo "Warmup complete."
 date
 echo "[Wilcoxon] NetworkX: Dijkstra (grp 1)"
 echo '.'
@@ -303,11 +303,11 @@ echo
 echo "STEP 4: Generating NETWORKX data for Wilcoxon pairs test (within-group, using Group2 files for input):"
 echo
 # Warm up the Python virtual machine (NetworkX).
-echo "Warming up NetworkX... (for NetworkX A*)"
-date
-python  networkx-pathfinding.py  networkx-astar_grp2  1  0  0  0  >  /dev/null
-sleep 4s
-echo "Warmup complete."
+#echo "Warming up NetworkX... (for NetworkX A*)"
+#date
+#python  networkx-pathfinding.py  networkx-astar_grp2  1  0  0  0  >  /dev/null
+#sleep 4s
+#echo "Warmup complete."
 date
 echo "[Wilcoxon] NetworkX: A* (grp 2):"
 echo '.'
@@ -327,11 +327,11 @@ python  networkx-pathfinding.py  networkx-astar_grp2  1  0  0  0  >  wlcx_nx_ast
 sleep 4s
 
 # Warm up the Python virtual machine (NetworkX).
-echo "Warming up NetworkX... (for NetworkX Bellman-Ford)"
-date
-python  networkx-pathfinding.py  networkx-bellmanford_grp2  2  0  0  0  >  /dev/null
-sleep 4s
-echo "Warmup complete."
+#echo "Warming up NetworkX... (for NetworkX Bellman-Ford)"
+#date
+#python  networkx-pathfinding.py  networkx-bellmanford_grp2  2  0  0  0  >  /dev/null
+#sleep 4s
+#echo "Warmup complete."
 date
 echo "[Wilcoxon] NetworkX: Bellman-Ford (grp 2)"
 echo '.'
@@ -351,11 +351,11 @@ python  networkx-pathfinding.py  networkx-bellmanford_grp2  2  0  0  0  >  wlcx_
 sleep 4s
 
 # Warm up the Python virtual machine (NetworkX).
-echo "Warming up NetworkX... (for NetworkX Dijkstra)"
-date
-python  networkx-pathfinding.py  networkx-dijkstra_grp2  3  0  0  0  >  /dev/null
-sleep 4s
-echo "Warmup complete."
+#echo "Warming up NetworkX... (for NetworkX Dijkstra)"
+#date
+#python  networkx-pathfinding.py  networkx-dijkstra_grp2  3  0  0  0  >  /dev/null
+#sleep 4s
+#echo "Warmup complete."
 date
 echo "[Wilcoxon] NetworkX: Dijkstra (grp 2)"
 echo '.'
@@ -545,25 +545,37 @@ echo "STEP 8: Parsing NETWORKX Wilcoxon raw output files (grp 1)..."
 date
 echo "A* grp1"
 python  networkx-results-parser.py  instrument-analysis-networkx-wilcoxon/  wlcx_nx_astar_grp1a.txt  wlcx_nx_astar_grp1a-PARSED  1  0
+sleep 1s
 python  networkx-results-parser.py  instrument-analysis-networkx-wilcoxon/  wlcx_nx_astar_grp1b.txt  wlcx_nx_astar_grp1b-PARSED  1  0
+sleep 1s
 python  networkx-results-parser.py  instrument-analysis-networkx-wilcoxon/  wlcx_nx_astar_grp1c.txt  wlcx_nx_astar_grp1c-PARSED  1  0
+sleep 1s
 python  networkx-results-parser.py  instrument-analysis-networkx-wilcoxon/  wlcx_nx_astar_grp1d.txt  wlcx_nx_astar_grp1d-PARSED  1  0
+sleep 1s
 python  networkx-results-parser.py  instrument-analysis-networkx-wilcoxon/  wlcx_nx_astar_grp1e.txt  wlcx_nx_astar_grp1e-PARSED  1  0
 sleep 2s
 
 echo "Bellman-Ford grp1"
 python  networkx-results-parser.py  instrument-analysis-networkx-wilcoxon/  wlcx_nx_bellford_grp1a.txt  wlcx_nx_bellford_grp1a-PARSED  2  0
+sleep 1s
 python  networkx-results-parser.py  instrument-analysis-networkx-wilcoxon/  wlcx_nx_bellford_grp1b.txt  wlcx_nx_bellford_grp1b-PARSED  2  0
+sleep 1s
 python  networkx-results-parser.py  instrument-analysis-networkx-wilcoxon/  wlcx_nx_bellford_grp1c.txt  wlcx_nx_bellford_grp1c-PARSED  2  0
+sleep 1s
 python  networkx-results-parser.py  instrument-analysis-networkx-wilcoxon/  wlcx_nx_bellford_grp1d.txt  wlcx_nx_bellford_grp1d-PARSED  2  0
+sleep 1s
 python  networkx-results-parser.py  instrument-analysis-networkx-wilcoxon/  wlcx_nx_bellford_grp1e.txt  wlcx_nx_bellford_grp1e-PARSED  2  0
 sleep 2s
 
 echo "Dijkstra grp1"
 python  networkx-results-parser.py  instrument-analysis-networkx-wilcoxon/  wlcx_nx_dijk_grp1a.txt  wlcx_nx_dijk_grp1a-PARSED  3  0
+sleep 1s
 python  networkx-results-parser.py  instrument-analysis-networkx-wilcoxon/  wlcx_nx_dijk_grp1b.txt  wlcx_nx_dijk_grp1b-PARSED  3  0
+sleep 1s
 python  networkx-results-parser.py  instrument-analysis-networkx-wilcoxon/  wlcx_nx_dijk_grp1c.txt  wlcx_nx_dijk_grp1c-PARSED  3  0
+sleep 1s
 python  networkx-results-parser.py  instrument-analysis-networkx-wilcoxon/  wlcx_nx_dijk_grp1d.txt  wlcx_nx_dijk_grp1d-PARSED  3  0
+sleep 1s
 python  networkx-results-parser.py  instrument-analysis-networkx-wilcoxon/  wlcx_nx_dijk_grp1e.txt  wlcx_nx_dijk_grp1e-PARSED  3  0
 sleep 2s
 echo "Completed parsing NETWORKX Wilcoxon raw output files (grp 1)."
@@ -578,25 +590,37 @@ echo "STEP 9: Parsing NETWORKX Wilcoxon raw output files (grp 2)..."
 date
 echo "A* grp2"
 python  networkx-results-parser.py  instrument-analysis-networkx-wilcoxon/  wlcx_nx_astar_grp2a.txt  wlcx_nx_astar_grp2a-PARSED  1  0
+sleep 1s
 python  networkx-results-parser.py  instrument-analysis-networkx-wilcoxon/  wlcx_nx_astar_grp2b.txt  wlcx_nx_astar_grp2b-PARSED  1  0
+sleep 1s
 python  networkx-results-parser.py  instrument-analysis-networkx-wilcoxon/  wlcx_nx_astar_grp2c.txt  wlcx_nx_astar_grp2c-PARSED  1  0
+sleep 1s
 python  networkx-results-parser.py  instrument-analysis-networkx-wilcoxon/  wlcx_nx_astar_grp2d.txt  wlcx_nx_astar_grp2d-PARSED  1  0
+sleep 1s
 python  networkx-results-parser.py  instrument-analysis-networkx-wilcoxon/  wlcx_nx_astar_grp2e.txt  wlcx_nx_astar_grp2e-PARSED  1  0
 sleep 2s
 
 echo "Bellman-Ford grp2"
 python  networkx-results-parser.py  instrument-analysis-networkx-wilcoxon/  wlcx_nx_bellford_grp2a.txt  wlcx_nx_bellford_grp2a-PARSED  2  0
+sleep 1s
 python  networkx-results-parser.py  instrument-analysis-networkx-wilcoxon/  wlcx_nx_bellford_grp2b.txt  wlcx_nx_bellford_grp2b-PARSED  2  0
+sleep 1s
 python  networkx-results-parser.py  instrument-analysis-networkx-wilcoxon/  wlcx_nx_bellford_grp2c.txt  wlcx_nx_bellford_grp2c-PARSED  2  0
+sleep 1s
 python  networkx-results-parser.py  instrument-analysis-networkx-wilcoxon/  wlcx_nx_bellford_grp2d.txt  wlcx_nx_bellford_grp2d-PARSED  2  0
+sleep 1s
 python  networkx-results-parser.py  instrument-analysis-networkx-wilcoxon/  wlcx_nx_bellford_grp2e.txt  wlcx_nx_bellford_grp2e-PARSED  2  0
 sleep 2s
 
 echo "Dijkstra grp2"
 python  networkx-results-parser.py  instrument-analysis-networkx-wilcoxon/  wlcx_nx_dijk_grp2a.txt  wlcx_nx_dijk_grp2a-PARSED  3  0
+sleep 1s
 python  networkx-results-parser.py  instrument-analysis-networkx-wilcoxon/  wlcx_nx_dijk_grp2b.txt  wlcx_nx_dijk_grp2b-PARSED  3  0
+sleep 1s
 python  networkx-results-parser.py  instrument-analysis-networkx-wilcoxon/  wlcx_nx_dijk_grp2c.txt  wlcx_nx_dijk_grp2c-PARSED  3  0
+sleep 1s
 python  networkx-results-parser.py  instrument-analysis-networkx-wilcoxon/  wlcx_nx_dijk_grp2d.txt  wlcx_nx_dijk_grp2d-PARSED  3  0
+sleep 1s
 python  networkx-results-parser.py  instrument-analysis-networkx-wilcoxon/  wlcx_nx_dijk_grp2e.txt  wlcx_nx_dijk_grp2e-PARSED  3  0
 sleep 2s
 echo "Completed parsing NETWORKX Wilcoxon raw output files (grp 2)."
