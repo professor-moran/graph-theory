@@ -144,7 +144,7 @@ def checkPath( path, debug=False):
 #   2 = Bellman-Ford algorithm
 #   3 = Dijkstra's algorithm
 #
-def performNetworkXCalculations(adjMatrixFileName, path, algorithm=1, viewWidth=10, viewHeight=10, showGraph=False, debug=False):
+def performNetworkXCalculations(adjMatrixFileName, path, algorithm=1, viewWidth=10, viewHeight=10, showGraph=False, debug=False, memoryMode=False):
 
     algorithm = int(algorithm)
     viewWidth = int(viewWidth)
@@ -159,6 +159,9 @@ def performNetworkXCalculations(adjMatrixFileName, path, algorithm=1, viewWidth=
         print("Algorithm = %d" % algorithm) #1 = Astar, 2 = BellmanFord, 3 = Dijkstra
         print("View Width = %s, Height = %s" % (viewWidth, viewHeight) )
         print("Show Graph = %s" % showGraph)
+
+    #new:
+    print("Memory Mode = %s" % memoryMode)
 
 
     #boundary checking:
@@ -178,8 +181,12 @@ def performNetworkXCalculations(adjMatrixFileName, path, algorithm=1, viewWidth=
     #Now calculate the shortest paths, based on the user-specified algorithm.
     if algorithm == 1:
         if debug: print("Algorithm: A-Star")
-        print("RESULTS|A-star|memoryConsumption(MB)|...\n")
-        start_time = timeit.default_timer() #get the start time
+        
+        if (memoryMode):
+            print("RESULTS|A-star|memoryConsumption(MB)|...\n")
+        else:
+            start_time = timeit.default_timer() #get the start time
+
         manager = multiprocessing.Manager()
         state = manager.list()
         state.append({})
@@ -189,18 +196,32 @@ def performNetworkXCalculations(adjMatrixFileName, path, algorithm=1, viewWidth=
         state[0] = args
         #start_time = timeit.default_timer() #get the start time
         #runAstar(G, startNode, destNode)
-        p = multiprocessing.Process(target=runAstar, args=(state,) )
+        #p = multiprocessing.Process(target=runAstar, args=(state,) )
+        if (memoryMode): 
+            #run the decorated version to collect memory use statistics:
+            p = multiprocessing.Process(target=runAstar, args=(state,) )
+        else:
+            #do not run the decorated version (i.e., don't collect memory usage data):
+            p = multiprocessing.Process(target=runAstarNoMem, args=(state,) )
+        
         p.start()
         p.join() #wait for child process to finish.
-        print("RESULTS|A-star|pathLength|%d" % int(state[0]["pathLength"]) )
-        print("RESULTS|A-star|path|%s" % str(state[0]["path"]) )
-        end_time = timeit.default_timer() #get the end time
-        elapsed_time = end_time - start_time
+        
+        if (memoryMode):
+            print("RESULTS|A-star|pathLength|%d" % int(state[0]["pathLength"]) )
+            print("RESULTS|A-star|path|%s" % str(state[0]["path"]) )
+        else:
+            end_time = timeit.default_timer() #get the end time
+            elapsed_time = end_time - start_time
 
     elif algorithm == 2:
         if debug: print("Algorithm: Bellman-Ford")
-        print("RESULTS|Bellman-Ford|memoryConsumption(MB)|...\n")
-        start_time = timeit.default_timer() #get the start time
+        
+        if (memoryMode):
+            print("RESULTS|Bellman-Ford|memoryConsumption(MB)|...\n")
+        else:
+            start_time = timeit.default_timer() #get the start time
+        
         manager = multiprocessing.Manager()
         state = manager.list()
         state.append({})
@@ -210,18 +231,32 @@ def performNetworkXCalculations(adjMatrixFileName, path, algorithm=1, viewWidth=
         state[0] = args
         #start_time = timeit.default_timer() #get the start time
         #runBellmanFord(G, startNode, destNode)
-        p = multiprocessing.Process(target=runBellmanFord, args=(state,) )
+        #p = multiprocessing.Process(target=runBellmanFord, args=(state,) )
+        if (memoryMode): 
+            #run the decorated version to collect memory use statistics:
+            p = multiprocessing.Process(target=runBellmanFord, args=(state,) )
+        else:
+            #do not run the decorated version (i.e., don't collect memory usage data):
+            p = multiprocessing.Process(target=runBellmanFordNoMem, args=(state,) )
+        
         p.start()
         p.join() #wait for child process to finish.
-        print("RESULTS|Bellman-Ford|pathLength|%d" % int(state[0]["pathLength"]) )
-        print("RESULTS|Bellman-Ford|path|%s" % str(state[0]["path"]) )
-        end_time = timeit.default_timer() #get the end time
-        elapsed_time = end_time - start_time
+        
+        if (memoryMode):
+            print("RESULTS|Bellman-Ford|pathLength|%d" % int(state[0]["pathLength"]) )
+            print("RESULTS|Bellman-Ford|path|%s" % str(state[0]["path"]) )
+        else:
+            end_time = timeit.default_timer() #get the end time
+            elapsed_time = end_time - start_time
 
     elif algorithm == 3:
         if debug: print("Algorithm: Dijkstra")
-        print("RESULTS|Dijkstra|memoryConsumption(MB)|...\n")
-        start_time = timeit.default_timer() #get the start time
+        
+        if (memoryMode):
+            print("RESULTS|Dijkstra|memoryConsumption(MB)|...\n")
+        else:
+            start_time = timeit.default_timer() #get the start time
+
         manager = multiprocessing.Manager()
         state = manager.list()
         state.append({})
@@ -231,13 +266,23 @@ def performNetworkXCalculations(adjMatrixFileName, path, algorithm=1, viewWidth=
         state[0] = args
         #start_time = timeit.default_timer() #get the start time
         #runDijkstra(G, startNode, destNode)
-        p = multiprocessing.Process(target=runDijkstra, args=(state,) )
+        #p = multiprocessing.Process(target=runDijkstra, args=(state,) )
+        if (memoryMode):
+            #run the decorated version to collect memory use statistics:
+            p = multiprocessing.Process(target=runDijkstra, args=(state,) )
+        else:
+            #do not run the decorated version (i.e., don't collect memory usage data):
+            p = multiprocessing.Process(target=runDijkstraNoMem, args=(state,) )
+
         p.start()
         p.join() #wait for child process to finish.
-        print("RESULTS|Dijkstra|pathLength|%d" % int(state[0]["pathLength"]) )
-        print("RESULTS|Dijkstra|path|%s" % str(state[0]["path"]) )
-        end_time = timeit.default_timer() #get the end time
-        elapsed_time = end_time - start_time
+        
+        if (memoryMode):
+            print("RESULTS|Dijkstra|pathLength|%d" % int(state[0]["pathLength"]) )
+            print("RESULTS|Dijkstra|path|%s" % str(state[0]["path"]) )
+        else:
+            end_time = timeit.default_timer() #get the end time
+            elapsed_time = end_time - start_time
 
     if showGraph == True:
         #Prepare the graphical display. Set graph display to x,y screen inches:
@@ -258,7 +303,54 @@ def performNetworkXCalculations(adjMatrixFileName, path, algorithm=1, viewWidth=
     del csvPathFile
 
     #Done:
-    return elapsed_time
+    if (memoryMode):
+        return
+    else:
+        return elapsed_time
+
+
+############################################################
+#
+# The A-Star wrapper function without Memory Consumption analysis.
+#
+# This version does NOT use the '@profile' decorator for memory usage data gathering.
+#
+# The only difference between this version and the original is that this one is
+# not decorated with '@profile', therefore this one doesn't collect memory stats.
+#
+def runAstarNoMem(state):
+
+    input_data = state[0]["input_data"]
+    debug = state[0]["debug"]
+
+    #load NetworkX with adjacency matrix graph data (via Pandas)
+    #G = nx.DiGraph( input_data.values ) #for directed graphs
+    G = nx.Graph( input_data.values )  #for undirected graphs
+
+    #Get list of nodes:
+    nodeList = G.nodes()
+    #nodeListData = G.nodes(data=True)
+    #if debug: print("Node list length: %d" % len(nodeListData) )
+    if debug: print("Node list length: %d" % len(nodeList) )
+
+    #determine start and destination nodes for pathfinding purposes
+    startNode = 1 #start node will always be node 1.
+    #destNode = len(nodeListData)/2 + 1 #destination node will always be in the middle.
+    destNode = len(nodeList)/2 + 1 #destination node will always be in the middle.
+    #if debug: print ("Number of nodes in this graph: %d" % len(nodeListData) )
+    #if debug: print ("Number of nodes in this graph: %d" % len(nodeList) )
+    if debug: print ("Start node: %d.  Destination node: %d." % (startNode, destNode) )
+
+    aStarPath = nx.astar_path(G, startNode, destNode )
+    #aStarPathLength = nx.astar_path_length(G, startNode, destNode )
+    aStarPathLength = len(aStarPath)
+
+    #Return results by loading the list shared between processes.
+    state.append({})
+    args = state[0]
+    args["pathLength"] = aStarPathLength - 1 #subtract 1 to not include the source node
+    args["path"] = aStarPath
+    state[0] = args
 
 
 ############################################################
@@ -310,6 +402,72 @@ def runAstar(state):
     args = state[0]
     args["pathLength"] = aStarPathLength - 1 #subtract 1 to not include the source node
     args["path"] = aStarPath
+    state[0] = args
+
+
+############################################################
+#
+# The Bellman-Ford wrapper function without Memory Consumption analysis.
+#
+# This version does NOT use the '@profile' decorator for memory usage data gathering.
+#
+# The only difference between this version and the original is that this one is
+# not decorated with '@profile', therefore this one doesn't collect memory stats.
+#
+def runBellmanFordNoMem(state):
+
+    input_data = state[0]["input_data"]
+    debug = state[0]["debug"]
+
+    #load NetworkX with adjacency matrix graph data (via Pandas)
+    #G = nx.DiGraph( input_data.values ) #for directed graphs
+    G = nx.Graph( input_data.values )  #for undirected graphs
+
+    #Get list of nodes:
+    nodeList = G.nodes()
+    #nodeListData = G.nodes(data=True)
+    #if debug: print("Node list length: %d" % len(nodeListData) )
+    if debug: print("Node list length: %d" % len(nodeList) )
+
+    #determine start and destination nodes for pathfinding purposes
+    startNode = 1 #start node will always be node 1.
+    #destNode = len(nodeListData)/2 + 1 #destination node will always be in the middle.
+    destNode = len(nodeList)/2 + 1 #destination node will always be in the middle.
+    #if debug: print ("Number of nodes in this graph: %d" % len(nodeListData) )
+    if debug: print ("Start node: %d.  Destination node: %d." % (startNode, destNode) )
+
+    pred, dist = nx.bellman_ford(G, startNode )
+    #print ("bellmanFord: pred = %s") % sorted(pred.items())
+    #print ("bellmanFord: dist = %s") % sorted(dist.items())
+
+    #1/2. NetworkX's Bellman-Ford method doesn't return a simple path, nor
+    # a path length, like the A* and Dijkstra versions. It instead returns 
+    # two lists: a predecessor, and a distance list.
+    # So, we must do some list traversal to find the desired values that are
+    # equivalent to the ones supported by A* and Dijkstra method versions:
+    bfPath = [destNode] #start with destination node
+    path = dict(pred) #convert predecessor list to K-V dictionary
+    currNode = destNode #set current node to destination node
+    #The following loop will start from the destination and work our way back to 
+    # the start node, one node link at a time:
+    while currNode != startNode:  #start with destination node...
+        bfPath.append( path[currNode] ) #append the predecessor node...
+        currNode = path[currNode] #update the current node... keep looping backwards.
+    bfPath.reverse() #now reverse the list, so it displays in correct order
+    #print("bellmanFordPath = %s" % bfpath)
+
+    #2/2. For Bellman-Ford distance, convert the dist list into a K-V dictionary, 
+    # then search the dictionary for the destination node, 
+    # then get that list entry's associated value.
+    # This value represents the Bellman-Ford distance to the destination node:
+    bfPathLengthsAll = dict(dist)
+    bfPathLength = bfPathLengthsAll[destNode]
+
+    #Return results by loading the list shared between processes.
+    state.append({})
+    args = state[0]
+    args["pathLength"] = bfPathLength #already includes a -1 for path length.
+    args["path"] = bfPath
     state[0] = args
 
 
@@ -384,6 +542,50 @@ def runBellmanFord(state):
     args = state[0]
     args["pathLength"] = bfPathLength #already includes a -1 for path length.
     args["path"] = bfPath
+    state[0] = args
+
+
+############################################################
+#
+# The Dijkstra wrapper function without Memory Consumption analysis.
+#
+# This version does NOT use the '@profile' decorator for memory usage data gathering.
+#
+# The only difference between this version and the original is that this one is
+# not decorated with '@profile', therefore this one doesn't collect memory stats.
+#
+def runDijkstraNoMem(state):
+
+    input_data = state[0]["input_data"]
+    debug = state[0]["debug"]
+
+    #load NetworkX with adjacency matrix graph data (via Pandas)
+    #G = nx.DiGraph( input_data.values ) #for directed graphs
+    G = nx.Graph( input_data.values )  #for undirected graphs
+
+    #Get list of nodes:
+    nodeList = G.nodes()
+    #nodeListData = G.nodes(data=True)
+    #if debug: print("Node list length: %d" % len(nodeListData) )
+    if debug: print("Node list length: %d" % len(nodeList) )
+
+    #determine start and destination nodes for pathfinding purposes
+    startNode = 1 #start node will always be node 1.
+    #destNode = len(nodeListData)/2 + 1 #destination node will always be in the middle.
+    destNode = len(nodeList)/2 + 1 #destination node will always be in the middle.
+    #if debug: print ("Number of nodes in this graph: %d" % len(nodeListData) )
+    #if debug: print ("Number of nodes in this graph: %d" % len(nodeList) )
+    if debug: print ("Start node: %d.  Destination node: %d." % (startNode, destNode) )
+
+    dijkstraPath = nx.dijkstra_path(G, startNode, destNode )
+    #dijkstraPathLength = nx.dijkstra_path_length(G, startNode, destNode )
+    dijkstraPathLength = len(dijkstraPath)
+
+    #Return results by loading the list shared between processes.
+    state.append({})
+    args = state[0]
+    args["pathLength"] = dijkstraPathLength - 1 #subtract 1 to not include the source node
+    args["path"] = dijkstraPath
     state[0] = args
 
 
@@ -503,6 +705,34 @@ def main():
     viewHeightInches = 10   #to do - parameterize this
 
 
+    #This version combined the elapsed time and memory consumption data collection:
+    #print("\nProcessing graph files (CSV format) in subdir: '%s'" % path)
+    #count = 0
+    #for root, dirs, files in os.walk (path):
+    #    for fileName in files:
+    #        if fileName.endswith('.csv'):
+    #            count += 1
+    #
+    #            #Force a garbage collection before data collection:
+    #            if forceGC:
+    #                gc.enable()
+    #                gc.collect()
+    #
+    #            print ("ALGORITHM|%s" % algorithmName)
+    #            print ("INFILECOUNTER|%d" % count)
+    #            print ("INFILENAME|%s" % fileName)
+    #
+    #            #call the function that does the pathfinding:
+    #            elapsed_time = performNetworkXCalculations( fileName, path, algorithm, viewWidthInches, viewHeightInches, displayGraphs, debug )
+    #            #elapsed_time = format( float(elapsed_time), '.2f')
+    #            elapsed_time = format( float(elapsed_time), '.4f') #bring it all through, let subsequent scripts change precision as they need.
+    #            #print("RESULTS|%s|elapsedTime(ms)|%f" % (algorithmName, elapsed_time*1000) )
+    #            print("RESULTS|%s|elapsedTime|%s" % (algorithmName, elapsed_time) )
+
+
+    #This version separates the elapsed time measurement from the memory consumption 
+    #measurement, so that one measurement has no potential to interfere with the other.
+    memoryMode = False # True = collect memory consumption statistics only (no elapsed time stats). False = collect elapsed time statistics only (not memory stats).
     print("\nProcessing graph files (CSV format) in subdir: '%s'" % path)
     count = 0
     for root, dirs, files in os.walk (path):
@@ -519,12 +749,17 @@ def main():
                 print ("INFILECOUNTER|%d" % count)
                 print ("INFILENAME|%s" % fileName)
 
-                #call the function that does the pathfinding:
-                elapsed_time = performNetworkXCalculations( fileName, path, algorithm, viewWidthInches, viewHeightInches, displayGraphs, debug )
-                #elapsed_time = format( float(elapsed_time), '.2f')
+                #Part 1 of 2: Do the MEMORY CONSUMPTION assessment:
+                memoryMode = True # assess (collect) memory consumption statistics only (no elapsed time stats).
+                #call the function that does the (memory aware) pathfinding:
+                performNetworkXCalculations( fileName, path, algorithm, viewWidthInches, viewHeightInches, displayGraphs, debug, memoryMode )
+
+                #Part 2 of 2: Do the ELAPSED TIME assessment:
+                memoryMode = False # assess (collect) elapsed time statistics only (not memory stats).
+                #call the function that does the (non-memory aware) pathfinding, but get timing info:
+                elapsed_time = performNetworkXCalculations( fileName, path, algorithm, viewWidthInches, viewHeightInches, displayGraphs, debug, memoryMode )
                 elapsed_time = format( float(elapsed_time), '.4f') #bring it all through, let subsequent scripts change precision as they need.
-                #print("RESULTS|%s|elapsedTime(ms)|%f" % (algorithmName, elapsed_time*1000) )
-                print("RESULTS|%s|elapsedTime|%s" % (algorithmName, elapsed_time) )
+                print("RESULTS|%s|elapsedTime|%s\n" % (algorithmName, elapsed_time) )
 
     print ("\nDone.\n")
 

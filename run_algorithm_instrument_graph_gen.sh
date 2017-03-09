@@ -31,7 +31,13 @@ echo ". run_algorithm_instrument_graph_gen.sh -o 'graphs_100x100'  -c 24  -d 100
 echo ". run_algorithm_instrument_graph_gen.sh -o 'graphs_100x100'  -c 750  -d 100  -k 2  -p 0.05  -n 'small_100x100_k2_p05_' -r 125"
 echo ". run_algorithm_instrument_graph_gen.sh -o 'graphs_1000x1000' -c 750 -d 1000 -k 2  -p 0.0025 -n 'large_1000x1000_k2_p0025_' -r 125"
 echo
-echo "Make sure that (r * 6) <= c, since there are 6 groups (per graph analysis framework) c must be divided into."
+echo "To generate 775 small (200x200) grid maps per graph analysis framework (775*2=1550 total), with p = 1.0% (i.e., p=0.01), connection depth of 2, stratify then random assign 125 per each of 12 groups:"
+echo ". run_algorithm_instrument_graph_gen.sh -o 'graphs_200x200'  -c 775  -d 200  -k 2  -p 0.01  -n 'small_200x200_k2_p01_'  -r 125"
+echo
+echo "To generate 775 large (1000x1000) grid maps per graph analysis framework (775*2=1550 total), with p = 2.0% (i.e., p=0.02), connection depth of 2, stratify then random assign 125 per each of 12 groups:"
+echo ". run_algorithm_instrument_graph_gen.sh -o 'graphs_1000x1000' -c 775 -d 1000 -k 2  -p 0.02  -n 'large_1000x1000_k2_p02_' -r 125"
+echo
+echo "Make sure that (r * 6) <= c, since there are 6 groups (per graph analysis framework) which c samples must be divided into."
 echo
 echo
 
