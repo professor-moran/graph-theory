@@ -16,10 +16,12 @@ import os
 """
 Program to create random small-world graphs in the form of
 two-dimensional adjacency matrices. 
-Note -- only square matrices are considered.
+The graphs start as circular grids before the small-world rewiring is applied to them.
 This program creates adjacency matrix files, and corresponding Pajek and GraphML 
 format text files.
 It uses NetworkX to do the file transformations (adjacency matrix --> Pajek or GraphML).
+GraphTool matrices are stored in GraphML text format (i.e., not raw adjacency matrices).
+NetworkX matrices are stored in CSV text format as adjacency matrices.
 
 Initialize and create a small-world matrix.
 Then print the entire matrix.
@@ -27,6 +29,12 @@ Then save the matrix to CSV file format.
 Then read the CSV file with Pandas library.
 Then create a NetworkX graph based on the CSV file input.
 Save the map in Pajek or GraphML format.
+
+So during each iteration of the main loop, two maps are created that are identical 
+(in terms of network connectivity), the only difference is that one is stored as a CSV 
+text file containing a raw adjacency matrix for use by NetworkX.
+The other graph is stored in GraphML text format (i.e., not a raw adjacency matrix) for 
+use by Graph-Tool. 
 
 May drop Pajek support later, since Graph-Tool doesn't support it.
 The goal is for these graph files to be read by NetworkX and Graph-Tool, and for
@@ -415,19 +423,26 @@ while count < (iterations + startId):
     if debug: print("Created a k-regular matrix (where cluster depth k = %d)." % k)
     if debug: printMatrix( width, height, matrix1 )
 
-    #Create a small-world matrix, with rewiring probability 'p' equal to a value < 1.0:
+    #Take the regular matrix created above, and make it a small-world matrix, with 
+    # rewiring probability 'p' equal to a user-defined value between 0.0 and 1.0 
+    # (i.e., rewiring percentage is between 0% and 100%):
     smallWorld = matrix1
     createSmallWorldMatrix( p, width, height, smallWorld, debug )
     if debug: print("Created a small-world matrix with rewiring probability p = %f" % p)
     if debug: printMatrix( width, height, smallWorld )
 
-    #now write simple adjacency matrix to text file in CSV format:
+    #now write raw adjacency matrix to CSV text file format for NetworkX use:
     csvExtention = 'csv'
     fileName = str(fileNamePrefix + str(count)) #append count to file name
     results = writeCsvFile( fileName, csvExtention, path, ",", width, height, matrix1, debug)
-    print ("Wrote network graph to CSV file to: %s" % results )
+    print ("1 of 2:")
+    print ("Wrote network graph file (CSV format) to text file: %s" % results )
 
-    #Call NetworkX to translate the CSV file into a Pajek format graph text file:
+    #Call NetworkX to translate the CSV file into a GraphML or Pajek format graph text 
+    # for Graph-Tool use. Note this is the same map (in terms of network connectivity)
+    # that was saved earlier, the only difference is that it's stored in GraphML text 
+    # format for Graph-Tool use, since Graph-Tool doesn't take raw adjacency matrix input:
+    print ("2 of 2:")
     writeGraphFile( fileName, csvExtention, path, exportType, debug)
 
     count += 1
