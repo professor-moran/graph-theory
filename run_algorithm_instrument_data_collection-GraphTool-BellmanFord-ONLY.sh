@@ -66,6 +66,9 @@ sleep 2s
 echo
 echo "STEP 1: Generating GRAPH-TOOL data for Wilcoxon pairs test (within-group, using Group1 files for input):"
 echo
+
+<<COMMENT
+
 # Warm up the Python virtual machine (Graph-Tool).
 echo "Warming up Graph-Tool... (for Graph-Tool A*)"
 date
@@ -90,6 +93,8 @@ echo '.....'
 python  graphtool-pathfinding.py  graphtool-astar_grp1  1  0  0  0  >  wlcx_gt_astar_grp1e.txt
 sleep 4s
 
+COMMENT
+
 # Warm up the Python virtual machine (Graph-Tool).
 echo "Warming up Graph-Tool... (for Graph-Tool Bellman-Ford)"
 date
@@ -113,6 +118,8 @@ sleep 4s
 echo '.....'
 python  graphtool-pathfinding.py  graphtool-bellmanford_grp1  2  0  0  0  >  wlcx_gt_bellford_grp1e.txt
 sleep 4s
+
+<<COMMENT
 
 # Warm up the Python virtual machine (Graph-Tool).
 echo "Warming up Graph-Tool... (for Graph-Tool Dijkstra)"
@@ -168,6 +175,10 @@ echo '.....'
 python  graphtool-pathfinding.py  graphtool-astar_grp2  1  0  0  0  >  wlcx_gt_astar_grp2e.txt
 sleep 4s
 
+
+COMMENT
+
+
 # Warm up the Python virtual machine (Graph-Tool).
 echo "Warming up Graph-Tool... (for Graph-Tool Bellman-Ford)"
 date
@@ -192,8 +203,11 @@ echo '.....'
 python  graphtool-pathfinding.py  graphtool-bellmanford_grp2  2  0  0  0  >  wlcx_gt_bellford_grp2e.txt
 sleep 4s
 
+
+<<COMMENT
+
 # Warm up the Python virtual machine (Graph-Tool).
-echo "Warming up Graph-Tool... (for Graph-Tool Dijkstra)"
+#echo "Warming up Graph-Tool... (for Graph-Tool Dijkstra)"
 date
 python  graphtool-pathfinding.py  graphtool-dijkstra_grp2  3  0  0  0  >  /dev/null
 sleep 4s
@@ -391,11 +405,18 @@ mv  wlcx_gt_astar_grp1c.txt  instrument-analysis-graphtool-wilcoxon
 mv  wlcx_gt_astar_grp1d.txt  instrument-analysis-graphtool-wilcoxon
 mv  wlcx_gt_astar_grp1e.txt  instrument-analysis-graphtool-wilcoxon
 
+
+COMMENT
+
+
 mv  wlcx_gt_bellford_grp1a.txt  instrument-analysis-graphtool-wilcoxon
 mv  wlcx_gt_bellford_grp1b.txt  instrument-analysis-graphtool-wilcoxon
 mv  wlcx_gt_bellford_grp1c.txt  instrument-analysis-graphtool-wilcoxon
 mv  wlcx_gt_bellford_grp1d.txt  instrument-analysis-graphtool-wilcoxon
 mv  wlcx_gt_bellford_grp1e.txt  instrument-analysis-graphtool-wilcoxon
+
+
+<<COMMENT
 
 mv  wlcx_gt_dijk_grp1a.txt  instrument-analysis-graphtool-wilcoxon
 mv  wlcx_gt_dijk_grp1b.txt  instrument-analysis-graphtool-wilcoxon
@@ -412,11 +433,18 @@ mv  wlcx_gt_astar_grp2c.txt  instrument-analysis-graphtool-wilcoxon
 mv  wlcx_gt_astar_grp2d.txt  instrument-analysis-graphtool-wilcoxon
 mv  wlcx_gt_astar_grp2e.txt  instrument-analysis-graphtool-wilcoxon
 
+
+COMMENT
+
+
 mv  wlcx_gt_bellford_grp2a.txt  instrument-analysis-graphtool-wilcoxon
 mv  wlcx_gt_bellford_grp2b.txt  instrument-analysis-graphtool-wilcoxon
 mv  wlcx_gt_bellford_grp2c.txt  instrument-analysis-graphtool-wilcoxon
 mv  wlcx_gt_bellford_grp2d.txt  instrument-analysis-graphtool-wilcoxon
 mv  wlcx_gt_bellford_grp2e.txt  instrument-analysis-graphtool-wilcoxon
+
+
+<<COMMENT
 
 mv  wlcx_gt_dijk_grp2a.txt  instrument-analysis-graphtool-wilcoxon
 mv  wlcx_gt_dijk_grp2b.txt  instrument-analysis-graphtool-wilcoxon
@@ -485,6 +513,10 @@ python  graphtool-results-parser.py  instrument-analysis-graphtool-wilcoxon/  wl
 python  graphtool-results-parser.py  instrument-analysis-graphtool-wilcoxon/  wlcx_gt_astar_grp1e.txt  wlcx_gt_astar_grp1e-PARSED  1  0
 sleep 2s
 
+
+COMMENT
+
+
 echo "Bellman-Ford grp1"
 python  graphtool-results-parser.py  instrument-analysis-graphtool-wilcoxon/  wlcx_gt_bellford_grp1a.txt  wlcx_gt_bellford_grp1a-PARSED  2  0
 python  graphtool-results-parser.py  instrument-analysis-graphtool-wilcoxon/  wlcx_gt_bellford_grp1b.txt  wlcx_gt_bellford_grp1b-PARSED  2  0
@@ -492,6 +524,9 @@ python  graphtool-results-parser.py  instrument-analysis-graphtool-wilcoxon/  wl
 python  graphtool-results-parser.py  instrument-analysis-graphtool-wilcoxon/  wlcx_gt_bellford_grp1d.txt  wlcx_gt_bellford_grp1d-PARSED  2  0
 python  graphtool-results-parser.py  instrument-analysis-graphtool-wilcoxon/  wlcx_gt_bellford_grp1e.txt  wlcx_gt_bellford_grp1e-PARSED  2  0
 sleep 2s
+
+
+<<COMMENT
 
 echo "Dijkstra grp1"
 python  graphtool-results-parser.py  instrument-analysis-graphtool-wilcoxon/  wlcx_gt_dijk_grp1a.txt  wlcx_gt_dijk_grp1a-PARSED  3  0
@@ -518,6 +553,10 @@ python  graphtool-results-parser.py  instrument-analysis-graphtool-wilcoxon/  wl
 python  graphtool-results-parser.py  instrument-analysis-graphtool-wilcoxon/  wlcx_gt_astar_grp2e.txt  wlcx_gt_astar_grp2e-PARSED  1  0
 sleep 2s
 
+
+COMMENT
+
+
 echo "Bellman-Ford grp2"
 python  graphtool-results-parser.py  instrument-analysis-graphtool-wilcoxon/  wlcx_gt_bellford_grp2a.txt  wlcx_gt_bellford_grp2a-PARSED  2  0
 python  graphtool-results-parser.py  instrument-analysis-graphtool-wilcoxon/  wlcx_gt_bellford_grp2b.txt  wlcx_gt_bellford_grp2b-PARSED  2  0
@@ -525,6 +564,10 @@ python  graphtool-results-parser.py  instrument-analysis-graphtool-wilcoxon/  wl
 python  graphtool-results-parser.py  instrument-analysis-graphtool-wilcoxon/  wlcx_gt_bellford_grp2d.txt  wlcx_gt_bellford_grp2d-PARSED  2  0
 python  graphtool-results-parser.py  instrument-analysis-graphtool-wilcoxon/  wlcx_gt_bellford_grp2e.txt  wlcx_gt_bellford_grp2e-PARSED  2  0
 sleep 2s
+
+
+<<COMMENT
+
 
 echo "Dijkstra grp2"
 python  graphtool-results-parser.py  instrument-analysis-graphtool-wilcoxon/  wlcx_gt_dijk_grp2a.txt  wlcx_gt_dijk_grp2a-PARSED  3  0
@@ -627,6 +670,8 @@ echo "Completed parsing NETWORKX Wilcoxon raw output files (grp 2)."
 date
 sleep 2s
 
+
+COMMENT
 
 
 ###########################################
