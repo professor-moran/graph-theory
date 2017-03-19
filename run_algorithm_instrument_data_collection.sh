@@ -467,7 +467,7 @@ mv  wlcx_nx_dijk_grp2b.txt  instrument-analysis-networkx-wilcoxon
 mv  wlcx_nx_dijk_grp2c.txt  instrument-analysis-networkx-wilcoxon
 mv  wlcx_nx_dijk_grp2d.txt  instrument-analysis-networkx-wilcoxon
 mv  wlcx_nx_dijk_grp2e.txt  instrument-analysis-networkx-wilcoxon
-echo "Moved Wilcoxon NetworkX data (grp 1) to folder: 'instrument-analysis-networkx-wilcoxon'"
+echo "Moved Wilcoxon NetworkX data (grp 2) to folder: 'instrument-analysis-networkx-wilcoxon'"
 date
 sleep 2s
 
